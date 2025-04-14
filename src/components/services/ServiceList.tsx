@@ -157,7 +157,7 @@ const ServiceList = ({
                   <TableRow 
                     key={service.id} 
                     className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
-                    onClick={() => handleServiceClick(service)}
+                    onClick={selectable ? () => handleServiceClick(service) : undefined}
                   >
                     {!selectable && (
                       <TableCell>
@@ -180,7 +180,7 @@ const ServiceList = ({
                       {service.description || "-"}
                     </TableCell>
                     <TableCell>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
                         <Button
                           variant="ghost"
                           size="icon"
@@ -209,7 +209,7 @@ const ServiceList = ({
               <Card 
                 key={service.id}
                 className={selectable ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
-                onClick={() => handleServiceClick(service)}
+                onClick={selectable ? () => handleServiceClick(service) : undefined}
               >
                 <div className="relative h-40">
                   {service.imageUrl ? (
@@ -234,21 +234,23 @@ const ServiceList = ({
                   </p>
                 </CardContent>
                 <CardFooter className="p-4 pt-0 flex justify-end space-x-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => handleEdit(service, e)}
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => handleDelete(service.id, e)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div onClick={(e) => e.stopPropagation()} className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleEdit(service, e)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => handleDelete(service.id, e)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </CardFooter>
               </Card>
             ))}
