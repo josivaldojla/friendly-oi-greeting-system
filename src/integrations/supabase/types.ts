@@ -9,7 +9,101 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      completed_services: {
+        Row: {
+          completion_date: string
+          created_at: string
+          id: string
+          mechanic_id: string | null
+          received_amount: number
+          service_ids: string[]
+          total_amount: number
+        }
+        Insert: {
+          completion_date?: string
+          created_at?: string
+          id?: string
+          mechanic_id?: string | null
+          received_amount: number
+          service_ids: string[]
+          total_amount: number
+        }
+        Update: {
+          completion_date?: string
+          created_at?: string
+          id?: string
+          mechanic_id?: string | null
+          received_amount?: number
+          service_ids?: string[]
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completed_services_mechanic_id_fkey"
+            columns: ["mechanic_id"]
+            isOneToOne: false
+            referencedRelation: "mechanics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mechanics: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          specialization: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          phone?: string | null
+          specialization?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          specialization?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      services: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

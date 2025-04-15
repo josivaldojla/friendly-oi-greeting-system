@@ -1,149 +1,215 @@
 
 import { Mechanic, Service, CompletedService } from "./types";
-
-const MECHANICS_KEY = 'moto-shop-mechanics';
-const SERVICES_KEY = 'moto-shop-services';
-const COMPLETED_SERVICES_KEY = 'moto-shop-completed-services';
+import { supabase } from "@/integrations/supabase/client";
 
 // Mechanics
-export function getMechanics(): Mechanic[] {
-  const data = localStorage.getItem(MECHANICS_KEY);
-  return data ? JSON.parse(data) : [];
+export async function getMechanics(): Promise<Mechanic[]> {
+  const { data, error } = await supabase
+    .from('mechanics')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching mechanics:', error);
+    return [];
+  }
+  return data || [];
 }
 
-export function saveMechanics(mechanics: Mechanic[]): void {
-  localStorage.setItem(MECHANICS_KEY, JSON.stringify(mechanics));
+export async function addMechanic(mechanic: Omit<Mechanic, "id">): Promise<Mechanic[]> {
+  const { data, error } = await supabase
+    .from('mechanics')
+    .insert([mechanic])
+    .select();
+
+  if (error) {
+    console.error('Error adding mechanic:', error);
+    return [];
+  }
+
+  return getMechanics();
 }
 
-export function addMechanic(mechanic: Mechanic): Mechanic[] {
-  const mechanics = getMechanics();
-  const newMechanics = [...mechanics, mechanic];
-  saveMechanics(newMechanics);
-  return newMechanics;
+export async function updateMechanic(mechanic: Mechanic): Promise<Mechanic[]> {
+  const { error } = await supabase
+    .from('mechanics')
+    .update(mechanic)
+    .eq('id', mechanic.id);
+
+  if (error) {
+    console.error('Error updating mechanic:', error);
+    return [];
+  }
+
+  return getMechanics();
 }
 
-export function updateMechanic(updatedMechanic: Mechanic): Mechanic[] {
-  const mechanics = getMechanics();
-  const newMechanics = mechanics.map(mechanic => 
-    mechanic.id === updatedMechanic.id ? updatedMechanic : mechanic
-  );
-  saveMechanics(newMechanics);
-  return newMechanics;
-}
+export async function deleteMechanic(id: string): Promise<Mechanic[]> {
+  const { error } = await supabase
+    .from('mechanics')
+    .delete()
+    .eq('id', id);
 
-export function deleteMechanic(id: string): Mechanic[] {
-  const mechanics = getMechanics();
-  const newMechanics = mechanics.filter(mechanic => mechanic.id !== id);
-  saveMechanics(newMechanics);
-  return newMechanics;
+  if (error) {
+    console.error('Error deleting mechanic:', error);
+    return [];
+  }
+
+  return getMechanics();
 }
 
 // Services
-export function getServices(): Service[] {
-  const data = localStorage.getItem(SERVICES_KEY);
-  return data ? JSON.parse(data) : [];
+export async function getServices(): Promise<Service[]> {
+  const { data, error } = await supabase
+    .from('services')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching services:', error);
+    return [];
+  }
+  return data || [];
 }
 
-export function saveServices(services: Service[]): void {
-  localStorage.setItem(SERVICES_KEY, JSON.stringify(services));
+export async function addService(service: Omit<Service, "id">): Promise<Service[]> {
+  const { data, error } = await supabase
+    .from('services')
+    .insert([{
+      name: service.name,
+      price: service.price,
+      description: service.description,
+      image_url: service.imageUrl
+    }])
+    .select();
+
+  if (error) {
+    console.error('Error adding service:', error);
+    return [];
+  }
+
+  return getServices();
 }
 
-export function addService(service: Service): Service[] {
-  const services = getServices();
-  const newServices = [...services, service];
-  saveServices(newServices);
-  return newServices;
+export async function updateService(service: Service): Promise<Service[]> {
+  const { error } = await supabase
+    .from('services')
+    .update({
+      name: service.name,
+      price: service.price,
+      description: service.description,
+      image_url: service.imageUrl
+    })
+    .eq('id', service.id);
+
+  if (error) {
+    console.error('Error updating service:', error);
+    return [];
+  }
+
+  return getServices();
 }
 
-export function updateService(updatedService: Service): Service[] {
-  const services = getServices();
-  const newServices = services.map(service => 
-    service.id === updatedService.id ? updatedService : service
-  );
-  saveServices(newServices);
-  return newServices;
-}
+export async function deleteService(id: string): Promise<Service[]> {
+  const { error } = await supabase
+    .from('services')
+    .delete()
+    .eq('id', id);
 
-export function deleteService(id: string): Service[] {
-  const services = getServices();
-  const newServices = services.filter(service => service.id !== id);
-  saveServices(newServices);
-  return newServices;
+  if (error) {
+    console.error('Error deleting service:', error);
+    return [];
+  }
+
+  return getServices();
 }
 
 // Completed Services
-export function getCompletedServices(): CompletedService[] {
-  const data = localStorage.getItem(COMPLETED_SERVICES_KEY);
-  return data ? JSON.parse(data) : [];
+export async function getCompletedServices(): Promise<CompletedService[]> {
+  const { data, error } = await supabase
+    .from('completed_services')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching completed services:', error);
+    return [];
+  }
+  return data || [];
 }
 
-export function saveCompletedServices(completedServices: CompletedService[]): void {
-  localStorage.setItem(COMPLETED_SERVICES_KEY, JSON.stringify(completedServices));
-}
+export async function addCompletedService(completedService: Omit<CompletedService, "id">): Promise<CompletedService[]> {
+  const { error } = await supabase
+    .from('completed_services')
+    .insert([completedService])
+    .select();
 
-export function addCompletedService(completedService: CompletedService): CompletedService[] {
-  const completedServices = getCompletedServices();
-  const newCompletedServices = [...completedServices, completedService];
-  saveCompletedServices(newCompletedServices);
-  return newCompletedServices;
+  if (error) {
+    console.error('Error adding completed service:', error);
+    return [];
+  }
+
+  return getCompletedServices();
 }
 
 // Utility functions for reports
-export function getDailyEarnings(): number {
+export async function getDailyEarnings(): Promise<number> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  return getCompletedServices()
-    .filter(service => {
-      const serviceDate = new Date(service.completionDate);
-      serviceDate.setHours(0, 0, 0, 0);
-      return serviceDate.getTime() === today.getTime();
-    })
-    .reduce((sum, service) => sum + service.totalAmount, 0);
+  const { data, error } = await supabase
+    .from('completed_services')
+    .select('total_amount')
+    .gte('completion_date', today.toISOString());
+
+  if (error || !data) {
+    console.error('Error fetching daily earnings:', error);
+    return 0;
+  }
+
+  return data.reduce((sum, service) => sum + Number(service.total_amount), 0);
 }
 
-export function getWeeklyEarnings(): number {
+export async function getWeeklyEarnings(): Promise<number> {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
   const startOfWeek = new Date(today);
-  startOfWeek.setDate(today.getDate() - today.getDay()); // Sunday is 0, Monday is 1, etc.
+  startOfWeek.setDate(today.getDate() - today.getDay());
+  startOfWeek.setHours(0, 0, 0, 0);
   
-  return getCompletedServices()
-    .filter(service => {
-      const serviceDate = new Date(service.completionDate);
-      return serviceDate >= startOfWeek && serviceDate <= today;
-    })
-    .reduce((sum, service) => sum + service.totalAmount, 0);
+  const { data, error } = await supabase
+    .from('completed_services')
+    .select('total_amount')
+    .gte('completion_date', startOfWeek.toISOString());
+
+  if (error || !data) {
+    console.error('Error fetching weekly earnings:', error);
+    return 0;
+  }
+
+  return data.reduce((sum, service) => sum + Number(service.total_amount), 0);
 }
 
-export function getMonthlyEarnings(): number {
+export async function getMonthlyEarnings(): Promise<number> {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   
-  return getCompletedServices()
-    .filter(service => {
-      const serviceDate = new Date(service.completionDate);
-      return serviceDate >= startOfMonth && serviceDate <= today;
-    })
-    .reduce((sum, service) => sum + service.totalAmount, 0);
+  const { data, error } = await supabase
+    .from('completed_services')
+    .select('total_amount')
+    .gte('completion_date', startOfMonth.toISOString());
+
+  if (error || !data) {
+    console.error('Error fetching monthly earnings:', error);
+    return 0;
+  }
+
+  return data.reduce((sum, service) => sum + Number(service.total_amount), 0);
 }
 
-export function getDailyAverage(): number {
+export async function getDailyAverage(): Promise<number> {
+  const monthlyEarnings = await getMonthlyEarnings();
   const today = new Date();
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
   const currentDay = today.getDate();
   
-  const monthlyEarnings = getMonthlyEarnings();
-  
   return monthlyEarnings / currentDay;
-}
-
-// Convert string to base64 for image storage
-export function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = error => reject(error);
-  });
 }

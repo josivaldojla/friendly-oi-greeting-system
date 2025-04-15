@@ -8,22 +8,43 @@ import Layout from "@/components/layout/Layout";
 const ServicesPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setServices(getServices());
+    loadServices();
   }, []);
 
-  const handleAddService = (service: Service) => {
-    setServices(addService(service));
+  const loadServices = async () => {
+    setLoading(true);
+    const data = await getServices();
+    setServices(data);
+    setLoading(false);
   };
 
-  const handleUpdateService = (service: Service) => {
-    setServices(updateService(service));
+  const handleAddService = async (service: Service) => {
+    await addService(service);
+    loadServices();
   };
 
-  const handleDeleteService = (id: string) => {
-    setServices(deleteService(id));
+  const handleUpdateService = async (service: Service) => {
+    await updateService(service);
+    loadServices();
   };
+
+  const handleDeleteService = async (id: string) => {
+    await deleteService(id);
+    loadServices();
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-muted-foreground">Carregando...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

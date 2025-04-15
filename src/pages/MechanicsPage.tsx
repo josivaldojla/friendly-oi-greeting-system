@@ -7,22 +7,43 @@ import Layout from "@/components/layout/Layout";
 
 const MechanicsPage = () => {
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setMechanics(getMechanics());
+    loadMechanics();
   }, []);
 
-  const handleAddMechanic = (mechanic: Mechanic) => {
-    setMechanics(addMechanic(mechanic));
+  const loadMechanics = async () => {
+    setLoading(true);
+    const data = await getMechanics();
+    setMechanics(data);
+    setLoading(false);
   };
 
-  const handleUpdateMechanic = (mechanic: Mechanic) => {
-    setMechanics(updateMechanic(mechanic));
+  const handleAddMechanic = async (mechanic: Mechanic) => {
+    await addMechanic(mechanic);
+    loadMechanics();
   };
 
-  const handleDeleteMechanic = (id: string) => {
-    setMechanics(deleteMechanic(id));
+  const handleUpdateMechanic = async (mechanic: Mechanic) => {
+    await updateMechanic(mechanic);
+    loadMechanics();
   };
+
+  const handleDeleteMechanic = async (id: string) => {
+    await deleteMechanic(id);
+    loadMechanics();
+  };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-muted-foreground">Carregando...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>
