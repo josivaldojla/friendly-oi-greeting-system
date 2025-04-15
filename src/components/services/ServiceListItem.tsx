@@ -27,21 +27,19 @@ export const ServiceListItem = ({
       className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
       onClick={selectable ? () => onClick?.(service) : undefined}
     >
-      {!selectable && (
-        <TableCell>
-          {service.imageUrl ? (
-            <img 
-              src={service.imageUrl} 
-              alt={service.name} 
-              className="w-12 h-12 object-cover rounded" 
-            />
-          ) : (
-            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-              <ImagePlaceholder />
-            </div>
-          )}
-        </TableCell>
-      )}
+      <TableCell>
+        {service.imageUrl ? (
+          <img 
+            src={service.imageUrl} 
+            alt={service.name} 
+            className="w-12 h-12 object-cover rounded" 
+          />
+        ) : (
+          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+            <ImagePlaceholder />
+          </div>
+        )}
+      </TableCell>
       <TableCell className="font-medium">{service.name}</TableCell>
       <TableCell>{formatPrice(service.price)}</TableCell>
       <TableCell className="hidden md:table-cell max-w-xs truncate">
