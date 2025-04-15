@@ -27,7 +27,7 @@ export const ServiceListItem = ({
       className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
       onClick={selectable ? () => onClick?.(service) : undefined}
     >
-      <TableCell className="w-[80px]">
+      <TableCell className="w-[10%] pl-4">
         {service.imageUrl ? (
           <img 
             src={service.imageUrl} 
@@ -40,12 +40,16 @@ export const ServiceListItem = ({
           </div>
         )}
       </TableCell>
-      <TableCell className="w-[250px] font-medium">{service.name}</TableCell>
-      <TableCell className="w-[120px]">{formatPrice(service.price)}</TableCell>
-      <TableCell className="hidden md:table-cell w-[300px] truncate">
+      <TableCell className="w-[25%] font-medium truncate">
+        {service.name}
+      </TableCell>
+      <TableCell className="w-[15%] text-right">
+        {formatPrice(service.price)}
+      </TableCell>
+      <TableCell className="w-[35%] hidden md:table-cell truncate">
         {service.description || "-"}
       </TableCell>
-      <TableCell className="w-[100px] text-right">
+      <TableCell className="w-[15%] text-right pr-4">
         <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
           <Button
             variant="ghost"
