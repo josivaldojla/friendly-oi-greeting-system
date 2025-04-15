@@ -13,11 +13,15 @@ const EarningsReport = () => {
   const [dailyAverage, setDailyAverage] = useState(0);
 
   useEffect(() => {
-    // Update earnings data
-    setDailyEarnings(getDailyEarnings());
-    setWeeklyEarnings(getWeeklyEarnings());
-    setMonthlyEarnings(getMonthlyEarnings());
-    setDailyAverage(getDailyAverage());
+    // Carregar dados de ganhos
+    const loadEarningsData = async () => {
+      setDailyEarnings(await getDailyEarnings());
+      setWeeklyEarnings(await getWeeklyEarnings());
+      setMonthlyEarnings(await getMonthlyEarnings());
+      setDailyAverage(await getDailyAverage());
+    };
+    
+    loadEarningsData();
   }, []);
 
   const formatCurrency = (value: number) => {
@@ -27,8 +31,8 @@ const EarningsReport = () => {
     });
   };
 
-  const exportToExcel = () => {
-    const completedServices = getCompletedServices();
+  const exportToExcel = async () => {
+    const completedServices = await getCompletedServices();
     
     if (completedServices.length === 0) {
       alert("Não há dados para exportar.");
@@ -127,9 +131,16 @@ const CompletedServicesList = () => {
   const [completedServices, setCompletedServices] = useState<CompletedService[]>([]);
   
   useEffect(() => {
-    setCompletedServices(getCompletedServices().sort((a, b) => 
-      new Date(b.completionDate).getTime() - new Date(a.completionDate).getTime()
-    ));
+    const loadCompletedServices = async () => {
+      const services = await getCompletedServices();
+      setCompletedServices(
+        services.sort((a, b) => 
+          new Date(b.completionDate).getTime() - new Date(a.completionDate).getTime()
+        )
+      );
+    };
+    
+    loadCompletedServices();
   }, []);
 
   const formatCurrency = (value: number) => {

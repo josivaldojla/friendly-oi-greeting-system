@@ -2,6 +2,19 @@
 import { Mechanic, Service, CompletedService } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 
+// Função para converter arquivo para base64
+export async function fileToBase64(file: File): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const base64String = reader.result as string;
+      resolve(base64String);
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
 // Mechanics
 export async function getMechanics(): Promise<Mechanic[]> {
   const { data, error } = await supabase
@@ -13,14 +26,20 @@ export async function getMechanics(): Promise<Mechanic[]> {
     console.error('Error fetching mechanics:', error);
     return [];
   }
-  return data || [];
+  
+  // Mapeando para o formato correto
+  return data.map(item => ({
+    id: item.id,
+    name: item.name,
+    specialization: item.specialization || undefined,
+    phone: item.phone || undefined
+  }));
 }
 
 export async function addMechanic(mechanic: Omit<Mechanic, "id">): Promise<Mechanic[]> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('mechanics')
-    .insert([mechanic])
-    .select();
+    .insert([mechanic]);
 
   if (error) {
     console.error('Error adding mechanic:', error);
@@ -69,19 +88,26 @@ export async function getServices(): Promise<Service[]> {
     console.error('Error fetching services:', error);
     return [];
   }
-  return data || [];
+  
+  // Mapeando para o formato correto
+  return data.map(item => ({
+    id: item.id,
+    name: item.name,
+    price: Number(item.price),
+    description: item.description || "",
+    imageUrl: item.image_url || undefined
+  }));
 }
 
 export async function addService(service: Omit<Service, "id">): Promise<Service[]> {
-  const { data, error } = await supabase
+  const { error } = await supabase
     .from('services')
     .insert([{
       name: service.name,
       price: service.price,
       description: service.description,
       image_url: service.imageUrl
-    }])
-    .select();
+    }]);
 
   if (error) {
     console.error('Error adding service:', error);
@@ -135,14 +161,30 @@ export async function getCompletedServices(): Promise<CompletedService[]> {
     console.error('Error fetching completed services:', error);
     return [];
   }
-  return data || [];
+  
+  // Mapeando para o formato correto
+  return data.map(item => ({
+    id: item.id,
+    mechanicId: item.mechanic_id || "",
+    serviceIds: item.service_ids,
+    totalAmount: Number(item.total_amount),
+    receivedAmount: Number(item.received_amount),
+    completionDate: item.completion_date,
+    createdAt: item.created_at
+  }));
 }
 
 export async function addCompletedService(completedService: Omit<CompletedService, "id">): Promise<CompletedService[]> {
   const { error } = await supabase
     .from('completed_services')
-    .insert([completedService])
-    .select();
+    .insert([{
+      mechanic_id: completedService.mechanicId,
+      service_ids: completedService.serviceIds,
+      total_amount: completedService.totalAmount,
+      received_amount: completedService.receivedAmount,
+      completion_date: completedService.completionDate,
+      created_at: completedService.createdAt
+    }]);
 
   if (error) {
     console.error('Error adding completed service:', error);

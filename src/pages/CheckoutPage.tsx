@@ -14,10 +14,26 @@ const CheckoutPage = () => {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    setServices(getServices());
-    setMechanics(getMechanics());
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const servicesData = await getServices();
+        const mechanicsData = await getMechanics();
+        
+        setServices(servicesData);
+        setMechanics(mechanicsData);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('Erro ao carregar os dados');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    loadData();
   }, []);
 
   const handleSelectService = (service: Service) => {
@@ -42,6 +58,16 @@ const CheckoutPage = () => {
     setSelectedServices([]);
     setSelectedService(null);
   };
+
+  if (loading) {
+    return (
+      <Layout>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-muted-foreground">Carregando...</div>
+        </div>
+      </Layout>
+    );
+  }
 
   return (
     <Layout>

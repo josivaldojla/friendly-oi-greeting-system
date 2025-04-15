@@ -4,6 +4,7 @@ import { Mechanic } from "@/lib/types";
 import { getMechanics, addMechanic, updateMechanic, deleteMechanic } from "@/lib/storage";
 import MechanicList from "@/components/mechanics/MechanicList";
 import Layout from "@/components/layout/Layout";
+import { toast } from "sonner";
 
 const MechanicsPage = () => {
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
@@ -15,24 +16,48 @@ const MechanicsPage = () => {
 
   const loadMechanics = async () => {
     setLoading(true);
-    const data = await getMechanics();
-    setMechanics(data);
-    setLoading(false);
+    try {
+      const data = await getMechanics();
+      setMechanics(data);
+    } catch (error) {
+      console.error('Erro ao carregar mecânicos:', error);
+      toast.error('Erro ao carregar mecânicos');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddMechanic = async (mechanic: Mechanic) => {
-    await addMechanic(mechanic);
-    loadMechanics();
+    try {
+      await addMechanic(mechanic);
+      await loadMechanics();
+      toast.success('Mecânico adicionado com sucesso');
+    } catch (error) {
+      console.error('Erro ao adicionar mecânico:', error);
+      toast.error('Erro ao adicionar mecânico');
+    }
   };
 
   const handleUpdateMechanic = async (mechanic: Mechanic) => {
-    await updateMechanic(mechanic);
-    loadMechanics();
+    try {
+      await updateMechanic(mechanic);
+      await loadMechanics();
+      toast.success('Mecânico atualizado com sucesso');
+    } catch (error) {
+      console.error('Erro ao atualizar mecânico:', error);
+      toast.error('Erro ao atualizar mecânico');
+    }
   };
 
   const handleDeleteMechanic = async (id: string) => {
-    await deleteMechanic(id);
-    loadMechanics();
+    try {
+      await deleteMechanic(id);
+      await loadMechanics();
+      toast.success('Mecânico removido com sucesso');
+    } catch (error) {
+      console.error('Erro ao remover mecânico:', error);
+      toast.error('Erro ao remover mecânico');
+    }
   };
 
   if (loading) {

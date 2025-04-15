@@ -4,6 +4,7 @@ import { Service, ViewMode } from "@/lib/types";
 import { getServices, addService, updateService, deleteService } from "@/lib/storage";
 import ServiceList from "@/components/services/ServiceList";
 import Layout from "@/components/layout/Layout";
+import { toast } from "sonner";
 
 const ServicesPage = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -16,24 +17,48 @@ const ServicesPage = () => {
 
   const loadServices = async () => {
     setLoading(true);
-    const data = await getServices();
-    setServices(data);
-    setLoading(false);
+    try {
+      const data = await getServices();
+      setServices(data);
+    } catch (error) {
+      console.error('Erro ao carregar serviços:', error);
+      toast.error('Erro ao carregar serviços');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleAddService = async (service: Service) => {
-    await addService(service);
-    loadServices();
+    try {
+      await addService(service);
+      await loadServices();
+      toast.success('Serviço adicionado com sucesso');
+    } catch (error) {
+      console.error('Erro ao adicionar serviço:', error);
+      toast.error('Erro ao adicionar serviço');
+    }
   };
 
   const handleUpdateService = async (service: Service) => {
-    await updateService(service);
-    loadServices();
+    try {
+      await updateService(service);
+      await loadServices();
+      toast.success('Serviço atualizado com sucesso');
+    } catch (error) {
+      console.error('Erro ao atualizar serviço:', error);
+      toast.error('Erro ao atualizar serviço');
+    }
   };
 
   const handleDeleteService = async (id: string) => {
-    await deleteService(id);
-    loadServices();
+    try {
+      await deleteService(id);
+      await loadServices();
+      toast.success('Serviço removido com sucesso');
+    } catch (error) {
+      console.error('Erro ao remover serviço:', error);
+      toast.error('Erro ao remover serviço');
+    }
   };
 
   if (loading) {
