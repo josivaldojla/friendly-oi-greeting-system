@@ -1,4 +1,3 @@
-
 import { Mechanic, Service, CompletedService } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -89,6 +88,8 @@ export async function getServices(): Promise<Service[]> {
     return [];
   }
   
+  console.log('Services fetched from Supabase:', data);
+  
   // Mapeando para o formato correto
   return data.map(item => ({
     id: item.id,
@@ -100,24 +101,34 @@ export async function getServices(): Promise<Service[]> {
 }
 
 export async function addService(service: Omit<Service, "id">): Promise<Service[]> {
-  const { error } = await supabase
+  console.log('Adding service to Supabase:', service);
+  
+  const serviceData = {
+    name: service.name,
+    price: service.price,
+    description: service.description,
+    image_url: service.imageUrl
+  };
+  
+  console.log('Formatted service data for Supabase:', serviceData);
+  
+  const { data, error } = await supabase
     .from('services')
-    .insert([{
-      name: service.name,
-      price: service.price,
-      description: service.description,
-      image_url: service.imageUrl
-    }]);
+    .insert([serviceData])
+    .select();
 
   if (error) {
     console.error('Error adding service:', error);
     return [];
   }
-
+  
+  console.log('Service added successfully:', data);
   return getServices();
 }
 
 export async function updateService(service: Service): Promise<Service[]> {
+  console.log('Updating service in Supabase:', service);
+  
   const { error } = await supabase
     .from('services')
     .update({
@@ -133,10 +144,13 @@ export async function updateService(service: Service): Promise<Service[]> {
     return [];
   }
 
+  console.log('Service updated successfully');
   return getServices();
 }
 
 export async function deleteService(id: string): Promise<Service[]> {
+  console.log('Deleting service from Supabase, ID:', id);
+  
   const { error } = await supabase
     .from('services')
     .delete()
@@ -147,6 +161,7 @@ export async function deleteService(id: string): Promise<Service[]> {
     return [];
   }
 
+  console.log('Service deleted successfully');
   return getServices();
 }
 
