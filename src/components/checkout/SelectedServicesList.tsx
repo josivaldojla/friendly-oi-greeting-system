@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Service, Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -94,19 +93,20 @@ const SelectedServicesList = ({
   };
 
   const formatWhatsAppMessage = (mechanicName: string, services: Service[], total: number, received: number, remaining: number) => {
-    // Usar asteriscos para negrito no WhatsApp
-    let message = `*SERVIÇOS DO DIA ${currentDate}*\n\n`;
+    // Use asterisks for bold in WhatsApp, with asterisk AFTER the currency symbol and with a space
+    let message = `SERVIÇOS DO DIA ${currentDate}\n\n`;
     message += "--------------------------------------------------\n\n";
     
-    // Adicionar serviços numerados com numeração em negrito
+    // Add services numerically with bold numbering
     services.forEach((service, index) => {
-      message += `*${index + 1}-* ${service.name} = ${formatPrice(service.price)}\n\n`;
+      message += `${index + 1}- ${service.name} = *R$ ${formatPrice(service.price).replace('R$ ', '')}*\n\n`;
     });
 
     message += "--------------------------------------------------\n";
-    message += `*Total.............*${formatPrice(total)}\n`;
-    message += `*Adiantado...*${formatPrice(received)}\n`;
-    message += `*Total Geral..*${formatPrice(remaining)}`;
+    // Adjust formatting to match image: asterisk after currency symbol with a space
+    message += `Total...........*R$ ${formatPrice(total).replace('R$ ', '')}*\n`;
+    message += `Adiantado...*R$ ${formatPrice(received).replace('R$ ', '')}*\n`;
+    message += `Total Geral..*R$ ${formatPrice(remaining).replace('R$ ', '')}*`;
 
     return message;
   };
