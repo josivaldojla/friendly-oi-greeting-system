@@ -2,7 +2,7 @@
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, PlusCircle } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 
 interface ServiceListItemProps {
@@ -12,6 +12,8 @@ interface ServiceListItemProps {
   onDelete: (id: string, e: React.MouseEvent) => void;
   onClick?: (service: Service) => void;
   formatPrice: (price: number) => string;
+  onAddToSelection?: (service: Service) => void;
+  showAddButton?: boolean;
 }
 
 export const ServiceListItem = ({
@@ -20,7 +22,9 @@ export const ServiceListItem = ({
   onEdit,
   onDelete,
   onClick,
-  formatPrice
+  formatPrice,
+  onAddToSelection,
+  showAddButton = false
 }: ServiceListItemProps) => {
   return (
     <TableRow 
@@ -51,21 +55,39 @@ export const ServiceListItem = ({
       </TableCell>
       <TableCell className="w-[15%] text-right pr-4">
         <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => onEdit(service, e)}
-          >
-            <Edit className="h-4 w-4" />
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={(e) => onDelete(service.id, e)}
-            className="text-red-500 hover:text-red-700 hover:bg-red-50"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+          {showAddButton && onAddToSelection && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddToSelection(service);
+              }}
+              className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
+            >
+              <PlusCircle className="h-4 w-4 mr-1" />
+              Adicionar
+            </Button>
+          )}
+          {!showAddButton && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => onEdit(service, e)}
+              >
+                <Edit className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={(e) => onDelete(service.id, e)}
+                className="text-red-500 hover:text-red-700 hover:bg-red-50"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </>
+          )}
         </div>
       </TableCell>
     </TableRow>

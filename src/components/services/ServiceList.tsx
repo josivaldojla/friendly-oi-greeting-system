@@ -16,9 +16,11 @@ interface ServiceListProps {
   onUpdateService: (service: Service) => void;
   onDeleteService: (id: string) => void;
   onSelectService?: (service: Service) => void;
+  onAddToSelection?: (service: Service) => void;
   selectable?: boolean;
   viewMode?: ViewMode;
   onViewModeChange?: (mode: ViewMode) => void;
+  showAddButton?: boolean;
 }
 
 const ServiceList = ({ 
@@ -27,9 +29,11 @@ const ServiceList = ({
   onUpdateService, 
   onDeleteService,
   onSelectService,
+  onAddToSelection,
   selectable = false,
   viewMode = 'list',
-  onViewModeChange
+  onViewModeChange,
+  showAddButton = false
 }: ServiceListProps) => {
   const [formOpen, setFormOpen] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
@@ -120,11 +124,11 @@ const ServiceList = ({
             <Table>
               <TableHeader>
                 <TableRow>
-                  {!selectable && <TableHead className="w-[100px]">Imagem</TableHead>}
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Valor</TableHead>
-                  <TableHead className="hidden md:table-cell">Descrição</TableHead>
-                  <TableHead className="w-[100px]">Ações</TableHead>
+                  <TableHead className="w-[10%]">Imagem</TableHead>
+                  <TableHead className="w-[25%]">Nome</TableHead>
+                  <TableHead className="w-[15%] text-right">Valor</TableHead>
+                  <TableHead className="w-[35%] hidden md:table-cell">Descrição</TableHead>
+                  <TableHead className="w-[15%] text-right">Ações</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -137,6 +141,8 @@ const ServiceList = ({
                     onDelete={handleDelete}
                     onClick={onSelectService}
                     formatPrice={formatPrice}
+                    onAddToSelection={onAddToSelection}
+                    showAddButton={showAddButton}
                   />
                 ))}
               </TableBody>
@@ -153,6 +159,8 @@ const ServiceList = ({
                 onDelete={handleDelete}
                 onClick={onSelectService}
                 formatPrice={formatPrice}
+                onAddToSelection={onAddToSelection}
+                showAddButton={showAddButton}
               />
             ))}
           </div>

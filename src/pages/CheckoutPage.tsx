@@ -86,6 +86,8 @@ const CheckoutPage = () => {
                 onSelectService={handleSelectService}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
+                onAddToSelection={handleAddToSelection}
+                showAddButton={true}
               />
               
               <div className="block lg:hidden">
