@@ -94,18 +94,19 @@ const SelectedServicesList = ({
   };
 
   const formatWhatsAppMessage = (mechanicName: string, services: Service[], total: number, received: number, remaining: number) => {
-    let message = `SERVIÇOS DO DIA ${currentDate}\n\n`;
+    // Usar asteriscos para negrito no WhatsApp
+    let message = `*SERVIÇOS DO DIA ${currentDate}*\n\n`;
     message += "--------------------------------------------------\n\n";
     
-    // Adicionar serviços numerados
+    // Adicionar serviços numerados com numeração em negrito
     services.forEach((service, index) => {
-      message += `${index + 1}- ${service.name} = ${formatPrice(service.price)}\n\n`;
+      message += `*${index + 1}-* ${service.name} = ${formatPrice(service.price)}\n\n`;
     });
 
     message += "--------------------------------------------------\n";
-    message += `Total.............${formatPrice(total)}\n`;
-    message += `Adiantado...${formatPrice(received)}\n`;
-    message += `Total Geral..${formatPrice(remaining)}`;
+    message += `*Total.............*${formatPrice(total)}\n`;
+    message += `*Adiantado...*${formatPrice(received)}\n`;
+    message += `*Total Geral..*${formatPrice(remaining)}`;
 
     return message;
   };

@@ -40,7 +40,8 @@ const CheckoutPage = () => {
       return;
     }
     
-    setSelectedServices([...selectedServices, service]);
+    // Add services in the order they are clicked
+    setSelectedServices(prev => [...prev, service]);
     toast.success(`${service.name} adicionado à seleção`);
   };
 
