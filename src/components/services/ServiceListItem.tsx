@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Edit, Trash2, PlusCircle } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ServiceListItemProps {
   service: Service;
@@ -26,10 +27,20 @@ export const ServiceListItem = ({
   onAddToSelection,
   showAddButton = false
 }: ServiceListItemProps) => {
+  const isMobile = useIsMobile();
+  
+  const handleRowClick = () => {
+    if (selectable && showAddButton && onAddToSelection) {
+      onAddToSelection(service);
+    } else if (selectable && onClick) {
+      onClick(service);
+    }
+  };
+
   return (
     <TableRow 
       className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
-      onClick={selectable ? () => onClick?.(service) : undefined}
+      onClick={handleRowClick}
     >
       <TableCell className="w-[10%] pl-4">
         {service.imageUrl ? (
@@ -55,7 +66,7 @@ export const ServiceListItem = ({
       </TableCell>
       <TableCell className="w-[15%] text-right pr-4">
         <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
-          {showAddButton && onAddToSelection && (
+          {showAddButton && onAddToSelection && !isMobile && (
             <Button
               variant="outline"
               size="sm"

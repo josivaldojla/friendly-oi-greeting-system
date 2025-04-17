@@ -27,8 +27,16 @@ const SelectedServicesList = ({
   const [selectedMechanicId, setSelectedMechanicId] = useState<string>("");
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [remainingAmount, setRemainingAmount] = useState<number>(0);
+  const [currentDate, setCurrentDate] = useState<string>("");
 
   useEffect(() => {
+    // Formatar a data atual como DD/MM
+    const today = new Date();
+    const day = String(today.getDate()).padStart(2, '0');
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    setCurrentDate(`${day}/${month}`);
+
+    // Calcular o valor total
     const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
     setTotalAmount(total);
     setRemainingAmount(total - receivedAmount);
@@ -59,27 +67,17 @@ const SelectedServicesList = ({
       return;
     }
 
-    // Create message text
-    let message = "----------\n";
-    message += `Mecânico: ${mechanic.name}\n`;
-    message += "----------\n";
+    // Criar a mensagem conforme o modelo fornecido
+    const message = formatWhatsAppMessage(mechanic.name, selectedServices, totalAmount, receivedAmount, remainingAmount);
     
-    selectedServices.forEach(service => {
-      message += `${service.name}: ${formatPrice(service.price)}\n`;
-    });
-    
-    message += `\nTotal: ${formatPrice(totalAmount)}\n`;
-    message += `Valor recebido: ${formatPrice(receivedAmount)}\n`;
-    message += `Total a pagar: ${formatPrice(remainingAmount)}\n`;
-
-    // Encode message for WhatsApp URL
+    // Codificar a mensagem para a URL do WhatsApp
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
     
-    // Open WhatsApp in new tab
+    // Abrir WhatsApp em nova aba
     window.open(whatsappUrl, "_blank");
 
-    // Save completed service
+    // Salvar serviço concluído
     const completedService = {
       id: crypto.randomUUID(),
       mechanicId: selectedMechanicId,
@@ -93,6 +91,23 @@ const SelectedServicesList = ({
     addCompletedService(completedService);
     onCompleteCheckout();
     toast.success("Serviço registrado com sucesso");
+  };
+
+  const formatWhatsAppMessage = (mechanicName: string, services: Service[], total: number, received: number, remaining: number) => {
+    let message = `SERVIÇOS DO DIA ${currentDate}\n\n`;
+    message += "--------------------------------------------------\n\n";
+    
+    // Adicionar serviços numerados
+    services.forEach((service, index) => {
+      message += `${index + 1}- ${service.name} = ${formatPrice(service.price)}\n\n`;
+    });
+
+    message += "--------------------------------------------------\n";
+    message += `Total.............${formatPrice(total)}\n`;
+    message += `Adiantado...${formatPrice(received)}\n`;
+    message += `Total Geral..${formatPrice(remaining)}`;
+
+    return message;
   };
 
   return (

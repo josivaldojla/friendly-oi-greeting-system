@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Edit, Trash2, PlusCircle } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface ServiceCardProps {
   service: Service;
@@ -26,10 +27,20 @@ export const ServiceCard = ({
   onAddToSelection,
   showAddButton = false
 }: ServiceCardProps) => {
+  const isMobile = useIsMobile();
+  
+  const handleCardClick = () => {
+    if (selectable && showAddButton && onAddToSelection) {
+      onAddToSelection(service);
+    } else if (selectable && onClick) {
+      onClick(service);
+    }
+  };
+
   return (
     <Card 
       className={selectable ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
-      onClick={selectable ? () => onClick?.(service) : undefined}
+      onClick={handleCardClick}
     >
       <div className="relative h-40">
         {service.imageUrl ? (
@@ -55,7 +66,7 @@ export const ServiceCard = ({
       </CardContent>
       <CardFooter className="p-4 pt-0 flex justify-end space-x-2">
         <div onClick={(e) => e.stopPropagation()} className="flex space-x-2">
-          {showAddButton && onAddToSelection && (
+          {showAddButton && onAddToSelection && !isMobile && (
             <Button
               variant="outline"
               onClick={(e) => {
