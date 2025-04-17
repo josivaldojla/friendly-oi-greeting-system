@@ -35,11 +35,7 @@ const CheckoutPage = () => {
   }, []);
 
   const handleAddToSelection = (service: Service) => {
-    if (selectedServices.some(s => s.id === service.id)) {
-      toast.info("Este serviço já foi adicionado");
-      return;
-    }
-    
+    // Allow services to be added multiple times
     // Add services in the order they are clicked
     setSelectedServices(prev => [...prev, service]);
     toast.success(`${service.name} adicionado à seleção`);

@@ -119,8 +119,8 @@ const SelectedServicesList = ({
       <CardContent className="space-y-4">
         {selectedServices.length > 0 ? (
           <ul className="divide-y">
-            {selectedServices.map((service) => (
-              <li key={service.id} className="py-2 flex justify-between items-center">
+            {selectedServices.map((service, index) => (
+              <li key={`${service.id}-${index}`} className="py-2 flex justify-between items-center">
                 <span>{service.name}</span>
                 <div className="flex items-center gap-4">
                   <span className="font-medium">{formatPrice(service.price)}</span>
