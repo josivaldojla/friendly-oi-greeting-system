@@ -14,13 +14,14 @@ export const formatWhatsAppMessage = (
   message += "--------------------------------------------------\n\n";
   
   services.forEach((service, index) => {
-    message += `*${index + 1}-* ${service.name} = R$ *${formatPrice(service.price).replace('R$ ', '')}*\n\n`;
+    const formattedPrice = formatPrice(service.price).replace('R$ ', '');
+    message += `${index + 1}- ${service.name} = R$ *${formattedPrice}*\n\n`;
   });
 
   message += "--------------------------------------------------\n";
-  message += `Total...........R$ *${formatPrice(total).replace('R$ ', '')}*\n`;
-  message += `Adiantado...R$ *${formatPrice(received).replace('R$ ', '')}*\n`;
-  message += `Total Geral..R$ *${formatPrice(remaining).replace('R$ ', '')}*`;
+  message += `Total..........*R$ ${formatPrice(total).replace('R$ ', '')}*\n`;
+  message += `Adiantado......*R$ ${formatPrice(received).replace('R$ ', '')}*\n`;
+  message += `Total Geral....*R$ ${formatPrice(remaining).replace('R$ ', '')}*`;
 
   return message;
 };
