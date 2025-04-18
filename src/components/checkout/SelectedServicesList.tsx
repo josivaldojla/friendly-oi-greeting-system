@@ -29,13 +29,11 @@ const SelectedServicesList = ({
   const [currentDate, setCurrentDate] = useState<string>("");
 
   useEffect(() => {
-    // Formatar a data atual como DD/MM
     const today = new Date();
     const day = String(today.getDate()).padStart(2, '0');
     const month = String(today.getMonth() + 1).padStart(2, '0');
     setCurrentDate(`${day}/${month}`);
 
-    // Calcular o valor total
     const total = selectedServices.reduce((sum, service) => sum + service.price, 0);
     setTotalAmount(total);
     setRemainingAmount(total - receivedAmount);
@@ -66,17 +64,13 @@ const SelectedServicesList = ({
       return;
     }
 
-    // Criar a mensagem conforme o modelo fornecido
     const message = formatWhatsAppMessage(mechanic.name, selectedServices, totalAmount, receivedAmount, remainingAmount);
     
-    // Codificar a mensagem para a URL do WhatsApp
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
     
-    // Abrir WhatsApp em nova aba
     window.open(whatsappUrl, "_blank");
 
-    // Salvar serviço concluído
     const completedService = {
       id: crypto.randomUUID(),
       mechanicId: selectedMechanicId,
@@ -93,17 +87,14 @@ const SelectedServicesList = ({
   };
 
   const formatWhatsAppMessage = (mechanicName: string, services: Service[], total: number, received: number, remaining: number) => {
-    // Use asterisks for bold in WhatsApp, with asterisk AFTER the currency symbol and with a space
     let message = `SERVIÇOS DO DIA ${currentDate}\n\n`;
     message += "--------------------------------------------------\n\n";
     
-    // Add services numerically with bold numbering
     services.forEach((service, index) => {
-      message += `${index + 1}- ${service.name} = *R$ ${formatPrice(service.price).replace('R$ ', '')}*\n\n`;
+      message += `*${index + 1}-* ${service.name} = *R$ ${formatPrice(service.price).replace('R$ ', '')}*\n\n`;
     });
 
     message += "--------------------------------------------------\n";
-    // Adjust formatting to match image: asterisk after currency symbol with a space
     message += `Total...........*R$ ${formatPrice(total).replace('R$ ', '')}*\n`;
     message += `Adiantado...*R$ ${formatPrice(received).replace('R$ ', '')}*\n`;
     message += `Total Geral..*R$ ${formatPrice(remaining).replace('R$ ', '')}*`;
