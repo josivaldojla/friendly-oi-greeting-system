@@ -1,13 +1,16 @@
+
 import { useState, useEffect } from "react";
 import { Service, Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Trash2, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { addCompletedService } from "@/lib/storage";
+import ServiceListItem from "./ServiceListItem";
+import ServiceTotals from "./ServiceTotals";
+import { formatWhatsAppMessage } from "./WhatsAppMessage";
 
 interface SelectedServicesListProps {
   selectedServices: Service[];
@@ -64,7 +67,15 @@ const SelectedServicesList = ({
       return;
     }
 
-    const message = formatWhatsAppMessage(mechanic.name, selectedServices, totalAmount, receivedAmount, remainingAmount);
+    const message = formatWhatsAppMessage(
+      currentDate,
+      mechanic.name, 
+      selectedServices, 
+      totalAmount, 
+      receivedAmount, 
+      remainingAmount,
+      formatPrice
+    );
     
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
@@ -86,22 +97,6 @@ const SelectedServicesList = ({
     toast.success("Serviço registrado com sucesso");
   };
 
-  const formatWhatsAppMessage = (mechanicName: string, services: Service[], total: number, received: number, remaining: number) => {
-    let message = `SERVIÇOS DO DIA ${currentDate}\n\n`;
-    message += "--------------------------------------------------\n\n";
-    
-    services.forEach((service, index) => {
-      message += `*${index + 1}-* ${service.name} = *R$ ${formatPrice(service.price).replace('R$ ', '')}*\n\n`;
-    });
-
-    message += "--------------------------------------------------\n";
-    message += `Total...........*R$ ${formatPrice(total).replace('R$ ', '')}*\n`;
-    message += `Adiantado...*R$ ${formatPrice(received).replace('R$ ', '')}*\n`;
-    message += `Total Geral..*R$ ${formatPrice(remaining).replace('R$ ', '')}*`;
-
-    return message;
-  };
-
   return (
     <Card>
       <CardHeader>
@@ -111,20 +106,13 @@ const SelectedServicesList = ({
         {selectedServices.length > 0 ? (
           <ul className="divide-y">
             {selectedServices.map((service, index) => (
-              <li key={`${service.id}-${index}`} className="py-2 flex justify-between items-center">
-                <span>{service.name}</span>
-                <div className="flex items-center gap-4">
-                  <span className="font-medium">{formatPrice(service.price)}</span>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => onRemoveService(service.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              </li>
+              <ServiceListItem
+                key={`${service.id}-${index}`}
+                service={service}
+                index={index}
+                formatPrice={formatPrice}
+                onRemove={onRemoveService}
+              />
             ))}
           </ul>
         ) : (
@@ -134,7 +122,7 @@ const SelectedServicesList = ({
         )}
 
         {selectedServices.length > 0 && (
-          <div className="space-y-4 pt-4 border-t">
+          <>
             <div>
               <Label htmlFor="mechanic">Mecânico Responsável</Label>
               <Select value={selectedMechanicId} onValueChange={setSelectedMechanicId}>
@@ -151,30 +139,14 @@ const SelectedServicesList = ({
               </Select>
             </div>
 
-            <div className="flex justify-between items-center font-medium">
-              <span>Total:</span>
-              <span>{formatPrice(totalAmount)}</span>
-            </div>
-
-            <div>
-              <Label htmlFor="received">Valor Recebido</Label>
-              <Input
-                id="received"
-                type="number"
-                min="0"
-                step="0.01"
-                value={receivedAmount || ''}
-                onChange={handleReceivedAmountChange}
-              />
-            </div>
-
-            <div className="flex justify-between items-center font-bold text-lg">
-              <span>Total a Pagar:</span>
-              <span className={remainingAmount < 0 ? "text-green-600" : remainingAmount > 0 ? "text-red-600" : ""}>
-                {formatPrice(remainingAmount)}
-              </span>
-            </div>
-          </div>
+            <ServiceTotals
+              totalAmount={totalAmount}
+              receivedAmount={receivedAmount}
+              remainingAmount={remainingAmount}
+              formatPrice={formatPrice}
+              onReceivedAmountChange={handleReceivedAmountChange}
+            />
+          </>
         )}
       </CardContent>
       {selectedServices.length > 0 && (
