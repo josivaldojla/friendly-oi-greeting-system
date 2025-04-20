@@ -56,8 +56,15 @@ const ServiceForm = ({ service, onSubmit, open, onOpenChange }: ServiceFormProps
   const onSubmitForm = (data: Service) => {
     if (!isEditing) {
       data.id = crypto.randomUUID();
+    } else {
+      // Garante que mantemos o mesmo ID ao editar
+      data.id = service.id;
     }
+    
+    // Envia os dados para o componente pai
     onSubmit(data);
+    
+    // Reseta o formulário e fecha o modal
     reset();
     setPreviewImage(undefined);
     onOpenChange(false);

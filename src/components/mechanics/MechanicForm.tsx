@@ -28,9 +28,17 @@ const MechanicForm = ({ mechanic, onSubmit, open, onOpenChange }: MechanicFormPr
 
   const onSubmitForm = (data: Mechanic) => {
     if (!isEditing) {
+      // Apenas gera um novo ID para novos mecânicos
       data.id = crypto.randomUUID();
+    } else {
+      // Garante que mantemos o mesmo ID ao editar
+      data.id = mechanic.id;
     }
+    
+    // Envia os dados para o componente pai
     onSubmit(data);
+    
+    // Reseta o formulário e fecha o modal
     reset();
     onOpenChange(false);
   };

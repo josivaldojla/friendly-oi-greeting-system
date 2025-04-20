@@ -30,8 +30,8 @@ const ServicesPage = () => {
 
   const handleAddService = async (service: Service) => {
     try {
-      await addService(service);
-      await loadServices();
+      const updatedServices = await addService(service);
+      setServices(updatedServices);
       toast.success('Serviço adicionado com sucesso');
     } catch (error) {
       console.error('Erro ao adicionar serviço:', error);
@@ -41,8 +41,8 @@ const ServicesPage = () => {
 
   const handleUpdateService = async (service: Service) => {
     try {
-      await updateService(service);
-      await loadServices();
+      const updatedServices = await updateService(service);
+      setServices(updatedServices);
       toast.success('Serviço atualizado com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar serviço:', error);
@@ -52,8 +52,8 @@ const ServicesPage = () => {
 
   const handleDeleteService = async (id: string) => {
     try {
-      await deleteService(id);
-      await loadServices();
+      const updatedServices = await deleteService(id);
+      setServices(updatedServices);
       toast.success('Serviço removido com sucesso');
     } catch (error) {
       console.error('Erro ao remover serviço:', error);

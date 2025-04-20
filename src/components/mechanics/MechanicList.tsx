@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/table";
 import { Edit, Trash2, UserPlus } from "lucide-react";
 import MechanicForm from "./MechanicForm";
-import { toast } from "sonner";
 import { 
   AlertDialog,
   AlertDialogAction,
@@ -43,7 +42,7 @@ const MechanicList = ({
   const [mechanicToDelete, setMechanicToDelete] = useState<string | null>(null);
 
   const handleEdit = (mechanic: Mechanic) => {
-    setSelectedMechanic(mechanic);
+    setSelectedMechanic({...mechanic}); // Clone para evitar problemas de referência
     setFormOpen(true);
   };
 
@@ -57,17 +56,14 @@ const MechanicList = ({
       onDeleteMechanic(mechanicToDelete);
       setDeleteDialogOpen(false);
       setMechanicToDelete(null);
-      toast.success("Mecânico excluído com sucesso");
     }
   };
 
   const handleSubmit = (mechanic: Mechanic) => {
     if (selectedMechanic) {
       onUpdateMechanic(mechanic);
-      toast.success("Mecânico atualizado com sucesso");
     } else {
       onAddMechanic(mechanic);
-      toast.success("Mecânico adicionado com sucesso");
     }
     setSelectedMechanic(undefined);
   };

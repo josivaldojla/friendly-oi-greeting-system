@@ -29,8 +29,8 @@ const MechanicsPage = () => {
 
   const handleAddMechanic = async (mechanic: Mechanic) => {
     try {
-      await addMechanic(mechanic);
-      await loadMechanics();
+      const updatedMechanics = await addMechanic(mechanic);
+      setMechanics(updatedMechanics);
       toast.success('Mecânico adicionado com sucesso');
     } catch (error) {
       console.error('Erro ao adicionar mecânico:', error);
@@ -40,8 +40,8 @@ const MechanicsPage = () => {
 
   const handleUpdateMechanic = async (mechanic: Mechanic) => {
     try {
-      await updateMechanic(mechanic);
-      await loadMechanics();
+      const updatedMechanics = await updateMechanic(mechanic);
+      setMechanics(updatedMechanics);
       toast.success('Mecânico atualizado com sucesso');
     } catch (error) {
       console.error('Erro ao atualizar mecânico:', error);
@@ -51,8 +51,8 @@ const MechanicsPage = () => {
 
   const handleDeleteMechanic = async (id: string) => {
     try {
-      await deleteMechanic(id);
-      await loadMechanics();
+      const updatedMechanics = await deleteMechanic(id);
+      setMechanics(updatedMechanics);
       toast.success('Mecânico removido com sucesso');
     } catch (error) {
       console.error('Erro ao remover mecânico:', error);
