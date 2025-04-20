@@ -19,7 +19,7 @@ export const formatWhatsAppMessage = (
   });
 
   message += "--------------------------------------------------\n";
-  message += `*Total.............R$* = ${formatPrice(total).replace('R$', '').trim()}\n`;
+  message += `*Total..............R$* = ${formatPrice(total).replace('R$', '').trim()}\n`;
   message += `*Adiantado.......R$* = ${formatPrice(received).replace('R$', '').trim()}\n`;
   message += `*Total Geral......R$* = ${formatPrice(remaining).replace('R$', '').trim()}`;
 
