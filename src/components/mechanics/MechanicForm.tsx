@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -26,19 +26,28 @@ const MechanicForm = ({ mechanic, onSubmit, open, onOpenChange }: MechanicFormPr
     },
   });
 
+  // Efeito para resetar o formulário quando o modal abrir/fechar
+  useEffect(() => {
+    if (open && mechanic) {
+      reset(mechanic);
+    } else if (!open) {
+      reset({
+        id: "",
+        name: "",
+        specialization: "",
+        phone: "",
+      });
+    }
+  }, [open, mechanic, reset]);
+
   const onSubmitForm = (data: Mechanic) => {
     if (!isEditing) {
-      // Apenas gera um novo ID para novos mecânicos
       data.id = crypto.randomUUID();
     } else {
-      // Garante que mantemos o mesmo ID ao editar
       data.id = mechanic.id;
     }
     
-    // Envia os dados para o componente pai
     onSubmit(data);
-    
-    // Reseta o formulário e fecha o modal
     reset();
     onOpenChange(false);
   };

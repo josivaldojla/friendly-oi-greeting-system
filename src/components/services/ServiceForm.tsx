@@ -1,5 +1,4 @@
-
-import { useState, useRef, ChangeEvent } from "react";
+import { useState, useRef, ChangeEvent, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -19,7 +18,7 @@ interface ServiceFormProps {
 
 const ServiceForm = ({ service, onSubmit, open, onOpenChange }: ServiceFormProps) => {
   const isEditing = !!service;
-  const [previewImage, setPreviewImage] = useState<string | undefined>(service?.imageUrl);
+  const [previewImage, setPreviewImage] = useState<string | undefined>(undefined);
   const fileInputRef = useRef<HTMLInputElement>(null);
   
   const { register, handleSubmit, setValue, formState: { errors }, reset } = useForm<Service>({
@@ -31,6 +30,29 @@ const ServiceForm = ({ service, onSubmit, open, onOpenChange }: ServiceFormProps
       imageUrl: "",
     },
   });
+
+  useEffect(() => {
+    if (service?.imageUrl) {
+      setPreviewImage(service.imageUrl);
+    } else {
+      setPreviewImage(undefined);
+    }
+  }, [service, open]);
+
+  useEffect(() => {
+    if (open && service) {
+      reset(service);
+    } else if (!open) {
+      reset({
+        id: "",
+        name: "",
+        price: 0,
+        description: "",
+        imageUrl: "",
+      });
+      setPreviewImage(undefined);
+    }
+  }, [open, service, reset]);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -57,14 +79,14 @@ const ServiceForm = ({ service, onSubmit, open, onOpenChange }: ServiceFormProps
     if (!isEditing) {
       data.id = crypto.randomUUID();
     } else {
-      // Garante que mantemos o mesmo ID ao editar
       data.id = service.id;
     }
     
-    // Envia os dados para o componente pai
-    onSubmit(data);
+    if (!data.imageUrl && service?.imageUrl) {
+      data.imageUrl = service.imageUrl;
+    }
     
-    // Reseta o formulário e fecha o modal
+    onSubmit(data);
     reset();
     setPreviewImage(undefined);
     onOpenChange(false);
