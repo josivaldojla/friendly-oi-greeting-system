@@ -14,7 +14,7 @@ const Navbar = () => {
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
               <Wrench className="h-8 w-8 mr-2" />
-              <span className="font-bold text-xl">Moto Serviços Heleno Motos</span>
+              <span className="font-bold text-xl">Serviços Heleno Motos</span>
             </Link>
           </div>
           
