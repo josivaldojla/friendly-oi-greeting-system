@@ -16,7 +16,7 @@ const Layout = ({ children }: LayoutProps) => {
       </main>
       <footer className="bg-moto-dark text-white py-4">
         <div className="container mx-auto px-4 text-center">
-          <p>© {new Date().getFullYear()} Moto Service Pro - Todos os direitos reservados</p>
+          <p>© {new Date().getFullYear()} Moto Service Pro - Todos os direitos reservados Josivaldo L. de Araujo</p>
         </div>
       </footer>
       <Toaster position="top-right" />
