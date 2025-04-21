@@ -108,19 +108,20 @@ export const ServiceListItem = ({
         </TableCell>
         <TableCell className="w-[15%] text-right pr-4">
           <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
-            {showAddButton && onAddToSelection && !isMobile && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsCommenting(true);
-                }}
-                className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-              >
-                <MessageCirclePlus className="h-4 w-4 mr-1" />
-                Comentário
-              </Button>
+            {showAddButton && onAddToSelection && (
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={(e) => {
+      e.stopPropagation();
+      setIsCommenting(true);
+    }}
+    className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
+  >
+    <MessageCirclePlus className="h-4 w-4 mr-1" />
+    Comentário
+  </Button>
+)}
             )}
             {!showAddButton && (
               <>
