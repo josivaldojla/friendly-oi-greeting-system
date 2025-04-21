@@ -84,9 +84,19 @@ export const ServiceListItem = ({
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="w-[10%] pl-4">
-          {/*imagem removida*/}
-        </TableCell>
+       <TableCell className="w-[10%] pl-4">
+  {service.imageUrl ? (
+    <img 
+      src={service.imageUrl} 
+      alt={service.name} 
+      className="w-12 h-12 object-cover rounded" 
+    />
+  ) : (
+    <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+      <ImagePlaceholder />
+    </div>
+  )}
+</TableCell>
         <TableCell className="w-[25%] font-medium truncate">
           {service.name}
         </TableCell>
