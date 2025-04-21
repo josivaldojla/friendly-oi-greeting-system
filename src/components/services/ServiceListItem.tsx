@@ -29,6 +29,13 @@ export const ServiceListItem = ({
 }: ServiceListItemProps) => {
   const isMobile = useIsMobile();
   
+  const [isCommenting, setIsCommenting] = useState(false); // Estado para controlar o modal
+const [comment, setComment] = useState(""); // Estado para armazenar o comentário
+
+const handleCommentSave = () => {
+  console.log("Comentário salvo:", comment); // Temporário: aqui você pode salvar o comentário
+  setIsCommenting(false); // Fecha o modal
+};
   const handleRowClick = () => {
     if (selectable && showAddButton && onAddToSelection) {
       onAddToSelection(service);
@@ -39,6 +46,27 @@ export const ServiceListItem = ({
 
   return (
     <TableRow 
+      {isCommenting && (
+  <Modal onClose={() => setIsCommenting(false)}>
+    <div className="p-4">
+      <h2 className="text-lg font-bold mb-4">Adicionar Comentário</h2>
+      <textarea
+        className="w-full p-2 border rounded"
+        rows={4}
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+      />
+      <div className="flex justify-end space-x-2 mt-4">
+        <Button variant="outline" onClick={() => setIsCommenting(false)}>
+          Cancelar
+        </Button>
+        <Button variant="default" onClick={handleCommentSave}>
+          Salvar
+        </Button>
+      </div>
+    </div>
+  </Modal>
+)}
       className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
       onClick={handleRowClick}
     >
