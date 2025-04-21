@@ -122,7 +122,6 @@ export const ServiceListItem = ({
     Comentário
   </Button>
 )}
-            )}
             {!showAddButton && (
               <>
                 <Button
