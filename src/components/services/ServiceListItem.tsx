@@ -77,7 +77,7 @@ export const ServiceListItem = ({
               className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
             >
               <PlusCircle className="h-4 w-4 mr-1" />
-              Adicionar
+              Comentario
             </Button>
           )}
           {!showAddButton && (
