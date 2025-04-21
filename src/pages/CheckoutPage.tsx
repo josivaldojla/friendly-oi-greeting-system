@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode } from "@/lib/types";
 import { getServices, getMechanics } from "@/lib/storage";
@@ -34,11 +33,17 @@ const CheckoutPage = () => {
     loadData();
   }, []);
 
-  const handleAddToSelection = (service: Service) => {
-    // Allow services to be added multiple times
-    // Add services in the order they are clicked
-    setSelectedServices(prev => [...prev, service]);
-    toast.success(`${service.name} adicionado à seleção`);
+  const handleAddToSelection = (service: Service, comment?: string) => {
+    setSelectedServices(prev => [
+      ...prev,
+      comment 
+        ? { ...service, comment } 
+        : { ...service }
+    ]);
+    const msg = comment 
+      ? `${service.name} adicionado à seleção com comentário`
+      : `${service.name} adicionado à seleção`;
+    toast.success(msg);
   };
 
   const handleRemoveService = (id: string) => {

@@ -1,12 +1,13 @@
 
 import React, { useState } from "react";
-import { Dialog } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
-import { Edit, Trash2, PlusCircle } from "lucide-react";
+import { Edit, Trash2, MessageCirclePlus } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ServiceListItemProps {
   service: Service;
@@ -15,7 +16,7 @@ interface ServiceListItemProps {
   onDelete: (id: string, e: React.MouseEvent) => void;
   onClick?: (service: Service) => void;
   formatPrice: (price: number) => string;
-  onAddToSelection?: (service: Service) => void;
+  onAddToSelection?: (service: Service, comment?: string) => void;
   showAddButton?: boolean;
 }
 
@@ -30,52 +31,57 @@ export const ServiceListItem = ({
   showAddButton = false
 }: ServiceListItemProps) => {
   const isMobile = useIsMobile();
-  
   const [isCommenting, setIsCommenting] = useState(false);
-  const [comment, setComment] = useState("");
+  const [comment, setComment] = useState<string>("");
 
-  const handleCommentSave = () => {
-    console.log("Comentário salvo:", comment);
-    setIsCommenting(false);
-  };
-  
+  // Clique no corpo da linha adiciona direto sem comentário
   const handleRowClick = () => {
-    if (selectable && showAddButton && onAddToSelection) {
-      onAddToSelection(service);
+    if (selectable && showAddButton && onAddToSelection && !isCommenting) {
+      onAddToSelection(service); // sem comentário
     } else if (selectable && onClick) {
       onClick(service);
     }
   };
 
+  // Ao salvar comentário, adiciona o serviço à seleção com comentário
+  const handleCommentSave = () => {
+    if (onAddToSelection) {
+      onAddToSelection(service, comment.trim() ? comment : undefined);
+    }
+    setIsCommenting(false);
+    setComment("");
+  };
+
   return (
     <>
-      {isCommenting && (
-        <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-            <div className="bg-white rounded-md p-4 w-full max-w-md">
-              <h2 className="text-lg font-bold mb-4">Adicionar Comentário</h2>
-              <textarea
-                className="w-full p-2 border rounded"
-                rows={4}
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-              />
-              <div className="flex justify-end space-x-2 mt-4">
-                <Button variant="outline" onClick={() => setIsCommenting(false)}>
-                  Cancelar
-                </Button>
-                <Button variant="default" onClick={handleCommentSave}>
-                  Salvar
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Dialog>
-      )}
-      
+      {/* Dialog para comentário */}
+      <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Adicionar Comentário</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            className="w-full"
+            rows={4}
+            value={comment}
+            placeholder="Digite um comentário opcional para o serviço"
+            onChange={(e) => setComment(e.target.value)}
+          />
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCommenting(false)}>
+              Cancelar
+            </Button>
+            <Button variant="default" onClick={handleCommentSave}>
+              Salvar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <TableRow 
         className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
         onClick={handleRowClick}
+        data-testid="service-list-row"
       >
         <TableCell className="w-[10%] pl-4">
           {service.imageUrl ? (
@@ -111,7 +117,7 @@ export const ServiceListItem = ({
                 }}
                 className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
               >
-                <PlusCircle className="h-4 w-4 mr-1" />
+                <MessageCirclePlus className="h-4 w-4 mr-1" />
                 Comentário
               </Button>
             )}
