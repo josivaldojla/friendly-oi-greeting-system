@@ -1,5 +1,6 @@
 
-import { Modal } from "@/components/ui/modal";
+import React, { useState } from "react";
+import { Dialog } from "@/components/ui/dialog";
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
@@ -30,13 +31,14 @@ export const ServiceListItem = ({
 }: ServiceListItemProps) => {
   const isMobile = useIsMobile();
   
-  const [isCommenting, setIsCommenting] = useState(false); // Estado para controlar o modal
-const [comment, setComment] = useState(""); // Estado para armazenar o comentário
+  const [isCommenting, setIsCommenting] = useState(false);
+  const [comment, setComment] = useState("");
 
-const handleCommentSave = () => {
-  console.log("Comentário salvo:", comment); // Temporário: aqui você pode salvar o comentário
-  setIsCommenting(false); // Fecha o modal
-};
+  const handleCommentSave = () => {
+    console.log("Comentário salvo:", comment);
+    setIsCommenting(false);
+  };
+  
   const handleRowClick = () => {
     if (selectable && showAddButton && onAddToSelection) {
       onAddToSelection(service);
@@ -46,90 +48,95 @@ const handleCommentSave = () => {
   };
 
   return (
-    <TableRow 
+    <>
       {isCommenting && (
-  <Modal onClose={() => setIsCommenting(false)}>
-    <div className="p-4">
-      <h2 className="text-lg font-bold mb-4">Adicionar Comentário</h2>
-      <textarea
-        className="w-full p-2 border rounded"
-        rows={4}
-        value={comment}
-        onChange={(e) => setComment(e.target.value)}
-      />
-      <div className="flex justify-end space-x-2 mt-4">
-        <Button variant="outline" onClick={() => setIsCommenting(false)}>
-          Cancelar
-        </Button>
-        <Button variant="default" onClick={handleCommentSave}>
-          Salvar
-        </Button>
-      </div>
-    </div>
-  </Modal>
-)}
-      className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
-      onClick={handleRowClick}
-    >
-      <TableCell className="w-[10%] pl-4">
-        {service.imageUrl ? (
-          <img 
-            src={service.imageUrl} 
-            alt={service.name} 
-            className="w-12 h-12 object-cover rounded" 
-          />
-        ) : (
-          <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-            <ImagePlaceholder />
+        <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+            <div className="bg-white rounded-md p-4 w-full max-w-md">
+              <h2 className="text-lg font-bold mb-4">Adicionar Comentário</h2>
+              <textarea
+                className="w-full p-2 border rounded"
+                rows={4}
+                value={comment}
+                onChange={(e) => setComment(e.target.value)}
+              />
+              <div className="flex justify-end space-x-2 mt-4">
+                <Button variant="outline" onClick={() => setIsCommenting(false)}>
+                  Cancelar
+                </Button>
+                <Button variant="default" onClick={handleCommentSave}>
+                  Salvar
+                </Button>
+              </div>
+            </div>
           </div>
-        )}
-      </TableCell>
-      <TableCell className="w-[25%] font-medium truncate">
-        {service.name}
-      </TableCell>
-      <TableCell className="w-[15%] text-right">
-        {formatPrice(service.price)}
-      </TableCell>
-      <TableCell className="w-[35%] hidden md:table-cell truncate">
-        {service.description || "-"}
-      </TableCell>
-      <TableCell className="w-[15%] text-right pr-4">
-        <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
-          {showAddButton && onAddToSelection && !isMobile && (
-            <Button
-             variant="outline"
-  size="sm"
-  onClick={(e) => {
-    e.stopPropagation();
-    setIsCommenting(true); // Abre o modal
-  }}
-  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
->
-  <PlusCircle className="h-4 w-4 mr-1" />
-  Comentário
-            </Button>
+        </Dialog>
+      )}
+      
+      <TableRow 
+        className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
+        onClick={handleRowClick}
+      >
+        <TableCell className="w-[10%] pl-4">
+          {service.imageUrl ? (
+            <img 
+              src={service.imageUrl} 
+              alt={service.name} 
+              className="w-12 h-12 object-cover rounded" 
+            />
+          ) : (
+            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
+              <ImagePlaceholder />
+            </div>
           )}
-          {!showAddButton && (
-            <>
+        </TableCell>
+        <TableCell className="w-[25%] font-medium truncate">
+          {service.name}
+        </TableCell>
+        <TableCell className="w-[15%] text-right">
+          {formatPrice(service.price)}
+        </TableCell>
+        <TableCell className="w-[35%] hidden md:table-cell truncate">
+          {service.description || "-"}
+        </TableCell>
+        <TableCell className="w-[15%] text-right pr-4">
+          <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
+            {showAddButton && onAddToSelection && !isMobile && (
               <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => onEdit(service, e)}
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCommenting(true);
+                }}
+                className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
               >
-                <Edit className="h-4 w-4" />
+                <PlusCircle className="h-4 w-4 mr-1" />
+                Comentário
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => onDelete(service.id, e)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
-      </TableCell>
-    </TableRow>
+            )}
+            {!showAddButton && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => onEdit(service, e)}
+                >
+                  <Edit className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => onDelete(service.id, e)}
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        </TableCell>
+      </TableRow>
+    </>
   );
 };
