@@ -68,16 +68,16 @@ export const ServiceListItem = ({
         <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
           {showAddButton && onAddToSelection && !isMobile && (
             <Button
-              variant="outline"
-              size="sm"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddToSelection(service);
-              }}
-              className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-            >
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Comentario
+             variant="outline"
+  size="sm"
+  onClick={(e) => {
+    e.stopPropagation();
+    setIsCommenting(true); // Abre o modal
+  }}
+  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
+>
+  <PlusCircle className="h-4 w-4 mr-1" />
+  Comentário
             </Button>
           )}
           {!showAddButton && (
