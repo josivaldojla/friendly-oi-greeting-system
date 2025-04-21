@@ -1,4 +1,5 @@
 
+import { Modal } from "@/components/ui/modal";
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
