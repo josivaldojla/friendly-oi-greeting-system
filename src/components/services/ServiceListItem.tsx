@@ -44,13 +44,14 @@ export const ServiceListItem = ({
   };
 
   // Ao salvar comentário, adiciona o serviço à seleção com comentário
-  const handleCommentSave = () => {
-    if (onAddToSelection) {
-      onAddToSelection(service, comment.trim() ? comment : undefined);
-    }
-    setIsCommenting(false);
-    setComment("");
-  };
+ const handleCommentSave = () => {
+  if (onAddToSelection) {
+    const formattedComment = comment.trim() ? `_${comment.trim()}_` : undefined; // Formata o texto para itálico no WhatsApp
+    onAddToSelection(service, formattedComment);
+  }
+  setIsCommenting(false);
+  setComment("");
+};
 
   return (
     <>
