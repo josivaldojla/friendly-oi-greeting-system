@@ -8,21 +8,25 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-moto-blue text-white shadow-md">
+    <nav className="bg-moto-blue text-white shadow-md relative">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
-          <div className="flex items-center flex-1">
-            <Link to="/" className="flex items-center w-full h-full">
-              <img 
-                src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
-                alt="Heleno Motos"
-                className="w-full h-full object-contain"
-              />
+          <div className="absolute inset-0 w-full h-full">
+            <img 
+              src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
+              alt="Heleno Motos"
+              className="w-full h-full object-cover"
+            />
+          </div>
+          
+          <div className="flex items-center flex-1 relative z-10">
+            <Link to="/" className="flex items-center">
+              <span className="text-xl font-bold">Heleno Motos</span>
             </Link>
           </div>
           
           {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
+          <div className="md:hidden flex items-center relative z-10">
             <button 
               type="button" 
               className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-moto-lightblue focus:outline-none"
@@ -33,14 +37,14 @@ const Navbar = () => {
           </div>
           
           {/* Desktop navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4">
+          <div className="hidden md:flex md:items-center md:space-x-4 relative z-10">
             <NavLinks />
           </div>
         </div>
         
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-moto-blue pt-2 pb-3 space-y-1">
+          <div className="md:hidden bg-moto-blue pt-2 pb-3 space-y-1 relative z-10">
             <Link to="/mechanics" className="block px-3 py-2 rounded-md text-white hover:bg-moto-lightblue">
               <div className="flex items-center">
                 <span>Mecânicos</span>
