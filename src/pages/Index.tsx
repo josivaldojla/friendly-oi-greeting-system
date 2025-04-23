@@ -8,6 +8,7 @@ const Index = () => {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
         <div className="w-full max-w-xl">
+          <h1 className="text-3xl font-bold mb-4">Heleno Motos</h1>
           <div className="mb-8">
             <h2 className="text-gray-600 text-lg">
               Sistema completo para gerenciamento de serviços de oficina de motos
