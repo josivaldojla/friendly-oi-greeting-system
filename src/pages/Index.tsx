@@ -8,11 +8,6 @@ const Index = () => {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mt-4 mb-2">Serviços Heleno Motos</h1>
-          <p className="text-xl text-muted-foreground max-w-md mx-auto mb-8">
-            Sistema completo para gerenciamento de serviços de oficina de motos
-          </p>
-          
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
             <Link to="/mechanics" className="w-full">
               <Button className="w-full h-16 text-lg" variant="outline">

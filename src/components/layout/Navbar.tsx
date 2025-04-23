@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { CreditCard, FileText, BarChart3, Menu } from "lucide-react";
+import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -10,13 +10,13 @@ const Navbar = () => {
   return (
     <nav className="bg-moto-blue text-white shadow-md">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/" className="flex items-center">
+        <div className="flex items-center justify-between h-20">
+          <div className="flex items-center flex-1">
+            <Link to="/" className="flex items-center w-full">
               <img 
                 src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
                 alt="Heleno Motos"
-                className="h-12 mr-2"
+                className="h-20 w-auto"
               />
             </Link>
           </div>
