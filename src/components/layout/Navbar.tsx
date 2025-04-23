@@ -1,6 +1,6 @@
 
 import { Link } from "react-router-dom";
-import { Wrench, FileText, CreditCard, BarChart3, Menu } from "lucide-react";
+import { CreditCard, FileText, BarChart3, Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -13,8 +13,11 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center">
-              <Wrench className="h-8 w-8 mr-2" />
-              <span className="font-bold text-xl">Serviços Heleno Motos</span>
+              <img 
+                src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
+                alt="Heleno Motos"
+                className="h-12 mr-2"
+              />
             </Link>
           </div>
           
