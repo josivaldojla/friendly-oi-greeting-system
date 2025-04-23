@@ -1,5 +1,5 @@
 
-import { Wrench, Upload } from "lucide-react";
+import { Upload } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
@@ -28,7 +28,6 @@ const Index = () => {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
         <div className="mb-8">
-          <Wrench className="h-20 w-20 text-moto-blue mx-auto" />
           <h1 className="text-4xl font-bold mt-4 mb-2">Serviços Heleno Motos</h1>
           <p className="text-xl text-muted-foreground max-w-md mx-auto mb-8">
             Sistema completo para gerenciamento de serviços de oficina de motos
