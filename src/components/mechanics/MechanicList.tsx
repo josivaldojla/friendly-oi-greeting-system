@@ -78,11 +78,8 @@ const MechanicList = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mecânicos</h2>
-        <Button 
-          onClick={() => setFormOpen(true)} 
-          className="flex items-center gap-2 text-sm py-1.5 h-8 px-3"
-        >
-          <UserPlus size={16} />
+        <Button onClick={() => setFormOpen(true)} className="flex items-center gap-2">
+          <UserPlus size={18} />
           <span>Novo Mecânico</span>
         </Button>
       </div>
