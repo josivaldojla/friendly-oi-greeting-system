@@ -8,14 +8,15 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <nav className="bg-moto-blue text-white shadow-md relative">
+    <nav className="bg-black text-white shadow-md relative h-16">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <div className="absolute inset-0 w-full h-16">
+        <div className="flex items-center justify-between h-full">
+          <div className="absolute inset-0 w-full h-full">
             <img 
               src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
               alt="Heleno Motos"
               className="w-full h-full object-cover opacity-50"
+              style={{ maxHeight: '4rem' }}
             />
           </div>
           
@@ -27,7 +28,7 @@ const Navbar = () => {
           <div className="md:hidden flex items-center relative z-10">
             <button 
               type="button" 
-              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-moto-lightblue focus:outline-none"
+              className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-black focus:outline-none"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
             >
               <Menu className="h-6 w-6" />
@@ -42,23 +43,23 @@ const Navbar = () => {
         
         {/* Mobile Navigation Menu */}
         {isMenuOpen && (
-          <div className="md:hidden bg-moto-blue pt-2 pb-3 space-y-1 relative z-10">
-            <Link to="/mechanics" className="block px-3 py-2 rounded-md text-white hover:bg-moto-lightblue">
+          <div className="md:hidden bg-black pt-2 pb-3 space-y-1 relative z-10">
+            <Link to="/mechanics" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span>Mecânicos</span>
               </div>
             </Link>
-            <Link to="/services" className="block px-3 py-2 rounded-md text-white hover:bg-moto-lightblue">
+            <Link to="/services" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span>Serviços</span>
               </div>
             </Link>
-            <Link to="/checkout" className="block px-3 py-2 rounded-md text-white hover:bg-moto-lightblue">
+            <Link to="/checkout" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span>Caixa</span>
               </div>
             </Link>
-            <Link to="/reports" className="block px-3 py-2 rounded-md text-white hover:bg-moto-lightblue">
+            <Link to="/reports" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span>Relatórios</span>
               </div>
@@ -73,22 +74,22 @@ const Navbar = () => {
 const NavLinks = () => (
   <>
     <Link to="/mechanics">
-      <Button variant="ghost" className="text-white hover:bg-moto-lightblue">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Mecânicos
       </Button>
     </Link>
     <Link to="/services">
-      <Button variant="ghost" className="text-white hover:bg-moto-lightblue">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Serviços
       </Button>
     </Link>
     <Link to="/checkout">
-      <Button variant="ghost" className="text-white hover:bg-moto-lightblue">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Caixa
       </Button>
     </Link>
     <Link to="/reports">
-      <Button variant="ghost" className="text-white hover:bg-moto-lightblue">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Relatórios
       </Button>
     </Link>
