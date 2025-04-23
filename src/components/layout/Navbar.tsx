@@ -16,7 +16,7 @@ const Navbar = () => {
               src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
               alt="Heleno Motos"
               className="w-full h-full object-cover opacity-50"
-              style={{ maxHeight: '4rem' }}
+              style={{ maxHeight: '3.5rem' }}
             />
           </div>
           
