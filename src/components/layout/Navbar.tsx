@@ -11,11 +11,11 @@ const Navbar = () => {
     <nav className="bg-black text-white shadow-md relative h-16">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-full">
-          <div className="absolute inset-0 w-full h-full">
+          <div className="absolute inset-0 w-full h-full flex items-center justify-center">
             <img 
               src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
               alt="Heleno Motos"
-              className="w-full h-full object-cover opacity-50"
+              className="w-3/4 h-full object-cover opacity-50"
               style={{ maxHeight: '3.5rem' }}
             />
           </div>
@@ -97,3 +97,4 @@ const NavLinks = () => (
 );
 
 export default Navbar;
+
