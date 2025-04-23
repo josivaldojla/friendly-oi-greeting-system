@@ -6,9 +6,15 @@ import Layout from "@/components/layout/Layout";
 const Index = () => {
   return (
     <Layout>
-      <div className="flex flex-col items-center justify-center min-h-[80vh] text-center">
-        <div className="mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full max-w-md">
+      <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
+        <div className="w-full max-w-xl">
+          <div className="mb-8">
+            <h2 className="text-gray-600 text-lg">
+              Sistema completo para gerenciamento de serviços de oficina de motos
+            </h2>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-4 w-full">
             <Link to="/mechanics" className="w-full">
               <Button className="w-full h-16 text-lg" variant="outline">
                 Mecânicos
@@ -22,7 +28,7 @@ const Index = () => {
             </Link>
             
             <Link to="/checkout" className="w-full">
-              <Button className="w-full h-16 text-lg" variant="default">
+              <Button className="w-full h-16 text-lg bg-moto-blue hover:bg-moto-lightblue">
                 Caixa
               </Button>
             </Link>
