@@ -12,11 +12,11 @@ const Navbar = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           <div className="flex items-center flex-1">
-            <Link to="/" className="flex items-center w-full">
+            <Link to="/" className="flex items-center w-full h-full">
               <img 
                 src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
                 alt="Heleno Motos"
-                className="h-20 w-auto"
+                className="w-full h-full object-contain"
               />
             </Link>
           </div>
