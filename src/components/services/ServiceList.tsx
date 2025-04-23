@@ -75,15 +75,18 @@ const ServiceList = ({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-16">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Serviços</h2>
         <div className="flex items-center gap-2">
           {onViewModeChange && (
             <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
           )}
-          <Button onClick={() => setFormOpen(true)} className="flex items-center gap-2">
-            <Plus size={18} />
+          <Button 
+            onClick={() => setFormOpen(true)} 
+            className="flex items-center gap-2 text-sm h-9 px-3"
+          >
+            <Plus size={16} />
             <span>Novo Serviço</span>
           </Button>
         </div>
