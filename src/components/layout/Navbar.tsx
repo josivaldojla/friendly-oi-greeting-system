@@ -10,20 +10,18 @@ const Navbar = () => {
   return (
     <nav className="bg-moto-blue text-white shadow-md relative">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
-          <div className="absolute inset-0 w-full h-full">
+        <div className="flex items-center justify-between h-16">
+          <div className="absolute inset-0 w-full h-16">
             <img 
               src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
               alt="Heleno Motos"
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-50"
             />
           </div>
           
-          <div className="flex items-center flex-1 relative z-10">
-            <Link to="/" className="flex items-center">
-              <span className="text-xl font-bold">Heleno Motos</span>
-            </Link>
-          </div>
+          <Link to="/" className="absolute inset-0 w-full h-full z-[5]">
+            <span className="sr-only">Ir para página inicial</span>
+          </Link>
           
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center relative z-10">
@@ -37,7 +35,7 @@ const Navbar = () => {
           </div>
           
           {/* Desktop navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4 relative z-10">
+          <div className="hidden md:flex md:items-center md:space-x-4 relative z-10 ml-auto">
             <NavLinks />
           </div>
         </div>
