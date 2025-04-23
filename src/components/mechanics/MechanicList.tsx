@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -42,7 +41,7 @@ const MechanicList = ({
   const [mechanicToDelete, setMechanicToDelete] = useState<string | null>(null);
 
   const handleEdit = (mechanic: Mechanic) => {
-    setSelectedMechanic({...mechanic}); // Clone para evitar problemas de referência
+    setSelectedMechanic({...mechanic});
     setFormOpen(true);
   };
 
@@ -79,8 +78,11 @@ const MechanicList = ({
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mecânicos</h2>
-        <Button onClick={() => setFormOpen(true)} className="flex items-center gap-2">
-          <UserPlus size={18} />
+        <Button 
+          onClick={() => setFormOpen(true)} 
+          className="flex items-center gap-2 text-sm py-1.5 h-8 px-3"
+        >
+          <UserPlus size={16} />
           <span>Novo Mecânico</span>
         </Button>
       </div>

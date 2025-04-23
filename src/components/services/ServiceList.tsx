@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -83,8 +82,11 @@ const ServiceList = ({
           {onViewModeChange && (
             <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
           )}
-          <Button onClick={() => setFormOpen(true)} className="flex items-center gap-2">
-            <Plus size={18} />
+          <Button 
+            onClick={() => setFormOpen(true)} 
+            className="flex items-center gap-2 text-sm py-1.5 h-8 px-3"
+          >
+            <Plus size={16} />
             <span>Novo Serviço</span>
           </Button>
         </div>
