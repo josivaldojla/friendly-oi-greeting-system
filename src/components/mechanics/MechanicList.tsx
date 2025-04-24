@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -9,7 +10,7 @@ import {
   TableHeader, 
   TableRow 
 } from "@/components/ui/table";
-import { Edit, Trash2, UserPlus } from "lucide-react";
+import { Edit, Trash2, Plus } from "lucide-react";
 import MechanicForm from "./MechanicForm";
 import { 
   AlertDialog,
@@ -78,13 +79,15 @@ const MechanicList = ({
     <div className="space-y-4 pb-16">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mecânicos</h2>
-        <Button 
-          onClick={() => setFormOpen(true)} 
-          className="flex items-center gap-2 text-sm h-9 px-3"
-        >
-          <UserPlus size={16} />
-          <span>Novo Mecânico</span>
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button 
+            onClick={() => setFormOpen(true)} 
+            className="flex items-center gap-2 text-sm h-9 px-3"
+          >
+            <Plus size={16} />
+            <span>Novo Mecânico</span>
+          </Button>
+        </div>
       </div>
 
       {mechanics.length > 0 ? (
