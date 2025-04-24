@@ -80,7 +80,7 @@ const MechanicList = ({
         <h2 className="text-2xl font-bold">Mecânicos</h2>
         <Button 
           onClick={() => setFormOpen(true)} 
-          className="h-10 px-4 py-2 flex items-center gap-2"
+          className="h-30 px-4 py-2 flex items-center gap-2"
         >
           <Plus size={18} />
           <span>Novo Mecânico</span>
