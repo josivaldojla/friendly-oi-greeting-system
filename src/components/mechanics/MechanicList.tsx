@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -79,17 +78,13 @@ const MechanicList = ({
     <div className="space-y-4 pb-16">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mecânicos</h2>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-2">
-            <Button 
-              onClick={() => setFormOpen(true)} 
-              className="flex items-center gap-2 text-sm h-9 px-3"
-            >
-              <Plus size={16} />
-              <span>Novo Mecânico</span>
-            </Button>
-          </div>
-        </div>
+        <Button 
+          onClick={() => setFormOpen(true)} 
+          className="h-10 px-4 py-2 flex items-center gap-2"
+        >
+          <Plus size={18} />
+          <span>Novo Mecânico</span>
+        </Button>
       </div>
 
       {mechanics.length > 0 ? (
