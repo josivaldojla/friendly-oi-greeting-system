@@ -1,4 +1,3 @@
-
 import { Service } from "@/lib/types";
 
 type ServiceWithOptionalComment = Service & { comment?: string };
@@ -13,8 +12,8 @@ export const formatWhatsAppMessage = (
   formatPrice: (price: number) => string
 ) => {
   let message = `*HELENO MOTOS*\n`;
-  message += `*MECÂNICO:* ${mechanicName}\n`;
-  message += `*DATA:* ${currentDate}\n`;
+  message += `*Mecânico:* ${mechanicName}\n`;
+  message += `*Data:* ${currentDate}\n`;
   message += "--------------------------------------------------\n\n";
   
   services.forEach((service, index) => {
