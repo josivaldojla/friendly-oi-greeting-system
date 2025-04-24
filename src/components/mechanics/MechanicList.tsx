@@ -81,9 +81,9 @@ const MechanicList = ({
         <h2 className="text-2xl font-bold">Mecânicos</h2>
         <Button 
           onClick={() => setFormOpen(true)} 
-          className="flex items-center gap-2 text-sm h-9 px-3"
+          className="bg-black text-white hover:bg-black/90 h-11 px-6 rounded-md"
         >
-          <Plus size={16} />
+          <Plus size={20} className="mr-2" />
           <span>Novo Mecânico</span>
         </Button>
       </div>
