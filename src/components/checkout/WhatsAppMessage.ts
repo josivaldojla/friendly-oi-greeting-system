@@ -1,7 +1,6 @@
 
 import { Service } from "@/lib/types";
 
-// Agora Service pode (durante checkout) possuir comentário opcional
 type ServiceWithOptionalComment = Service & { comment?: string };
 
 export const formatWhatsAppMessage = (
@@ -13,7 +12,9 @@ export const formatWhatsAppMessage = (
   remaining: number,
   formatPrice: (price: number) => string
 ) => {
-  let message = `*SERVIÇOS DO DIA ${currentDate}*\n\n`;
+  let message = `*HELENO MOTOS*\n`;
+  message += `*MECÂNICO:* ${mechanicName}\n`;
+  message += `*DATA:* ${currentDate}\n`;
   message += "--------------------------------------------------\n\n";
   
   services.forEach((service, index) => {
@@ -22,7 +23,6 @@ export const formatWhatsAppMessage = (
     if (service.description) {
       message += `${service.description}\n`;
     }
-    // Exibe comentário abaixo da descrição, entre parênteses
     if (service.comment) {
       message += `(${service.comment})\n`;
     }
