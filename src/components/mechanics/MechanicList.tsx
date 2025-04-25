@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -79,13 +78,6 @@ const MechanicList = ({
     <div className="space-y-4 pb-16">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Mecânicos</h2>
-        <Button 
-          onClick={() => setFormOpen(true)} 
-          className="bg-black text-white hover:bg-black/90 h-11 px-6 rounded-md"
-        >
-          <Plus size={20} className="mr-2" />
-          <span>Novo Mecânico</span>
-        </Button>
       </div>
 
       {mechanics.length > 0 ? (
@@ -132,9 +124,18 @@ const MechanicList = ({
       ) : (
         <div className="flex flex-col items-center justify-center border rounded-lg p-8 bg-white">
           <p className="text-muted-foreground mb-4">Nenhum mecânico cadastrado.</p>
-          <Button onClick={() => setFormOpen(true)}>Adicionar Primeiro Mecânico</Button>
         </div>
       )}
+
+      <div className="flex justify-center mt-8">
+        <Button 
+          onClick={() => setFormOpen(true)} 
+          className="bg-black text-white hover:bg-black/90 h-11 px-6 rounded-md"
+        >
+          <Plus size={20} className="mr-2" />
+          <span>Novo Mecânico</span>
+        </Button>
+      </div>
 
       <MechanicForm
         mechanic={selectedMechanic}
