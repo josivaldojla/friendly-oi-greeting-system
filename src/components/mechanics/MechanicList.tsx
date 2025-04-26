@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -81,10 +82,10 @@ const MechanicList = ({
           <h2 className="text-2xl font-bold">Mecânicos</h2>
           <Button 
             onClick={() => setFormOpen(true)} 
-            className="bg-black text-white hover:bg-black/90 h-10 px-4 rounded-md"
+            className="bg-black text-white hover:bg-black/90 h-8 px-2 rounded-md"
           >
-            <Plus size={16} className="mr-2" />
-            <span>Novo Mecânico</span>
+            <Plus size={14} className="mr-1" />
+            <span className="text-xs">Novo</span>
           </Button>
         </div>
       </div>
