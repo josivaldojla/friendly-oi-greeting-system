@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -75,7 +76,7 @@ const MechanicList = ({
   };
 
   return (
-    <div className="space-y-4 pb-16">
+    <div className="space-y-6 pb-16">
       <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center w-full">
           <h2 className="text-2xl font-bold">Mecânicos</h2>
