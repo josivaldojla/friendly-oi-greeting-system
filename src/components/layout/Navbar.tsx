@@ -17,7 +17,7 @@ const Navbar = () => {
               className="w-3/4 h-full object-cover opacity-50"
               style={{ 
                 maxHeight: '3.5rem', 
-                filter: 'brightness(1.5)' // Aumenta o brilho para tornar mais claro
+                filter: 'brightness(2)' // Aumentei de 1.5 para 2 para mais brilho
               }}
             />
           </div>
