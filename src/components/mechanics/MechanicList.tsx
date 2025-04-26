@@ -83,10 +83,10 @@ const MechanicList = ({
 
         <Button 
           onClick={() => setFormOpen(true)} 
-          className="bg-black text-blue hover:bg-black/90 h-30 px-20 rounded-md"
+          className="bg-black text-white hover:bg-black/90 h-14 px-10 rounded-md"
         >
           <Plus size={20} className="mr-2" />
-          <span>Novofjf Mecânico</span>
+          <span>Novo Mecânico</span>
         </Button>
       </div>
 
