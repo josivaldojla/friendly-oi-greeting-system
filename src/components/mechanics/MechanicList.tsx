@@ -76,18 +76,17 @@ const MechanicList = ({
 
   return (
     <div className="space-y-4 pb-16">
-      <div className="flex flex-col items-center space-y-4">
+      <div className="flex flex-col space-y-4">
         <div className="flex justify-between items-center w-full">
           <h2 className="text-2xl font-bold">Mecânicos</h2>
+          <Button 
+            onClick={() => setFormOpen(true)} 
+            className="bg-black text-white hover:bg-black/90 h-10 px-4 rounded-md"
+          >
+            <Plus size={16} className="mr-2" />
+            <span>Novo Mecânico</span>
+          </Button>
         </div>
-
-        <Button 
-          onClick={() => setFormOpen(true)} 
-          className="w-full bg-black text-white hover:bg-black/90 h-12 rounded-none"
-        >
-          <Plus size={20} className="mr-2" />
-          <span>Novo Mecânico</span>
-        </Button>
       </div>
 
       {mechanics.length > 0 ? (
