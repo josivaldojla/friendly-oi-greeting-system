@@ -1,4 +1,3 @@
-
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { useState } from "react";
@@ -16,7 +15,10 @@ const Navbar = () => {
               src="/lovable-uploads/97ddb309-4ef6-4b93-bcdb-a39227bd5388.png"
               alt="Heleno Motos"
               className="w-3/4 h-full object-cover opacity-50"
-              style={{ maxHeight: '3.5rem' }}
+              style={{ 
+                maxHeight: '3.5rem', 
+                filter: 'brightness(1.5)' // Aumenta o brilho para tornar mais claro
+              }}
             />
           </div>
           
@@ -97,4 +99,3 @@ const NavLinks = () => (
 );
 
 export default Navbar;
-
