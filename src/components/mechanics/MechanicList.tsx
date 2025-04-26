@@ -78,7 +78,7 @@ const MechanicList = ({
   return (
     <div className="space-y-6 pb-16">
       <div className="flex flex-col space-y-4">
-        <div className="flex justify-between items-center w-full">
+        <div className="flex justify-between items-center w-full mt-4">
           <h2 className="text-2xl font-bold">Mecânicos</h2>
           <Button 
             onClick={() => setFormOpen(true)} 
