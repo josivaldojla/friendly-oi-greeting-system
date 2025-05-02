@@ -1,24 +1,28 @@
+
 import { ReactNode } from "react";
 import Navbar from "./Navbar";
 import { Toaster } from "@/components/ui/sonner";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface LayoutProps {
   children: ReactNode;
 }
 
 const Layout = ({ children }: LayoutProps) => {
+  const isMobile = useIsMobile();
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <main className="flex-grow">
+      <main className={`flex-grow ${isMobile ? 'px-2' : 'px-4'}`}>
         {children}
       </main>
-      <footer className="bg-moto-dark text-white py-4">
-        <div className="container mx-auto px-4 text-center">
+      <footer className="bg-moto-dark text-white py-4 px-4 text-center text-sm">
+        <div className="container mx-auto">
           <p>© {new Date().getFullYear()} Serviços Heleno Motos - Todos os direitos reservados ao Josivaldo L. de Araujo</p>
         </div>
       </footer>
-      <Toaster position="top-right" />
+      <Toaster position={isMobile ? "bottom-center" : "top-right"} />
     </div>
   );
 };

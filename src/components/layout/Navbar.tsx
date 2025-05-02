@@ -1,10 +1,13 @@
+
 import { Link } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
     <nav className="bg-black text-white shadow-md relative h-16">
@@ -17,7 +20,7 @@ const Navbar = () => {
               className="w-3/4 h-full object-cover opacity-50"
               style={{ 
                 maxHeight: '3.5rem', 
-                filter: 'brightness(2)' // Aumentei de 1.5 para 2 para mais brilho
+                filter: 'brightness(2)' 
               }}
             />
           </div>
@@ -32,6 +35,8 @@ const Navbar = () => {
               type="button" 
               className="inline-flex items-center justify-center p-2 rounded-md text-white hover:text-white hover:bg-black focus:outline-none"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
+              aria-expanded={isMenuOpen}
+              aria-label="Menu principal"
             >
               <Menu className="h-6 w-6" />
             </button>
@@ -43,27 +48,27 @@ const Navbar = () => {
           </div>
         </div>
         
-        {/* Mobile Navigation Menu */}
+        {/* Mobile Navigation Menu - Improved for better touch targets */}
         {isMenuOpen && (
-          <div className="md:hidden bg-black pt-2 pb-3 space-y-1 relative z-10">
-            <Link to="/mechanics" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
+          <div className="md:hidden bg-black pt-2 pb-3 space-y-1 relative z-20 border-t border-gray-700">
+            <Link to="/mechanics" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
-                <span>Mecânicos</span>
+                <span className="text-base">Mecânicos</span>
               </div>
             </Link>
-            <Link to="/services" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
+            <Link to="/services" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
-                <span>Serviços</span>
+                <span className="text-base">Serviços</span>
               </div>
             </Link>
-            <Link to="/checkout" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
+            <Link to="/checkout" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
-                <span>Caixa</span>
+                <span className="text-base">Caixa</span>
               </div>
             </Link>
-            <Link to="/reports" className="block px-3 py-2 rounded-md text-white hover:bg-gray-800">
+            <Link to="/reports" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
-                <span>Relatórios</span>
+                <span className="text-base">Relatórios</span>
               </div>
             </Link>
           </div>
