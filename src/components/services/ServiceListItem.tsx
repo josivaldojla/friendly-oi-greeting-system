@@ -44,14 +44,14 @@ export const ServiceListItem = ({
   };
 
   // Ao salvar comentário, adiciona o serviço à seleção com comentário
- const handleCommentSave = () => {
-  if (onAddToSelection) {
-    const formattedComment = comment.trim() ? `_${comment.trim()}_` : undefined; // Formata o texto para itálico no WhatsApp
-    onAddToSelection(service, formattedComment);
-  }
-  setIsCommenting(false);
-  setComment("");
-};
+  const handleCommentSave = () => {
+    if (onAddToSelection) {
+      const formattedComment = comment.trim() ? `_${comment.trim()}_` : undefined;
+      onAddToSelection(service, formattedComment);
+    }
+    setIsCommenting(false);
+    setComment("");
+  };
 
   return (
     <>
@@ -84,60 +84,61 @@ export const ServiceListItem = ({
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-       <TableCell className="w-[10%] pl-4">
-  {service.imageUrl ? (
-    <img 
-      src={service.imageUrl} 
-      alt={service.name} 
-      className="w-12 h-12 object-cover rounded" 
-    />
-  ) : (
-    <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
-      <ImagePlaceholder />
-    </div>
-  )}
-</TableCell>
-        <TableCell className="w-[25%] font-medium truncate">
+        <TableCell className="w-[60px] pl-2">
+          {service.imageUrl ? (
+            <img 
+              src={service.imageUrl} 
+              alt={service.name} 
+              className="w-10 h-10 object-cover rounded" 
+            />
+          ) : (
+            <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
+              <ImagePlaceholder size={16} />
+            </div>
+          )}
+        </TableCell>
+        <TableCell className="font-medium truncate max-w-[120px]">
           {service.name}
         </TableCell>
-        <TableCell className="w-[15%] text-right">
+        <TableCell className="text-right whitespace-nowrap">
           {formatPrice(service.price)}
         </TableCell>
-        <TableCell className="w-[35%] hidden md:table-cell truncate">
+        <TableCell className="hidden md:table-cell truncate max-w-[200px]">
           {service.description || "-"}
         </TableCell>
-        <TableCell className="w-[15%] text-right pr-4">
-          <div className="flex justify-end space-x-2" onClick={(e) => e.stopPropagation()}>
+        <TableCell className="text-right p-1 pr-2">
+          <div className="flex justify-end space-x-1" onClick={(e) => e.stopPropagation()}>
             {showAddButton && onAddToSelection && (
-  <Button
-    variant="outline"
-    size="sm"
-    onClick={(e) => {
-      e.stopPropagation();
-      setIsCommenting(true);
-    }}
-    className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-  >
-    <MessageCirclePlus className="h-4 w-4 mr-1" />
-    Comentário
-  </Button>
-)}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setIsCommenting(true);
+                }}
+                className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-2 py-1 h-7"
+              >
+                <MessageCirclePlus className="h-3 w-3 mr-1" />
+                {isMobile ? "" : "Comentar"}
+              </Button>
+            )}
             {!showAddButton && (
               <>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={(e) => onEdit(service, e)}
+                  className="h-7 w-7"
                 >
-                  <Edit className="h-4 w-4" />
+                  <Edit className="h-3 w-3" />
                 </Button>
                 <Button
                   variant="ghost"
                   size="icon"
                   onClick={(e) => onDelete(service.id, e)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7"
                 >
-                  <Trash2 className="h-4 w-4" />
+                  <Trash2 className="h-3 w-3" />
                 </Button>
               </>
             )}

@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -95,32 +96,34 @@ const ServiceList = ({
       {services.length > 0 ? (
         viewMode === 'list' ? (
           <div className="border rounded-lg overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[10%]">Imagem</TableHead>
-                  <TableHead className="w-[25%]">Nome</TableHead>
-                  <TableHead className="w-[15%] text-right">Valor</TableHead>
-                  <TableHead className="w-[35%] hidden md:table-cell">Descrição</TableHead>
-                  <TableHead className="w-[15%] text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {services.map((service) => (
-                  <ServiceListItem
-                    key={service.id}
-                    service={service}
-                    selectable={selectable}
-                    onEdit={handleEdit}
-                    onDelete={handleDelete}
-                    onClick={onSelectService}
-                    formatPrice={formatPrice}
-                    onAddToSelection={onAddToSelection}
-                    showAddButton={showAddButton}
-                  />
-                ))}
-              </TableBody>
-            </Table>
+            <div className="overflow-x-auto w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="w-[60px]">Img</TableHead>
+                    <TableHead>Nome</TableHead>
+                    <TableHead className="text-right">Valor</TableHead>
+                    <TableHead className="hidden md:table-cell">Descrição</TableHead>
+                    <TableHead className="w-[100px] text-right">Ações</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {services.map((service) => (
+                    <ServiceListItem
+                      key={service.id}
+                      service={service}
+                      selectable={selectable}
+                      onEdit={handleEdit}
+                      onDelete={handleDelete}
+                      onClick={onSelectService}
+                      formatPrice={formatPrice}
+                      onAddToSelection={onAddToSelection}
+                      showAddButton={showAddButton}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

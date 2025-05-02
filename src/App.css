@@ -1,8 +1,10 @@
 
 #root {
   width: 100%;
+  max-width: 100%;
   margin: 0 auto;
   text-align: center;
+  overflow-x: hidden;
 }
 
 .logo {
@@ -46,5 +48,45 @@
   .container {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+  
+  table {
+    width: 100% !important;
+  }
+  
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* Fix para evitar rolagem horizontal em qualquer tamanho de dispositivo */
+body, html {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Ajustes para tabelas em dispositivos móveis */
+.table-compact th,
+.table-compact td {
+  padding: 0.5rem 0.25rem;
+  font-size: 0.875rem;
+}
+
+/* Ajustando o tamanho do componente de card */
+@media (max-width: 768px) {
+  .card-compact {
+    padding: 0.5rem;
+  }
+  
+  .card-compact .card-body {
+    padding: 0.5rem;
+  }
+  
+  /* Diminui o tamanho dos botões em tela pequena */
+  .btn-compact {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.75rem;
   }
 }

@@ -79,7 +79,7 @@ const MechanicList = ({
   };
 
   return (
-    <div className="container mx-auto px-4 space-y-6 pb-16">
+    <div className="container mx-auto px-2 space-y-6 pb-16">
       <div className="flex flex-col">
         <div className="flex justify-between items-center w-full py-4">
           <h2 className="text-2xl font-bold">Mecânicos</h2>
@@ -101,37 +101,38 @@ const MechanicList = ({
                 <CardContent className="pt-4">
                   <div className="flex items-center gap-3 mb-2">
                     <div className="bg-gray-100 rounded-full p-2">
-                      <User size={24} className="text-gray-500" />
+                      <User size={20} className="text-gray-500" />
                     </div>
-                    <div className="flex-1">
-                      <h3 className="font-semibold">{mechanic.name}</h3>
-                      <p className="text-sm text-gray-500">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="font-semibold truncate">{mechanic.name}</h3>
+                      <p className="text-sm text-gray-500 truncate">
                         {mechanic.specialization || "Sem especialização"}
                       </p>
                     </div>
                   </div>
                   <div className="text-sm mt-2">
-                    <p className="text-gray-600">
+                    <p className="text-gray-600 truncate">
                       <span className="font-medium">Telefone:</span> {mechanic.phone || "-"}
                     </p>
                   </div>
                 </CardContent>
-                <CardFooter className="flex justify-end space-x-2 pt-0">
+                <CardFooter className="flex justify-end space-x-2 pt-0 px-4 pb-4">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(mechanic)}
+                    className="h-8 px-2 text-xs"
                   >
-                    <Edit className="h-4 w-4 mr-1" />
+                    <Edit className="h-3 w-3 mr-1" />
                     Editar
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(mechanic.id)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 px-2 text-xs"
                   >
-                    <Trash2 className="h-4 w-4 mr-1" />
+                    <Trash2 className="h-3 w-3 mr-1" />
                     Excluir
                   </Button>
                 </CardFooter>
@@ -139,45 +140,47 @@ const MechanicList = ({
             ))}
           </div>
         ) : (
-          <div className="border rounded-lg overflow-hidden overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Nome</TableHead>
-                  <TableHead>Especialização</TableHead>
-                  <TableHead>Telefone</TableHead>
-                  <TableHead className="w-[100px]">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {mechanics.map((mechanic) => (
-                  <TableRow key={mechanic.id}>
-                    <TableCell className="font-medium">{mechanic.name}</TableCell>
-                    <TableCell>{mechanic.specialization || "-"}</TableCell>
-                    <TableCell>{mechanic.phone || "-"}</TableCell>
-                    <TableCell>
-                      <div className="flex space-x-2">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleEdit(mechanic)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => handleDelete(mechanic.id)}
-                          className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
+          <div className="border rounded-lg overflow-hidden">
+            <div className="overflow-x-auto w-full">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Nome</TableHead>
+                    <TableHead>Especialização</TableHead>
+                    <TableHead>Telefone</TableHead>
+                    <TableHead className="w-[100px]">Ações</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+                </TableHeader>
+                <TableBody>
+                  {mechanics.map((mechanic) => (
+                    <TableRow key={mechanic.id}>
+                      <TableCell className="font-medium">{mechanic.name}</TableCell>
+                      <TableCell>{mechanic.specialization || "-"}</TableCell>
+                      <TableCell>{mechanic.phone || "-"}</TableCell>
+                      <TableCell>
+                        <div className="flex space-x-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEdit(mechanic)}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDelete(mechanic.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         )
       ) : (

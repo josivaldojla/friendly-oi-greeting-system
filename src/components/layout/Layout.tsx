@@ -14,7 +14,7 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <main className={`flex-grow ${isMobile ? 'px-2' : 'px-4'}`}>
+      <main className={`flex-grow w-full max-w-full overflow-x-hidden ${isMobile ? 'px-2' : 'px-4'}`}>
         {children}
       </main>
       <footer className="bg-moto-dark text-white py-4 px-4 text-center text-sm">
