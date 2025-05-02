@@ -4,7 +4,6 @@
   max-width: 100%;
   margin: 0 auto;
   text-align: center;
-  overflow-x: hidden;
 }
 
 .logo {
@@ -48,9 +47,7 @@
   .container {
     padding-left: 0.5rem;
     padding-right: 0.5rem;
-    max-width: 100% !important;
     width: 100% !important;
-    overflow-x: hidden;
   }
   
   table {
@@ -59,15 +56,7 @@
   
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
-    max-width: 100%;
-    overflow-x: hidden;
   }
-}
-
-/* Fix para evitar rolagem horizontal em qualquer tamanho de dispositivo */
-body, html {
-  max-width: 100%;
-  overflow-x: hidden;
 }
 
 /* Ajustes para tabelas em dispositivos móveis */
@@ -97,7 +86,6 @@ body, html {
   td, th {
     word-break: break-word;
     white-space: normal;
-    max-width: 100%;
   }
   
   /* Melhor separação entre os controles */
@@ -112,13 +100,28 @@ li {
   white-space: normal;
 }
 
-/* Garantia adicional que tabelas não causam overflow */
-table, tr, td, th {
-  max-width: 100%;
-}
-
 /* Garantir que as células sejam responsivas */
 .table-cell-responsive {
   max-width: 100%;
   overflow-wrap: break-word;
+}
+
+/* Remover bordas entre linhas da mesma célula */
+tr.border-0 + tr.border-0 {
+  border-top: none;
+}
+
+/* Garantir alinhamento correto de elementos */
+.text-left {
+  text-align: left;
+}
+
+.text-right {
+  text-align: right;
+}
+
+/* Ajuste para largura máxima de tabelas */
+.overflow-x-auto table {
+  width: 100%;
+  table-layout: fixed;
 }

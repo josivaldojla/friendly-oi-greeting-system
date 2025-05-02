@@ -12,18 +12,18 @@ interface ServiceListItemProps {
 
 const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProps) => {
   return (
-    <li className="py-2">
+    <li className="py-2 border-b border-gray-100">
       <div className="flex flex-col">
-        <div className="w-full">
+        <div className="w-full text-left">
           <span className="font-medium break-words whitespace-normal block">{service.name}</span>
         </div>
         <div className="flex justify-between items-center mt-1">
           {service.description && (
-            <div className="text-sm text-gray-500 flex-grow truncate mr-2">
+            <div className="text-sm text-gray-500 mr-2 text-left">
               {service.description}
             </div>
           )}
-          <div className="flex items-center gap-2 shrink-0">
+          <div className="flex items-center gap-2 shrink-0 ml-auto">
             <span>{formatPrice(service.price)}</span>
             <Button
               variant="ghost"

@@ -80,11 +80,11 @@ export const ServiceListItem = ({
       </Dialog>
 
       <TableRow 
-        className={selectable ? "cursor-pointer hover:bg-muted/50" : ""}
+        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""} border-0`}
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="w-[60px] pl-2" rowSpan={2}>
+        <TableCell className="w-[60px] pl-2" rowSpan={1}>
           {service.imageUrl ? (
             <img 
               src={service.imageUrl} 
@@ -97,24 +97,19 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell colSpan={2} className="pb-0 pt-2">
-          <div className="font-medium text-left w-full whitespace-normal break-words">
-            {service.name}
+        <TableCell colSpan={2} className="py-2 pl-3">
+          <div className="flex flex-col w-full">
+            <div className="font-medium text-left w-full whitespace-normal break-words">
+              {service.name}
+            </div>
+            {service.description && (
+              <div className="text-xs text-gray-500 text-left mt-1">
+                {service.description}
+              </div>
+            )}
           </div>
         </TableCell>
-      </TableRow>
-      <TableRow 
-        className={selectable ? "cursor-pointer hover:bg-muted/50 border-0" : "border-0"}
-        onClick={handleRowClick}
-      >
-        <TableCell className="text-left pt-0 pb-2">
-          {service.description && (
-            <div className="text-xs text-gray-500 truncate max-w-[150px]">
-              {service.description}
-            </div>
-          )}
-        </TableCell>
-        <TableCell className="text-right pt-0 pb-2">
+        <TableCell className="text-right py-2">
           <div className="flex items-center justify-end space-x-1">
             <span className="font-medium whitespace-nowrap">
               {formatPrice(service.price)}

@@ -12,10 +12,10 @@ const Layout = ({ children }: LayoutProps) => {
   const isMobile = useIsMobile();
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50 overflow-x-hidden">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <main className={`flex-grow w-full max-w-full overflow-x-hidden ${isMobile ? 'px-2' : 'px-4'}`}>
-        <div className="container mx-auto overflow-x-hidden">
+      <main className={`flex-grow w-full ${isMobile ? 'px-1' : 'px-3'}`}>
+        <div className="container mx-auto w-full">
           {children}
         </div>
       </main>
