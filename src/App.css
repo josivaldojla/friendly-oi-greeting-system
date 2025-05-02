@@ -50,6 +50,7 @@
     padding-right: 0.5rem;
     max-width: 100% !important;
     width: 100% !important;
+    overflow-x: hidden;
   }
   
   table {
@@ -58,6 +59,8 @@
   
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
+    max-width: 100%;
+    overflow-x: hidden;
   }
 }
 
@@ -94,6 +97,12 @@ body, html {
   td, th {
     word-break: break-word;
     white-space: normal;
+    max-width: 100%;
+  }
+  
+  /* Melhor separação entre os controles */
+  .flex {
+    gap: 0.25rem;
   }
 }
 
@@ -101,4 +110,15 @@ body, html {
 li {
   word-break: break-word;
   white-space: normal;
+}
+
+/* Garantia adicional que tabelas não causam overflow */
+table, tr, td, th {
+  max-width: 100%;
+}
+
+/* Garantir que as células sejam responsivas */
+.table-cell-responsive {
+  max-width: 100%;
+  overflow-wrap: break-word;
 }

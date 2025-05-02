@@ -14,8 +14,15 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
   return (
     <li className="py-2">
       <div className="flex flex-col">
-        <div className="flex justify-between items-start">
-          <span className="font-medium break-words whitespace-normal pr-2">{service.name}</span>
+        <div className="w-full">
+          <span className="font-medium break-words whitespace-normal block">{service.name}</span>
+        </div>
+        <div className="flex justify-between items-center mt-1">
+          {service.description && (
+            <div className="text-sm text-gray-500 flex-grow truncate mr-2">
+              {service.description}
+            </div>
+          )}
           <div className="flex items-center gap-2 shrink-0">
             <span>{formatPrice(service.price)}</span>
             <Button
@@ -28,11 +35,6 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
             </Button>
           </div>
         </div>
-        {service.description && (
-          <div className="text-sm text-gray-500 mt-1">
-            {service.description}
-          </div>
-        )}
       </div>
     </li>
   );

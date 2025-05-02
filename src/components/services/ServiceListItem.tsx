@@ -102,44 +102,6 @@ export const ServiceListItem = ({
             {service.name}
           </div>
         </TableCell>
-        <TableCell rowSpan={2} className="text-right p-1 pr-2">
-          <div className="flex justify-end space-x-1" onClick={(e) => e.stopPropagation()}>
-            {showAddButton && onAddToSelection && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsCommenting(true);
-                }}
-                className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-2 py-1 h-7"
-              >
-                <MessageCirclePlus className="h-3 w-3 mr-1" />
-                {isMobile ? "" : "Comentar"}
-              </Button>
-            )}
-            {!showAddButton && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => onEdit(service, e)}
-                  className="h-7 w-7"
-                >
-                  <Edit className="h-3 w-3" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => onDelete(service.id, e)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              </>
-            )}
-          </div>
-        </TableCell>
       </TableRow>
       <TableRow 
         className={selectable ? "cursor-pointer hover:bg-muted/50 border-0" : "border-0"}
@@ -153,8 +115,47 @@ export const ServiceListItem = ({
           )}
         </TableCell>
         <TableCell className="text-right pt-0 pb-2">
-          <div className="font-medium whitespace-nowrap">
-            {formatPrice(service.price)}
+          <div className="flex items-center justify-end space-x-1">
+            <span className="font-medium whitespace-nowrap">
+              {formatPrice(service.price)}
+            </span>
+            
+            <div className="flex ml-2" onClick={(e) => e.stopPropagation()}>
+              {showAddButton && onAddToSelection && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsCommenting(true);
+                  }}
+                  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-2 py-1 h-7"
+                >
+                  <MessageCirclePlus className="h-3 w-3 mr-1" />
+                  {isMobile ? "" : "Comentar"}
+                </Button>
+              )}
+              {!showAddButton && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => onEdit(service, e)}
+                    className="h-7 w-7"
+                  >
+                    <Edit className="h-3 w-3" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => onDelete(service.id, e)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                </>
+              )}
+            </div>
           </div>
         </TableCell>
       </TableRow>

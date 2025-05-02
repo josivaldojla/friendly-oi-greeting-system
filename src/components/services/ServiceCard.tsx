@@ -60,13 +60,13 @@ export const ServiceCard = ({
           <h3 className="font-medium text-lg break-words whitespace-normal">
             {service.name}
           </h3>
-          <span className="font-bold text-moto-blue mt-1">{formatPrice(service.price)}</span>
+          <p className="text-muted-foreground text-sm mt-2 line-clamp-2">
+            {service.description || "Sem descrição"}
+          </p>
         </div>
-        <p className="text-muted-foreground text-sm mt-2 line-clamp-2">
-          {service.description || "Sem descrição"}
-        </p>
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-end space-x-2">
+      <CardFooter className="p-4 pt-0 flex justify-between items-center">
+        <span className="font-bold text-moto-blue">{formatPrice(service.price)}</span>
         <div onClick={(e) => e.stopPropagation()} className="flex space-x-2">
           {showAddButton && onAddToSelection && !isMobile && (
             <Button
@@ -75,7 +75,7 @@ export const ServiceCard = ({
                 e.stopPropagation();
                 onAddToSelection(service);
               }}
-              className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 w-full"
+              className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
             >
               <PlusCircle className="h-4 w-4 mr-1" />
               Adicionar
