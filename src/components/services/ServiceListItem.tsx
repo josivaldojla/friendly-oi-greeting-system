@@ -84,7 +84,7 @@ export const ServiceListItem = ({
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="w-[60px] pl-2">
+        <TableCell className="w-[60px] pl-2" rowSpan={2}>
           {service.imageUrl ? (
             <img 
               src={service.imageUrl} 
@@ -97,16 +97,12 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell className="font-medium truncate max-w-[120px]">
-          {service.name}
+        <TableCell colSpan={2} className="pb-0 pt-2">
+          <div className="font-medium text-left w-full whitespace-normal break-words">
+            {service.name}
+          </div>
         </TableCell>
-        <TableCell className="text-right whitespace-nowrap">
-          {formatPrice(service.price)}
-        </TableCell>
-        <TableCell className="hidden md:table-cell truncate max-w-[200px]">
-          {service.description || "-"}
-        </TableCell>
-        <TableCell className="text-right p-1 pr-2">
+        <TableCell rowSpan={2} className="text-right p-1 pr-2">
           <div className="flex justify-end space-x-1" onClick={(e) => e.stopPropagation()}>
             {showAddButton && onAddToSelection && (
               <Button
@@ -142,6 +138,23 @@ export const ServiceListItem = ({
                 </Button>
               </>
             )}
+          </div>
+        </TableCell>
+      </TableRow>
+      <TableRow 
+        className={selectable ? "cursor-pointer hover:bg-muted/50 border-0" : "border-0"}
+        onClick={handleRowClick}
+      >
+        <TableCell className="text-left pt-0 pb-2">
+          {service.description && (
+            <div className="text-xs text-gray-500 truncate max-w-[150px]">
+              {service.description}
+            </div>
+          )}
+        </TableCell>
+        <TableCell className="text-right pt-0 pb-2">
+          <div className="font-medium whitespace-nowrap">
+            {formatPrice(service.price)}
           </div>
         </TableCell>
       </TableRow>

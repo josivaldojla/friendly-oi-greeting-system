@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -101,9 +100,7 @@ const ServiceList = ({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[60px]">Img</TableHead>
-                    <TableHead>Nome</TableHead>
-                    <TableHead className="text-right">Valor</TableHead>
-                    <TableHead className="hidden md:table-cell">Descrição</TableHead>
+                    <TableHead colSpan={2}>Nome/Descrição</TableHead>
                     <TableHead className="w-[100px] text-right">Ações</TableHead>
                   </TableRow>
                 </TableHeader>

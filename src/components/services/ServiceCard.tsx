@@ -56,9 +56,11 @@ export const ServiceCard = ({
         )}
       </div>
       <CardContent className="p-4">
-        <div className="flex justify-between items-start">
-          <h3 className="font-medium text-lg line-clamp-1">{service.name}</h3>
-          <span className="font-bold text-moto-blue">{formatPrice(service.price)}</span>
+        <div className="flex flex-col">
+          <h3 className="font-medium text-lg break-words whitespace-normal">
+            {service.name}
+          </h3>
+          <span className="font-bold text-moto-blue mt-1">{formatPrice(service.price)}</span>
         </div>
         <p className="text-muted-foreground text-sm mt-2 line-clamp-2">
           {service.description || "Sem descrição"}

@@ -89,4 +89,16 @@ body, html {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
   }
+  
+  /* Garantir que o texto quebre em vez de ser cortado */
+  td, th {
+    word-break: break-word;
+    white-space: normal;
+  }
+}
+
+/* Ajuste para garantir que o texto quebre em elementos de lista */
+li {
+  word-break: break-word;
+  white-space: normal;
 }
