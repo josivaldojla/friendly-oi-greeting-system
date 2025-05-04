@@ -14,8 +14,8 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       <Navbar />
-      <main className={`flex-grow w-full ${isMobile ? 'px-1' : 'px-3'}`}>
-        <div className="container mx-auto w-full">
+      <main className="flex-grow w-full px-2 sm:px-4">
+        <div className="container mx-auto w-full max-w-full">
           {children}
         </div>
       </main>

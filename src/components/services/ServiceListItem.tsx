@@ -34,16 +34,14 @@ export const ServiceListItem = ({
   const [isCommenting, setIsCommenting] = useState(false);
   const [comment, setComment] = useState<string>("");
 
-  // Clique no corpo da linha adiciona direto sem comentário
   const handleRowClick = () => {
     if (selectable && showAddButton && onAddToSelection && !isCommenting) {
-      onAddToSelection(service); // sem comentário
+      onAddToSelection(service);
     } else if (selectable && onClick) {
       onClick(service);
     }
   };
 
-  // Ao salvar comentário, adiciona o serviço à seleção com comentário
   const handleCommentSave = () => {
     if (onAddToSelection) {
       const formattedComment = comment.trim() ? `_${comment.trim()}_` : undefined;
@@ -55,7 +53,6 @@ export const ServiceListItem = ({
 
   return (
     <>
-      {/* Dialog para comentário */}
       <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
         <DialogContent>
           <DialogHeader>
@@ -80,11 +77,11 @@ export const ServiceListItem = ({
       </Dialog>
 
       <TableRow 
-        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""} border-0`}
+        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""}`}
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="w-[60px] pl-2" rowSpan={1}>
+        <TableCell className="pl-2 w-[60px]" rowSpan={2}>
           {service.imageUrl ? (
             <img 
               src={service.imageUrl} 
@@ -97,25 +94,28 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell colSpan={2} className="py-2 pl-3">
-          <div className="flex flex-col w-full">
-            <div className="font-medium text-left w-full whitespace-normal break-words">
-              {service.name}
-            </div>
-            {service.description && (
-              <div className="text-xs text-gray-500 text-left mt-1">
-                {service.description}
-              </div>
-            )}
+        <TableCell colSpan={3} className="py-2 pl-3 pb-0 border-b-0">
+          <div className="font-medium text-left w-full whitespace-normal break-words">
+            {service.name}
           </div>
         </TableCell>
-        <TableCell className="text-right py-2">
-          <div className="flex items-center justify-end space-x-1">
-            <span className="font-medium whitespace-nowrap">
+      </TableRow>
+      <TableRow className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""} border-0`} onClick={handleRowClick}>
+        <TableCell className="invisible w-[60px]"></TableCell>
+        <TableCell className="pl-3 pt-0">
+          {service.description && (
+            <div className="text-xs text-gray-500 text-left">
+              {service.description}
+            </div>
+          )}
+        </TableCell>
+        <TableCell className="text-right pt-0">
+          <div className="flex items-center justify-end">
+            <span className="font-medium whitespace-nowrap mr-2">
               {formatPrice(service.price)}
             </span>
             
-            <div className="flex ml-2" onClick={(e) => e.stopPropagation()}>
+            <div className="flex" onClick={(e) => e.stopPropagation()}>
               {showAddButton && onAddToSelection && (
                 <Button
                   variant="outline"

@@ -57,51 +57,53 @@ export const ServiceCard = ({
       </div>
       <CardContent className="p-4">
         <div className="flex flex-col">
-          <h3 className="font-medium text-lg break-words whitespace-normal">
+          <h3 className="font-medium text-lg mb-2 break-words whitespace-normal text-left">
             {service.name}
           </h3>
-          <p className="text-muted-foreground text-sm mt-2 line-clamp-2">
-            {service.description || "Sem descrição"}
-          </p>
+          {service.description && (
+            <p className="text-muted-foreground text-sm mb-2 line-clamp-2 text-left">
+              {service.description}
+            </p>
+          )}
+          <div className="flex justify-end items-center mt-2">
+            <span className="font-bold text-moto-blue mr-2">{formatPrice(service.price)}</span>
+            <div onClick={(e) => e.stopPropagation()} className="flex">
+              {showAddButton && onAddToSelection && !isMobile && (
+                <Button
+                  variant="outline"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddToSelection(service);
+                  }}
+                  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
+                >
+                  <PlusCircle className="h-4 w-4 mr-1" />
+                  Adicionar
+                </Button>
+              )}
+              {!showAddButton && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => onEdit(service, e)}
+                  >
+                    <Edit className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e) => onDelete(service.id, e)}
+                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
-      <CardFooter className="p-4 pt-0 flex justify-between items-center">
-        <span className="font-bold text-moto-blue">{formatPrice(service.price)}</span>
-        <div onClick={(e) => e.stopPropagation()} className="flex space-x-2">
-          {showAddButton && onAddToSelection && !isMobile && (
-            <Button
-              variant="outline"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddToSelection(service);
-              }}
-              className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-            >
-              <PlusCircle className="h-4 w-4 mr-1" />
-              Adicionar
-            </Button>
-          )}
-          {!showAddButton && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => onEdit(service, e)}
-              >
-                <Edit className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => onDelete(service.id, e)}
-                className="text-red-500 hover:text-red-700 hover:bg-red-50"
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            </>
-          )}
-        </div>
-      </CardFooter>
     </Card>
   );
 };
