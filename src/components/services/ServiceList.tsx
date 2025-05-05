@@ -25,6 +25,7 @@ interface ServiceListProps {
   viewMode?: ViewMode;
   onViewModeChange?: (mode: ViewMode) => void;
   showAddButton?: boolean;
+  hideHeading?: boolean;
 }
 
 const ServiceList = ({ 
@@ -37,7 +38,8 @@ const ServiceList = ({
   selectable = false,
   viewMode = 'list',
   onViewModeChange,
-  showAddButton = false
+  showAddButton = false,
+  hideHeading = false
 }: ServiceListProps) => {
   const [formOpen, setFormOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<Service | undefined>(undefined);
@@ -82,7 +84,7 @@ const ServiceList = ({
       {isMobile ? (
         <div className="space-y-2 mb-4">
           <div className="flex flex-col w-full">
-            <h2 className="text-xl font-bold mb-3 text-left">Serviços</h2>
+            {!hideHeading && <h2 className="text-xl font-bold mb-3 text-left">Serviços</h2>}
             <div className="flex justify-between items-center w-full gap-3 px-2">
               {onViewModeChange && (
                 <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
@@ -99,7 +101,7 @@ const ServiceList = ({
         </div>
       ) : (
         <div className="flex justify-between items-center mb-6 px-2">
-          <h2 className="text-2xl font-bold">Serviços</h2>
+          {!hideHeading && <h2 className="text-2xl font-bold">Serviços</h2>}
           <div className="flex items-center gap-2">
             {onViewModeChange && (
               <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />

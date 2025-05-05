@@ -83,6 +83,7 @@ const CheckoutPage = () => {
                 onViewModeChange={setViewMode}
                 onAddToSelection={handleAddToSelection}
                 showAddButton={true}
+                hideHeading={true}
               />
             </div>
           </div>
