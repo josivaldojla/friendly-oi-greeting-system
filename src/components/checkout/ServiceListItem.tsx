@@ -26,15 +26,15 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
           </div>
         )}
         
-        {/* Price and actions in a responsive layout */}
+        {/* Price and actions aligned to the right */}
         <div className="w-full">
-          <div className="flex flex-wrap justify-between items-center gap-2">
+          <div className="flex justify-end items-center gap-2">
             <span className="font-medium text-right">{formatPrice(service.price)}</span>
             <Button
               variant="ghost"
               size="sm"
               onClick={() => onRemove(service.id)}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0 shrink-0 ml-auto"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0 shrink-0"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

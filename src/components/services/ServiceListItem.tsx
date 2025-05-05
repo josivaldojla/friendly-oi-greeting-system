@@ -108,14 +108,14 @@ export const ServiceListItem = ({
               </div>
             )}
             
-            {/* Price and actions with better responsive layout */}
+            {/* Price and actions with price aligned right */}
             <div className="w-full">
-              <div className="flex flex-wrap justify-between items-center gap-1 w-full">
-                <span className="font-medium text-right w-auto whitespace-nowrap mr-1">
+              <div className="flex justify-end items-center gap-2 w-full">
+                <span className="font-medium text-right whitespace-nowrap">
                   {formatPrice(service.price)}
                 </span>
                 
-                <div className="flex flex-nowrap ml-auto" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-nowrap" onClick={(e) => e.stopPropagation()}>
                   {showAddButton && onAddToSelection && (
                     <Button
                       variant="outline"
