@@ -1,7 +1,7 @@
 
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Edit, Trash2, PlusCircle } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -65,7 +65,7 @@ export const ServiceCard = ({
               {service.description}
             </p>
           )}
-          <div className="flex justify-end items-center mt-2">
+          <div className="flex justify-end items-center mt-2 pb-2 border-b border-gray-100">
             <span className="font-bold text-moto-blue mr-2">{formatPrice(service.price)}</span>
             <div onClick={(e) => e.stopPropagation()} className="flex">
               {showAddButton && onAddToSelection && !isMobile && (

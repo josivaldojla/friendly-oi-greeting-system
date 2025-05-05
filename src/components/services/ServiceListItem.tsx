@@ -8,6 +8,7 @@ import { Edit, Trash2, MessageCirclePlus } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
 
 interface ServiceListItemProps {
   service: Service;
@@ -77,7 +78,7 @@ export const ServiceListItem = ({
       </Dialog>
 
       <TableRow 
-        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""}`}
+        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""} border-0`}
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
@@ -94,7 +95,7 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell colSpan={3} className="py-2 pl-3 pb-0 border-b-0">
+        <TableCell colSpan={3} className="py-2 pl-3 pb-0 border-0">
           <div className="font-medium text-left w-full whitespace-normal break-words">
             {service.name}
           </div>
@@ -110,7 +111,7 @@ export const ServiceListItem = ({
           )}
         </TableCell>
         <TableCell className="text-right pt-0">
-          <div className="flex items-center justify-end">
+          <div className="flex items-center justify-end pb-2 border-b border-gray-100">
             <span className="font-medium whitespace-nowrap mr-2">
               {formatPrice(service.price)}
             </span>

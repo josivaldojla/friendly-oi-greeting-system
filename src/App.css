@@ -127,3 +127,19 @@ td, th, li, div {
 tr + tr.border-0 {
   border-top: none !important;
 }
+
+/* Fix borders in ServiceListItems */
+.table tbody tr.border-0 td {
+  border-top: none;
+  border-bottom: none;
+}
+
+/* Make sure content doesn't get cut off */
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+/* Ensure tables don't cause horizontal scrolling */
+table {
+  max-width: 100%;
+}

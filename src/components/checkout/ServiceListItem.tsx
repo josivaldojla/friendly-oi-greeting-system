@@ -12,7 +12,7 @@ interface ServiceListItemProps {
 
 const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProps) => {
   return (
-    <li className="py-2 border-b border-gray-100">
+    <li className="py-2">
       <div className="flex flex-col w-full">
         {/* Service name taking full width */}
         <div className="w-full text-left mb-1">
@@ -27,7 +27,7 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
         )}
         
         {/* Price and actions aligned to right */}
-        <div className="flex justify-end items-center">
+        <div className="flex justify-end items-center pb-2 border-b border-gray-100">
           <span className="font-medium mr-2">{formatPrice(service.price)}</span>
           <Button
             variant="ghost"
