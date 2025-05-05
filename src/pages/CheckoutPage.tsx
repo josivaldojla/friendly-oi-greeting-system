@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode } from "@/lib/types";
 import { getServices, getMechanics } from "@/lib/storage";
@@ -67,7 +68,7 @@ const CheckoutPage = () => {
   return (
     <Layout>
       <div className="space-y-6">
-        <h2 className="text-2xl font-bold">Caixa</h2>
+        <h2 className="text-2xl font-bold">Serviços Executados</h2>
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
