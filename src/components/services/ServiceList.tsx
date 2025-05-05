@@ -77,7 +77,7 @@ const ServiceList = ({
 
   return (
     <div className="space-y-4 pb-16">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center mb-4">
         <h2 className="text-2xl font-bold">Serviços</h2>
         <div className="flex items-center gap-2">
           {onViewModeChange && (
@@ -85,7 +85,7 @@ const ServiceList = ({
           )}
           <Button 
             onClick={() => setFormOpen(true)} 
-            className="flex items-center gap-2 text-sm h-9 px-3"
+            className="flex items-center gap-2 text-sm h-9 px-3 whitespace-nowrap"
           >
             <Plus size={16} />
             <span>Novo Serviço</span>
@@ -101,7 +101,9 @@ const ServiceList = ({
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[60px] text-center">Img</TableHead>
-                    <TableHead className="text-left">Nome/Descrição</TableHead>
+                    <TableHead className="text-left">Nome</TableHead>
+                    <TableHead className="text-right w-[100px]">Valor</TableHead>
+                    <TableHead className="text-center w-[100px]">Ações</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
