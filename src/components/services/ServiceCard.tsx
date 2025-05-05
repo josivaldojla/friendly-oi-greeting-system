@@ -65,42 +65,45 @@ export const ServiceCard = ({
               {service.description}
             </p>
           )}
-          <div className="w-full border-b border-gray-100 flex justify-end items-center mt-2 pb-2">
-            <span className="font-bold text-moto-blue mr-2">{formatPrice(service.price)}</span>
-            <div onClick={(e) => e.stopPropagation()} className="flex">
-              {showAddButton && onAddToSelection && !isMobile && (
-                <Button
-                  variant="outline"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddToSelection(service);
-                  }}
-                  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-                >
-                  <PlusCircle className="h-4 w-4 mr-1" />
-                  Adicionar
-                </Button>
-              )}
-              {!showAddButton && (
-                <>
+          <div>
+            <div className="flex justify-end items-center">
+              <span className="font-bold text-moto-blue mr-2">{formatPrice(service.price)}</span>
+              <div onClick={(e) => e.stopPropagation()} className="flex">
+                {showAddButton && onAddToSelection && !isMobile && (
                   <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => onEdit(service, e)}
+                    variant="outline"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddToSelection(service);
+                    }}
+                    className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
                   >
-                    <Edit className="h-4 w-4" />
+                    <PlusCircle className="h-4 w-4 mr-1" />
+                    Adicionar
                   </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => onDelete(service.id, e)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </>
-              )}
+                )}
+                {!showAddButton && (
+                  <>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => onEdit(service, e)}
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={(e) => onDelete(service.id, e)}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </>
+                )}
+              </div>
             </div>
+            <div className="w-full border-b border-gray-100 mt-1"></div>
           </div>
         </div>
       </CardContent>

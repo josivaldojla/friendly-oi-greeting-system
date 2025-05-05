@@ -27,8 +27,8 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
         )}
         
         {/* Price and actions aligned to right */}
-        <div className="flex justify-end items-center pb-2 w-full">
-          <div className="flex justify-end items-center w-full border-b border-gray-100 pb-2">
+        <div className="w-full">
+          <div className="flex justify-end items-center">
             <span className="font-medium mr-2">{formatPrice(service.price)}</span>
             <Button
               variant="ghost"
@@ -39,6 +39,7 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
               <Trash2 className="h-4 w-4" />
             </Button>
           </div>
+          <div className="w-full border-b border-gray-100 mt-1"></div>
         </div>
       </div>
     </li>

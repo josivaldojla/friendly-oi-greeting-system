@@ -158,6 +158,7 @@ tr + tr.border-0 {
 /* Ensure tables don't cause horizontal scrolling */
 table {
   max-width: 100%;
+  width: 100%;
 }
 
 /* Ensure borders extend full width */
@@ -181,4 +182,34 @@ table {
   button, .button {
     min-width: auto;
   }
+  
+  /* Full width tables on mobile */
+  .table, .table-container {
+    width: 100% !important;
+  }
+  
+  /* Increase tap target size on mobile */
+  .h-7, .h-8 {
+    min-height: 2rem;
+    min-width: 2rem;
+  }
+}
+
+/* Make sure table cells expand properly */
+td {
+  max-width: 100%;
+}
+
+/* Ensure table headers are properly styled */
+th {
+  font-weight: 600;
+  color: #6B7280;
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+/* Fix line beneath prices and actions */
+.border-b {
+  display: block;
+  width: 100%;
 }

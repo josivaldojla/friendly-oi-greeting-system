@@ -8,7 +8,6 @@ import { Edit, Trash2, MessageCirclePlus } from "lucide-react";
 import { ImagePlaceholder } from "@/components/ui/image-placeholder";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
 
 interface ServiceListItemProps {
   service: Service;
@@ -78,11 +77,11 @@ export const ServiceListItem = ({
       </Dialog>
 
       <TableRow 
-        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""} border-0`}
+        className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""}`}
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="pl-2 w-[60px]" rowSpan={2}>
+        <TableCell className="pl-2 py-4 align-top w-[60px]">
           {service.imageUrl ? (
             <img 
               src={service.imageUrl} 
@@ -95,63 +94,66 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell colSpan={3} className="py-2 pl-3 pb-0 border-0">
-          <div className="font-medium text-left w-full whitespace-normal break-words">
-            {service.name}
-          </div>
-        </TableCell>
-      </TableRow>
-      <TableRow className={`${selectable ? "cursor-pointer hover:bg-muted/50" : ""} border-0`} onClick={handleRowClick}>
-        <TableCell className="invisible w-[60px]"></TableCell>
-        <TableCell className="pl-3 pt-0">
-          {service.description && (
-            <div className="text-xs text-gray-500 text-left">
-              {service.description}
+        <TableCell className="py-4 px-2">
+          <div className="flex flex-col w-full">
+            {/* Service name taking full width */}
+            <div className="font-medium text-left w-full mb-1 break-words whitespace-normal">
+              {service.name}
             </div>
-          )}
-        </TableCell>
-        <TableCell className="text-right pt-0 w-full">
-          <div className="w-full border-b border-gray-100 flex justify-end items-center pb-2">
-            <span className="font-medium whitespace-nowrap mr-2">
-              {formatPrice(service.price)}
-            </span>
             
-            <div className="flex" onClick={(e) => e.stopPropagation()}>
-              {showAddButton && onAddToSelection && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setIsCommenting(true);
-                  }}
-                  className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-2 py-1 h-7"
-                >
-                  <MessageCirclePlus className="h-3 w-3 mr-1" />
-                  {isMobile ? "" : "Comentar"}
-                </Button>
-              )}
-              {!showAddButton && (
-                <>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => onEdit(service, e)}
-                    className="h-7 w-7"
-                  >
-                    <Edit className="h-3 w-3" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={(e) => onDelete(service.id, e)}
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7"
-                  >
-                    <Trash2 className="h-3 w-3" />
-                  </Button>
-                </>
-              )}
+            {/* Description if available */}
+            {service.description && (
+              <div className="text-xs text-gray-500 text-left mb-2">
+                {service.description}
+              </div>
+            )}
+            
+            {/* Price and actions right-aligned with border beneath */}
+            <div className="w-full">
+              <div className="flex justify-end items-center w-full">
+                <span className="font-medium whitespace-nowrap mr-2">
+                  {formatPrice(service.price)}
+                </span>
+                
+                <div className="flex" onClick={(e) => e.stopPropagation()}>
+                  {showAddButton && onAddToSelection && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsCommenting(true);
+                      }}
+                      className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-2 py-1 h-7"
+                    >
+                      <MessageCirclePlus className="h-3 w-3 mr-1" />
+                      {isMobile ? "" : "Comentar"}
+                    </Button>
+                  )}
+                  {!showAddButton && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => onEdit(service, e)}
+                        className="h-7 w-7"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => onDelete(service.id, e)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
             </div>
+            <div className="w-full border-b border-gray-100 mt-1"></div>
           </div>
         </TableCell>
       </TableRow>

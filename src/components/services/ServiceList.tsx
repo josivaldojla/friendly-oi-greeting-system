@@ -1,7 +1,8 @@
+
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Plus } from "lucide-react";
 import ServiceForm from "./ServiceForm";
 import { toast } from "sonner";
@@ -99,9 +100,8 @@ const ServiceList = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[60px]">Img</TableHead>
-                    <TableHead colSpan={2}>Nome/Descrição</TableHead>
-                    <TableHead className="w-[100px] text-right">Ações</TableHead>
+                    <TableHead className="w-[60px] text-center">Img</TableHead>
+                    <TableHead className="text-left">Nome/Descrição</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
