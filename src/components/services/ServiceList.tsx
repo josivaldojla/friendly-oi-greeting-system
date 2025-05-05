@@ -89,9 +89,9 @@ const ServiceList = ({
               )}
               <Button 
                 onClick={() => setFormOpen(true)} 
-                className="px-4 py-2 h-auto whitespace-nowrap w-full sm:w-auto"
+                className="h-8 px-4 py-0 text-xs whitespace-nowrap w-auto flex items-center"
               >
-                <Plus size={16} className="mr-1" />
+                <Plus size={14} className="mr-1" />
                 <span>Novo Serviço</span>
               </Button>
             </div>
@@ -106,9 +106,9 @@ const ServiceList = ({
             )}
             <Button 
               onClick={() => setFormOpen(true)} 
-              className="flex items-center gap-2 px-4 py-2 h-auto"
+              className="h-8 px-4 py-0 text-xs flex items-center"
             >
-              <Plus size={16} />
+              <Plus size={14} className="mr-1" />
               <span>Novo Serviço</span>
             </Button>
           </div>

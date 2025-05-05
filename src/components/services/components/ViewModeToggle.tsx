@@ -15,7 +15,7 @@ export const ViewModeToggle = ({ viewMode, onViewModeChange }: ViewModeTogglePro
         variant={viewMode === 'list' ? 'default' : 'ghost'} 
         size="sm"
         onClick={() => onViewModeChange('list')} 
-        className="rounded-r-none"
+        className="rounded-r-none h-8 w-10"
       >
         <ListIcon size={18} />
       </Button>
@@ -23,7 +23,7 @@ export const ViewModeToggle = ({ viewMode, onViewModeChange }: ViewModeTogglePro
         variant={viewMode === 'grid' ? 'default' : 'ghost'} 
         size="sm"
         onClick={() => onViewModeChange('grid')} 
-        className="rounded-l-none"
+        className="rounded-l-none h-8 w-10"
       >
         <LayoutGrid size={18} />
       </Button>
