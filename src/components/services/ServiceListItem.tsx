@@ -81,7 +81,7 @@ export const ServiceListItem = ({
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="pl-2 py-4 align-middle w-[60px]">
+        <TableCell className="pl-2 py-4 align-top w-[60px]">
           {service.imageUrl ? (
             <img 
               src={service.imageUrl} 
@@ -94,55 +94,66 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell className="py-4 px-2 align-middle">
-          <div className="font-medium text-left break-words whitespace-normal">
-            {service.name}
+        <TableCell className="py-4 px-2">
+          <div className="flex flex-col w-full">
+            {/* Service name taking full width */}
+            <div className="font-medium text-left w-full mb-1 break-words whitespace-normal">
+              {service.name}
+            </div>
+            
+            {/* Description if available */}
             {service.description && (
-              <div className="text-xs text-gray-500 text-left mt-1">
+              <div className="text-xs text-gray-500 text-left mb-2">
                 {service.description}
               </div>
             )}
-          </div>
-        </TableCell>
-        <TableCell className="py-4 pr-2 text-right align-middle">
-          <span className="font-medium whitespace-nowrap">
-            {formatPrice(service.price)}
-          </span>
-        </TableCell>
-        <TableCell className="py-4 align-middle text-center">
-          <div className="flex justify-center items-center" onClick={(e) => e.stopPropagation()}>
-            {showAddButton && onAddToSelection ? (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsCommenting(true);
-                }}
-                className="text-green-500 hover:text-green-700 hover:bg-green-50 h-8 w-8"
-              >
-                <MessageCirclePlus className="h-4 w-4" />
-              </Button>
-            ) : (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => onEdit(service, e)}
-                  className="h-8 w-8"
-                >
-                  <Edit className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => onDelete(service.id, e)}
-                  className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </>
-            )}
+            
+            {/* Price and actions right-aligned with border beneath */}
+            <div className="w-full">
+              <div className="flex justify-end items-center w-full">
+                <span className="font-medium whitespace-nowrap mr-2">
+                  {formatPrice(service.price)}
+                </span>
+                
+                <div className="flex" onClick={(e) => e.stopPropagation()}>
+                  {showAddButton && onAddToSelection && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setIsCommenting(true);
+                      }}
+                      className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-2 py-1 h-7"
+                    >
+                      <MessageCirclePlus className="h-3 w-3 mr-1" />
+                      {isMobile ? "" : "Comentar"}
+                    </Button>
+                  )}
+                  {!showAddButton && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => onEdit(service, e)}
+                        className="h-7 w-7"
+                      >
+                        <Edit className="h-3 w-3" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={(e) => onDelete(service.id, e)}
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 h-7 w-7"
+                      >
+                        <Trash2 className="h-3 w-3" />
+                      </Button>
+                    </>
+                  )}
+                </div>
+              </div>
+            </div>
+            <div className="w-full border-b border-gray-100 mt-1"></div>
           </div>
         </TableCell>
       </TableRow>
