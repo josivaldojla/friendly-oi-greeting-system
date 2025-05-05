@@ -53,6 +53,7 @@
   
   table {
     width: 100% !important;
+    table-layout: fixed;
   }
   
   .overflow-x-auto {
@@ -64,12 +65,28 @@
   /* Make buttons smaller on mobile */
   button.h-7 {
     height: 1.5rem;
-    width: 1.5rem;
+    width: auto;
+    min-width: auto;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
   
   button.h-7 svg {
     height: 0.75rem;
     width: 0.75rem;
+  }
+  
+  /* Ensure buttons don't get cut off */
+  .flex.justify-between {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  /* Fix for cut-off buttons */
+  [role="button"], button {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 }
 
@@ -99,6 +116,31 @@
   /* Make sure border-b extends full width */
   .border-b {
     width: 100%;
+  }
+  
+  /* Adjust service list buttons */
+  [data-testid="service-list-row"] button {
+    min-width: auto;
+    padding: 0 0.25rem;
+  }
+  
+  /* Fix table layout on mobile */
+  .table {
+    table-layout: fixed;
+    width: 100% !important;
+  }
+  
+  /* Adjust cell widths */
+  .table td:first-child {
+    width: 50px;
+    max-width: 50px;
+  }
+  
+  /* Fix button placement */
+  .flex.justify-between.items-center button {
+    min-height: 2rem;
+    white-space: nowrap;
+    font-size: 0.75rem;
   }
 }
 
@@ -191,7 +233,42 @@ table {
   /* Increase tap target size on mobile */
   .h-7, .h-8 {
     min-height: 2rem;
-    min-width: 2rem;
+    min-width: 1.5rem;
+  }
+  
+  /* Ensure service list buttons are properly sized */
+  button.h-7, button.h-6 {
+    height: auto;
+    padding: 0.25rem;
+    min-height: 1.5rem;
+  }
+  
+  /* Make sure "Novo Serviço" button doesn't get cut off */
+  div.flex.justify-between.items-center {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Fix button display on small screens */
+  div.flex.items-center.gap-2 button {
+    padding: 0.25rem 0.5rem;
+    height: auto;
+  }
+  
+  /* Fix header button positioning */
+  div.flex.justify-between.items-center {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  div.flex.justify-between.items-center h2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  div.flex.justify-between.items-center div.flex.items-center.gap-2 {
+    width: 100%;
+    justify-content: space-between;
   }
 }
 
