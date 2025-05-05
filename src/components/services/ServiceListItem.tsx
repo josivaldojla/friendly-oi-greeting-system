@@ -111,7 +111,7 @@ export const ServiceListItem = ({
             {/* Price and actions with better responsive layout */}
             <div className="w-full">
               <div className="flex flex-wrap justify-between items-center gap-1 w-full">
-                <span className="font-medium whitespace-nowrap mr-1">
+                <span className="font-medium text-right whitespace-nowrap mr-1">
                   {formatPrice(service.price)}
                 </span>
                 

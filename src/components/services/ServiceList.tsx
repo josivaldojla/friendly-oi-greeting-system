@@ -80,16 +80,16 @@ const ServiceList = ({
   return (
     <div className="space-y-4 pb-16">
       {isMobile ? (
-        <div className="space-y-2">
+        <div className="space-y-2 mb-4">
           <div className="flex flex-col w-full">
-            <h2 className="text-xl font-bold mb-2 text-left">Serviços</h2>
-            <div className="flex justify-between items-center w-full">
+            <h2 className="text-xl font-bold mb-3 text-left">Serviços</h2>
+            <div className="flex justify-between items-center w-full gap-2">
               {onViewModeChange && (
                 <ViewModeToggle viewMode={viewMode} onViewModeChange={onViewModeChange} />
               )}
               <Button 
                 onClick={() => setFormOpen(true)} 
-                className="text-sm px-2 py-1 h-auto"
+                className="px-4 py-2 h-auto whitespace-nowrap"
               >
                 <Plus size={16} className="mr-1" />
                 <span>Novo Serviço</span>
@@ -98,7 +98,7 @@ const ServiceList = ({
           </div>
         </div>
       ) : (
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center mb-4">
           <h2 className="text-2xl font-bold">Serviços</h2>
           <div className="flex items-center gap-2">
             {onViewModeChange && (
@@ -106,7 +106,7 @@ const ServiceList = ({
             )}
             <Button 
               onClick={() => setFormOpen(true)} 
-              className="flex items-center gap-2 text-sm h-9 px-3"
+              className="flex items-center gap-2 px-4 py-2 h-auto"
             >
               <Plus size={16} />
               <span>Novo Serviço</span>
@@ -122,7 +122,7 @@ const ServiceList = ({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[50px] text-center">Img</TableHead>
+                    <TableHead className="w-[60px] text-center">Img</TableHead>
                     <TableHead className="text-left">Nome/Descrição</TableHead>
                   </TableRow>
                 </TableHeader>
