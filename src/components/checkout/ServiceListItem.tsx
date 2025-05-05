@@ -29,7 +29,7 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
         {/* Price and actions in a responsive layout */}
         <div className="w-full">
           <div className="flex flex-wrap justify-between items-center gap-2">
-            <span className="font-medium">{formatPrice(service.price)}</span>
+            <span className="font-medium text-right">{formatPrice(service.price)}</span>
             <Button
               variant="ghost"
               size="sm"
