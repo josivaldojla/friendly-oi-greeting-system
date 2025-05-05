@@ -110,8 +110,8 @@ export const ServiceListItem = ({
             </div>
           )}
         </TableCell>
-        <TableCell className="text-right pt-0">
-          <div className="flex items-center justify-end pb-2 border-b border-gray-100">
+        <TableCell className="text-right pt-0 w-full">
+          <div className="w-full border-b border-gray-100 flex justify-end items-center pb-2">
             <span className="font-medium whitespace-nowrap mr-2">
               {formatPrice(service.price)}
             </span>

@@ -60,6 +60,17 @@
     width: 100%;
     max-width: 100vw;
   }
+  
+  /* Make buttons smaller on mobile */
+  button.h-7 {
+    height: 1.5rem;
+    width: 1.5rem;
+  }
+  
+  button.h-7 svg {
+    height: 0.75rem;
+    width: 0.75rem;
+  }
 }
 
 /* Table adjustments for mobile */
@@ -83,6 +94,11 @@
   .btn-compact {
     padding: 0.25rem 0.5rem;
     font-size: 0.75rem;
+  }
+  
+  /* Make sure border-b extends full width */
+  .border-b {
+    width: 100%;
   }
 }
 
@@ -142,4 +158,27 @@ tr + tr.border-0 {
 /* Ensure tables don't cause horizontal scrolling */
 table {
   max-width: 100%;
+}
+
+/* Ensure borders extend full width */
+.border-b {
+  border-bottom-width: 1px;
+  width: 100%;
+}
+
+/* Ensure buttons don't overflow on mobile */
+@media (max-width: 480px) {
+  .flex-wrap-mobile {
+    flex-wrap: wrap;
+  }
+  
+  /* Adjust table cell padding on very small screens */
+  td, th {
+    padding: 0.5rem 0.25rem;
+  }
+  
+  /* Make sure action buttons are visible */
+  button, .button {
+    min-width: auto;
+  }
 }

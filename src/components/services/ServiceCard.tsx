@@ -65,7 +65,7 @@ export const ServiceCard = ({
               {service.description}
             </p>
           )}
-          <div className="flex justify-end items-center mt-2 pb-2 border-b border-gray-100">
+          <div className="w-full border-b border-gray-100 flex justify-end items-center mt-2 pb-2">
             <span className="font-bold text-moto-blue mr-2">{formatPrice(service.price)}</span>
             <div onClick={(e) => e.stopPropagation()} className="flex">
               {showAddButton && onAddToSelection && !isMobile && (
