@@ -14,19 +14,19 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
   return (
     <li className="py-3">
       <div className="flex flex-col w-full">
-        {/* Service name taking full width */}
+        {/* Nome do serviço com quebra de linha adequada */}
         <div className="w-full text-left mb-2">
-          <span className="font-medium break-words whitespace-normal block">{service.name}</span>
+          <span className="font-medium break-normal whitespace-normal block">{service.name}</span>
         </div>
         
-        {/* Description if available */}
+        {/* Descrição se disponível */}
         {service.description && (
           <div className="text-sm text-gray-500 text-left mb-2">
             {service.description}
           </div>
         )}
         
-        {/* Price and actions aligned to the right */}
+        {/* Preço e ações alinhados à direita */}
         <div className="w-full">
           <div className="flex justify-end items-center gap-2">
             <span className="font-medium text-right">{formatPrice(service.price)}</span>

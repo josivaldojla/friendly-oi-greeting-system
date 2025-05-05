@@ -96,19 +96,19 @@ export const ServiceListItem = ({
         </TableCell>
         <TableCell className="py-3 px-2">
           <div className="flex flex-col w-full">
-            {/* Service name taking full width */}
-            <div className="font-medium text-left w-full mb-1 break-words whitespace-normal">
+            {/* Nome do serviço com quebra de linha adequada */}
+            <div className="font-medium text-left w-full mb-1 break-normal whitespace-normal">
               {service.name}
             </div>
             
-            {/* Description if available */}
+            {/* Descrição se disponível */}
             {service.description && (
               <div className="text-xs text-gray-500 text-left mb-2">
                 {service.description}
               </div>
             )}
             
-            {/* Price and actions with price aligned right */}
+            {/* Preço e ações com preço alinhado à direita */}
             <div className="w-full">
               <div className="flex justify-end items-center gap-2 w-full">
                 <span className="font-medium text-right whitespace-nowrap">
