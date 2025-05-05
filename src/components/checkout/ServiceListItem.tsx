@@ -12,10 +12,10 @@ interface ServiceListItemProps {
 
 const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProps) => {
   return (
-    <li className="py-3 w-full">
-      <div className="flex justify-between items-start w-full">
+    <li className="py-2">
+      <div className="flex justify-between items-center w-full">
         <div className="flex-1 text-left mr-4">
-          <div className="font-medium break-words whitespace-normal block text-left">{service.name}</div>
+          <div className="font-medium break-words whitespace-normal block">{service.name}</div>
           
           {/* Description if available */}
           {service.description && (
@@ -26,7 +26,7 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
         </div>
         
         <div className="flex items-center shrink-0">
-          <span className="font-medium mr-4 whitespace-nowrap">{formatPrice(service.price)}</span>
+          <span className="font-medium mr-2">{formatPrice(service.price)}</span>
           <Button
             variant="ghost"
             size="icon"
@@ -37,7 +37,7 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
           </Button>
         </div>
       </div>
-      <div className="w-full border-b border-gray-100 mt-3"></div>
+      <div className="w-full border-b border-gray-100 mt-2"></div>
     </li>
   );
 };

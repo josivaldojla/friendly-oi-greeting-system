@@ -1,3 +1,4 @@
+
 #root {
   width: 100%;
   max-width: 100%;
@@ -50,10 +51,9 @@
     max-width: 100% !important;
   }
   
-  /* Make buttons visible and not cut off */
+  /* Ensure button is not cut off */
   button {
     white-space: nowrap;
-    min-height: 36px;
   }
   
   /* Table layout improvements */
@@ -67,24 +67,18 @@
     -webkit-overflow-scrolling: touch;
     width: 100%;
     max-width: 100vw;
-    overflow-x: visible !important;
   }
   
   /* Make buttons large enough on mobile */
   button.h-7, button.h-8 {
-    height: 2.5rem;
-    width: 2.5rem;
-    min-width: 2.5rem;
-    padding: 0.5rem;
+    height: 2rem;
+    width: 2rem;
+    min-width: 2rem;
   }
   
   button.h-7 svg, button.h-8 svg {
-    height: 1rem;
-    width: 1rem;
-  }
-  
-  .flex-wrap-mobile {
-    flex-wrap: wrap;
+    height: 0.875rem;
+    width: 0.875rem;
   }
 }
 
@@ -97,26 +91,24 @@
 
 /* Ensure proper table cell sizing and layout */
 td, th {
-  padding: 0.75rem 1rem;
+  padding: 0.75rem;
   vertical-align: middle;
-  border: none !important;
 }
 
 /* Ensure buttons don't overflow on mobile */
-@media (max-width: 640px) {
+@media (max-width: 480px) {
   .flex-wrap-mobile {
     flex-wrap: wrap;
   }
   
   /* Adjust table cell padding on very small screens */
   td, th {
-    padding: 0.75rem 0.5rem;
+    padding: 0.5rem;
   }
   
   /* Make sure action buttons are visible */
   button, .button {
     min-width: auto;
-    min-height: 36px;
   }
   
   /* Full width tables on mobile */
@@ -126,17 +118,8 @@ td, th {
   
   /* Increase tap target size on mobile */
   button.h-7, button.h-8 {
-    min-height: 2.5rem;
-    min-width: 2.5rem;
-  }
-  
-  /* Fix button display */
-  .flex.items-center.gap-2 button {
-    height: auto;
-    white-space: nowrap;
-    padding: 0.5rem 0.75rem;
-    display: flex;
-    align-items: center;
+    min-height: 2rem;
+    min-width: 2rem;
   }
 }
 
@@ -148,7 +131,7 @@ th, td {
 
 /* Better spacing between flex items */
 .flex {
-  gap: 0.5rem;
+  gap: 0.25rem;
 }
 
 /* Ensure table headers are properly styled */
@@ -157,7 +140,6 @@ th {
   color: #6B7280;
   text-transform: none;
   letter-spacing: normal;
-  text-align: left;
 }
 
 /* Fix borders and spacing */
@@ -171,7 +153,6 @@ td .font-medium {
   white-space: normal;
   word-break: break-word;
   max-width: 100%;
-  text-align: left;
 }
 
 /* Improve button display on mobile */
@@ -181,30 +162,4 @@ td .font-medium {
     white-space: nowrap;
     padding: 0.5rem 0.75rem;
   }
-  
-  /* Fix header buttons */
-  .flex.justify-between.items-center.mb-4 .flex.items-center.gap-2 button {
-    height: auto;
-    padding: 0.5rem 0.75rem;
-    display: flex;
-    align-items: center;
-    white-space: nowrap;
-  }
-}
-
-/* Fix service list text alignment */
-.text-left {
-  text-align: left !important;
-}
-
-/* Fix table layout */
-table {
-  border-collapse: separate;
-  border-spacing: 0;
-}
-
-/* Remove vertical lines in tables */
-table td, table th {
-  border-right: none !important;
-  border-left: none !important;
 }
