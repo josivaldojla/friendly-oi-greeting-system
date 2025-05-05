@@ -117,9 +117,9 @@ const ServiceList = ({
 
       {services.length > 0 ? (
         viewMode === 'list' ? (
-          <div className="border rounded-lg overflow-hidden">
+          <div className="border rounded-lg overflow-hidden w-full">
             <div className="overflow-x-auto w-full">
-              <Table>
+              <Table className="w-full">
                 <TableHeader>
                   <TableRow>
                     <TableHead className="w-[80px] text-center">Img</TableHead>

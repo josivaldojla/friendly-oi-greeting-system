@@ -12,7 +12,7 @@ interface ServiceListItemProps {
 
 const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProps) => {
   return (
-    <li className="py-3">
+    <li className="py-3 w-full">
       <div className="flex flex-col w-full">
         {/* Nome do serviço com quebra de linha adequada */}
         <div className="w-full text-left mb-2">
