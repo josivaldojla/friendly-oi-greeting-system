@@ -81,15 +81,15 @@ export const ServiceListItem = ({
         onClick={handleRowClick}
         data-testid="service-list-row"
       >
-        <TableCell className="pl-2 py-3 align-top w-[50px]">
+        <TableCell className="pl-2 py-3 align-top w-[70px]">
           {service.imageUrl ? (
             <img 
               src={service.imageUrl} 
               alt={service.name} 
-              className="w-10 h-10 object-cover rounded" 
+              className="w-12 h-12 object-cover rounded" 
             />
           ) : (
-            <div className="w-10 h-10 bg-muted rounded flex items-center justify-center">
+            <div className="w-12 h-12 bg-muted rounded flex items-center justify-center">
               <ImagePlaceholder size={16} />
             </div>
           )}
@@ -111,11 +111,11 @@ export const ServiceListItem = ({
             {/* Price and actions with better responsive layout */}
             <div className="w-full">
               <div className="flex flex-wrap justify-between items-center gap-1 w-full">
-                <span className="font-medium text-right whitespace-nowrap mr-1">
+                <span className="font-medium text-right w-auto whitespace-nowrap mr-1">
                   {formatPrice(service.price)}
                 </span>
                 
-                <div className="flex flex-nowrap" onClick={(e) => e.stopPropagation()}>
+                <div className="flex flex-nowrap ml-auto" onClick={(e) => e.stopPropagation()}>
                   {showAddButton && onAddToSelection && (
                     <Button
                       variant="outline"
@@ -124,9 +124,9 @@ export const ServiceListItem = ({
                         e.stopPropagation();
                         setIsCommenting(true);
                       }}
-                      className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-1.5 py-0.5 h-7 min-h-0 min-w-0"
+                      className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700 text-xs px-3 py-1 h-8 min-h-0 min-w-0"
                     >
-                      <MessageCirclePlus className="h-3 w-3 mr-1" />
+                      <MessageCirclePlus className="h-4 w-4 mr-1" />
                       {isMobile ? "" : "Comentar"}
                     </Button>
                   )}
@@ -136,17 +136,17 @@ export const ServiceListItem = ({
                         variant="ghost"
                         size="icon"
                         onClick={(e) => onEdit(service, e)}
-                        className="h-6 w-6 min-h-0 min-w-0"
+                        className="h-8 w-8 min-h-0 min-w-0"
                       >
-                        <Edit className="h-3 w-3" />
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="icon"
                         onClick={(e) => onDelete(service.id, e)}
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50 h-6 w-6 min-h-0 min-w-0"
+                        className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 min-h-0 min-w-0"
                       >
-                        <Trash2 className="h-3 w-3" />
+                        <Trash2 className="h-4 w-4" />
                       </Button>
                     </>
                   )}

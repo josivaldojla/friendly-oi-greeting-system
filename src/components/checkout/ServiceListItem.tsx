@@ -34,7 +34,7 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
               variant="ghost"
               size="sm"
               onClick={() => onRemove(service.id)}
-              className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0 shrink-0"
+              className="text-red-500 hover:text-red-700 hover:bg-red-50 h-8 w-8 p-0 shrink-0 ml-auto"
             >
               <Trash2 className="h-4 w-4" />
             </Button>

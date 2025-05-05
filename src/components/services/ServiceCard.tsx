@@ -66,9 +66,9 @@ export const ServiceCard = ({
             </p>
           )}
           <div>
-            <div className="flex justify-end items-center">
-              <span className="font-bold text-moto-blue mr-2">{formatPrice(service.price)}</span>
-              <div onClick={(e) => e.stopPropagation()} className="flex">
+            <div className="flex justify-between items-center w-full mt-auto">
+              <span className="font-bold text-moto-blue">{formatPrice(service.price)}</span>
+              <div onClick={(e) => e.stopPropagation()} className="flex ml-auto">
                 {showAddButton && onAddToSelection && !isMobile && (
                   <Button
                     variant="outline"
