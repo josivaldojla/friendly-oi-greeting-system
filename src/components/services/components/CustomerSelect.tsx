@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -32,22 +32,32 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   }, [customerInput]);
 
+  // Atualiza o input quando customerSelection mudar
   useEffect(() => {
-    // Atualizar o input quando customerSelection mudar
     if (customerSelection && customerSelection.name) {
       setCustomerInput(customerSelection.name);
     }
   }, [customerSelection]);
 
-  const handleCustomerSelect = (customer: Customer) => {
+  const handleCustomerSelect = useCallback((customer: Customer, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    
     setCustomerSelection({ 
       id: customer.id, 
       name: customer.name,
       isNew: false
     });
+    
     setCustomerInput(customer.name);
-    setIsCustomerListOpen(false);
-  };
+    
+    // Pequeno delay para fechar o popover para evitar problemas de UI
+    setTimeout(() => {
+      setIsCustomerListOpen(false);
+    }, 100);
+  }, [setCustomerSelection]);
 
   const handleCustomerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -81,7 +91,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
             className="w-full"
           />
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0" align="start">
+        <PopoverContent className="w-full p-0 bg-popover" align="start">
           <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map(customer => (
@@ -89,11 +99,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                   key={customer.id}
                   variant="ghost"
                   className="w-full justify-start text-left font-normal"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCustomerSelect(customer);
-                  }}
+                  onClick={(e) => handleCustomerSelect(customer, e)}
                 >
                   {customer.name}
                 </Button>
