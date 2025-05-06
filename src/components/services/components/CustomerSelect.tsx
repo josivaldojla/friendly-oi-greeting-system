@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Customer, CustomerSelection } from "@/lib/types";
-import { mockCustomers } from "./CommentDialog";
+import { mockCustomers } from "@/lib/mock-data";
 
 interface CustomerSelectProps {
   customerSelection: CustomerSelection;
