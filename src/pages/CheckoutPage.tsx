@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode } from "@/lib/types";
-import { getServices, getMechanics } from "@/lib/storage";
+import { getServices, getMechanics, addService, updateService, deleteService } from "@/lib/storage";
 import ServiceList from "@/components/services/ServiceList";
 import SelectedServicesList from "@/components/checkout/SelectedServicesList";
 import Layout from "@/components/layout/Layout";
@@ -33,6 +33,39 @@ const CheckoutPage = () => {
     
     loadData();
   }, []);
+
+  const handleAddService = async (service: Service) => {
+    try {
+      const updatedServices = await addService(service);
+      setServices(updatedServices);
+      toast.success(`Serviço ${service.name} adicionado com sucesso`);
+    } catch (error) {
+      console.error('Erro ao adicionar serviço:', error);
+      toast.error('Erro ao adicionar serviço');
+    }
+  };
+
+  const handleUpdateService = async (service: Service) => {
+    try {
+      const updatedServices = await updateService(service);
+      setServices(updatedServices);
+      toast.success(`Serviço ${service.name} atualizado com sucesso`);
+    } catch (error) {
+      console.error('Erro ao atualizar serviço:', error);
+      toast.error('Erro ao atualizar serviço');
+    }
+  };
+
+  const handleDeleteService = async (id: string) => {
+    try {
+      const updatedServices = await deleteService(id);
+      setServices(updatedServices);
+      toast.success('Serviço removido com sucesso');
+    } catch (error) {
+      console.error('Erro ao remover serviço:', error);
+      toast.error('Erro ao remover serviço');
+    }
+  };
 
   const handleAddToSelection = (service: Service, comment?: string) => {
     setSelectedServices(prev => [
@@ -75,9 +108,9 @@ const CheckoutPage = () => {
             <div className="space-y-6">
               <ServiceList
                 services={services}
-                onAddService={() => {}}
-                onUpdateService={() => {}}
-                onDeleteService={() => {}}
+                onAddService={handleAddService}
+                onUpdateService={handleUpdateService}
+                onDeleteService={handleDeleteService}
                 selectable={true}
                 viewMode={viewMode}
                 onViewModeChange={setViewMode}
