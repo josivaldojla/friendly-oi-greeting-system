@@ -24,11 +24,18 @@ export const MotorcycleModelSelect = memo(({
       <Select 
         value={selectedModel} 
         onValueChange={handleValueChange}
+        // Adicionando uma posição fixa para o menu em dispositivos móveis
+        // e aumentando o z-index para garantir que esteja acima de outros elementos
       >
-        <SelectTrigger id="motorcycle-model">
+        <SelectTrigger id="motorcycle-model" className="bg-background">
           <SelectValue placeholder="Selecione um modelo" />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent 
+          className="bg-background z-[200]"
+          position="popper"
+          sideOffset={5}
+          align="start"
+        >
           {mockMotorcycleModels.map((model) => (
             <SelectItem key={model.id} value={model.id}>
               {model.name}

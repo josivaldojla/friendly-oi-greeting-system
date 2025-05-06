@@ -86,7 +86,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
         onClick={handleDialogClick} 
-        className="sm:max-w-[425px] bg-background"
+        className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
         style={{ zIndex: 100 }}
       >
         <DialogHeader>
@@ -108,7 +108,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
             <Label htmlFor="comment">Comentário (Opcional)</Label>
             <Textarea
               id="comment"
-              className="w-full"
+              className="w-full bg-background"
               rows={3}
               value={comment}
               placeholder="Digite um comentário adicional para o serviço"
