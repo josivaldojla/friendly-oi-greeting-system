@@ -34,7 +34,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
 
   useEffect(() => {
     // Atualizar o input quando customerSelection mudar
-    if (customerSelection.name) {
+    if (customerSelection && customerSelection.name) {
       setCustomerInput(customerSelection.name);
     }
   }, [customerSelection]);

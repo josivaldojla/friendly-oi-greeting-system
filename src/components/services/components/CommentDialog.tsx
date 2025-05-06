@@ -48,7 +48,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       }
     }
     
-    if (customerSelection.name) {
+    if (customerSelection && customerSelection.name) {
       formattedComment += `Cliente: ${customerSelection.name}\n`;
     }
     
@@ -56,9 +56,8 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       formattedComment += comment.trim();
     }
     
-    onSave(formattedComment ? `_${formattedComment}_` : undefined);
-    
-    // Fechamento do diálogo é gerenciado pelo componente pai
+    onSave(formattedComment ? `_${formattedComment}_` : "");
+    onOpenChange(false);
   };
 
   return (

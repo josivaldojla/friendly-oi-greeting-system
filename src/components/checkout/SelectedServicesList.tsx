@@ -109,7 +109,6 @@ const SelectedServicesList = ({
               <ServiceListItem
                 key={`${service.id}-${index}`}
                 service={service}
-                index={index}
                 formatPrice={formatPrice}
                 onRemove={onRemoveService}
               />
