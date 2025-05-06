@@ -39,12 +39,8 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   }, [customerSelection]);
 
-  const handleCustomerSelect = useCallback((customer: Customer, e?: React.MouseEvent) => {
-    if (e) {
-      e.preventDefault();
-      e.stopPropagation();
-    }
-    
+  const handleCustomerSelect = useCallback((customer: Customer) => {
+    // Definir seleção com ID e nome garantindo que os dados são capturados corretamente
     setCustomerSelection({ 
       id: customer.id, 
       name: customer.name,
@@ -53,10 +49,10 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     
     setCustomerInput(customer.name);
     
-    // Pequeno delay para fechar o popover para evitar problemas de UI
+    // Fechamos o popover com delay para garantir que o estado foi atualizado primeiro
     setTimeout(() => {
       setIsCustomerListOpen(false);
-    }, 100);
+    }, 150);
   }, [setCustomerSelection]);
 
   const handleCustomerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +87,11 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
             className="w-full"
           />
         </PopoverTrigger>
-        <PopoverContent className="w-full p-0 bg-popover" align="start">
+        <PopoverContent 
+          className="w-full p-0" 
+          align="start"
+          style={{ backgroundColor: "white", zIndex: 50 }} // Garantir fundo visível e z-index alto
+        >
           <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
             {filteredCustomers.length > 0 ? (
               filteredCustomers.map(customer => (
@@ -99,7 +99,12 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                   key={customer.id}
                   variant="ghost"
                   className="w-full justify-start text-left font-normal"
-                  onClick={(e) => handleCustomerSelect(customer, e)}
+                  onMouseDown={(e) => {
+                    // Usando onMouseDown em vez de onClick para garantir que aconteça antes do blur
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleCustomerSelect(customer);
+                  }}
                 >
                   {customer.name}
                 </Button>

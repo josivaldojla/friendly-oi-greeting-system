@@ -62,7 +62,11 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent onClick={(e) => e.stopPropagation()} className="sm:max-w-[425px] bg-background">
+      <DialogContent 
+        onClick={(e) => e.stopPropagation()} 
+        className="sm:max-w-[425px] bg-background"
+        style={{ zIndex: 100 }} // Garantir que o Dialog está acima de todos os outros elementos
+      >
         <DialogHeader>
           <DialogTitle>Adicionar Comentário</DialogTitle>
         </DialogHeader>
