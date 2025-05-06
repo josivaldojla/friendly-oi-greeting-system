@@ -26,6 +26,13 @@ const ServiceListItem = ({ service, formatPrice, onRemove }: ServiceListItemProp
           </div>
         )}
         
+        {/* Comentário se disponível */}
+        {service.comment && (
+          <div className="text-sm text-blue-600 text-left mb-2 italic">
+            {service.comment.replace(/_/g, '')}
+          </div>
+        )}
+        
         {/* Preço e ações alinhados à direita */}
         <div className="w-full">
           <div className="flex justify-end items-center gap-2">

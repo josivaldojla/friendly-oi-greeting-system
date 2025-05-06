@@ -1,7 +1,7 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Service, MotorcycleModel, Customer } from "@/lib/types";
+import { Service, MotorcycleModel, Customer, CustomerSelection } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Edit, Trash2, MessageCirclePlus } from "lucide-react";
@@ -55,9 +55,22 @@ export const ServiceListItem = ({
   const [isCommenting, setIsCommenting] = useState(false);
   const [comment, setComment] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
-  const [selectedCustomer, setSelectedCustomer] = useState<string>("");
+  const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ name: "" });
   const [customerInput, setCustomerInput] = useState<string>("");
   const [isCustomerListOpen, setIsCustomerListOpen] = useState(false);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>(mockCustomers);
+
+  // Atualiza a lista filtrada de clientes quando o input muda
+  useEffect(() => {
+    if (customerInput) {
+      const filtered = mockCustomers.filter(customer => 
+        customer.name.toLowerCase().includes(customerInput.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+    } else {
+      setFilteredCustomers(mockCustomers);
+    }
+  }, [customerInput]);
 
   const handleRowClick = () => {
     if (selectable && showAddButton && onAddToSelection && !isCommenting) {
@@ -67,7 +80,10 @@ export const ServiceListItem = ({
     }
   };
 
-  const handleCommentSave = () => {
+  const handleCommentSave = (e: React.MouseEvent) => {
+    e.preventDefault(); // Previne comportamento padrão
+    e.stopPropagation(); // Evita propagação do evento
+    
     if (onAddToSelection) {
       let formattedComment = "";
       
@@ -78,11 +94,8 @@ export const ServiceListItem = ({
         }
       }
       
-      if (selectedCustomer || customerInput) {
-        const customerName = selectedCustomer 
-          ? mockCustomers.find(c => c.id === selectedCustomer)?.name 
-          : customerInput;
-        formattedComment += `Cliente: ${customerName}\n`;
+      if (customerSelection.name) {
+        formattedComment += `Cliente: ${customerSelection.name}\n`;
       }
       
       if (comment.trim()) {
@@ -92,24 +105,54 @@ export const ServiceListItem = ({
       onAddToSelection(service, formattedComment ? `_${formattedComment}_` : undefined);
     }
     
-    // Limpar campos
+    // Limpar campos após salvar
     setIsCommenting(false);
     setComment("");
     setSelectedModel("");
-    setSelectedCustomer("");
+    setCustomerSelection({ name: "" });
     setCustomerInput("");
   };
 
-  const handleCustomerSelect = (id: string) => {
-    setSelectedCustomer(id);
-    setCustomerInput("");
+  const handleCustomerSelect = (customer: Customer) => {
+    setCustomerSelection({ 
+      id: customer.id, 
+      name: customer.name,
+      isNew: false
+    });
+    setCustomerInput(customer.name);
     setIsCustomerListOpen(false);
+  };
+
+  const handleCustomerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCustomerInput(value);
+    
+    // Se houver valor, consideramos como um novo cliente potencial
+    if (value) {
+      setCustomerSelection({ 
+        name: value, 
+        isNew: true 
+      });
+    } else {
+      setCustomerSelection({ name: "" });
+    }
+  };
+
+  const closeCommentDialog = () => {
+    setIsCommenting(false);
+    setComment("");
+    setSelectedModel("");
+    setCustomerSelection({ name: "" });
+    setCustomerInput("");
   };
 
   return (
     <>
-      <Dialog open={isCommenting} onOpenChange={setIsCommenting}>
-        <DialogContent>
+      <Dialog open={isCommenting} onOpenChange={(open) => {
+        if (!open) closeCommentDialog();
+        else setIsCommenting(open);
+      }}>
+        <DialogContent onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Adicionar Comentário</DialogTitle>
           </DialogHeader>
@@ -133,35 +176,42 @@ export const ServiceListItem = ({
             
             <div className="space-y-2">
               <Label htmlFor="customer">Cliente</Label>
-              <Popover open={isCustomerListOpen} onOpenChange={setIsCustomerListOpen}>
+              <Popover 
+                open={isCustomerListOpen} 
+                onOpenChange={setIsCustomerListOpen}
+              >
                 <PopoverTrigger asChild>
                   <Input
                     id="customer"
-                    value={selectedCustomer ? mockCustomers.find(c => c.id === selectedCustomer)?.name : customerInput}
-                    onChange={(e) => {
-                      setCustomerInput(e.target.value);
-                      setSelectedCustomer("");
-                    }}
+                    value={customerInput}
+                    onChange={handleCustomerInputChange}
                     onClick={() => setIsCustomerListOpen(true)}
                     placeholder="Digite ou selecione um cliente"
+                    className="w-full"
                   />
                 </PopoverTrigger>
                 <PopoverContent className="w-full p-0" align="start">
                   <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
-                    {mockCustomers
-                      .filter(customer => 
-                        !customerInput || 
-                        customer.name.toLowerCase().includes(customerInput.toLowerCase()))
-                      .map(customer => (
+                    {filteredCustomers.length > 0 ? (
+                      filteredCustomers.map(customer => (
                         <Button
                           key={customer.id}
                           variant="ghost"
                           className="w-full justify-start text-left font-normal"
-                          onClick={() => handleCustomerSelect(customer.id)}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            handleCustomerSelect(customer);
+                          }}
                         >
                           {customer.name}
                         </Button>
-                      ))}
+                      ))
+                    ) : (
+                      <div className="p-2 text-sm text-muted-foreground">
+                        Nenhum cliente encontrado. Digite para adicionar.
+                      </div>
+                    )}
                   </div>
                 </PopoverContent>
               </Popover>
@@ -181,7 +231,7 @@ export const ServiceListItem = ({
           </div>
 
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsCommenting(false)}>
+            <Button variant="outline" onClick={closeCommentDialog}>
               Cancelar
             </Button>
             <Button variant="default" onClick={handleCommentSave}>

@@ -36,3 +36,10 @@ export interface Customer {
   id: string;
   name: string;
 }
+
+// Adicionando nova interface para indicar o tipo de cliente
+export interface CustomerSelection {
+  id?: string;  // ID se for cliente existente
+  name: string; // Nome do cliente (existente ou novo)
+  isNew?: boolean; // Indica se é um novo cliente
+}
