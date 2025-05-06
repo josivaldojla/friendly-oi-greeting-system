@@ -24,6 +24,7 @@ export const MotorcycleModelSelect = memo(({
       <Select 
         value={selectedModel} 
         onValueChange={handleValueChange}
+        open={undefined} // Let the component control its own open state
       >
         <SelectTrigger id="motorcycle-model" className="bg-background">
           <SelectValue placeholder="Selecione um modelo" />

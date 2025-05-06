@@ -100,7 +100,11 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
             maxHeight: "300px",
             overflowY: "auto"
           }}
-          onInteractOutside={() => setIsCustomerListOpen(false)}
+          onInteractOutside={(e) => {
+            // Prevent outside clicks from closing the dialog
+            e.preventDefault(); 
+            setIsCustomerListOpen(false);
+          }}
         >
           <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
             {filteredCustomers.length > 0 ? (

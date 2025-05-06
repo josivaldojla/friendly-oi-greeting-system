@@ -77,20 +77,31 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     onOpenChange(false);
   }, [selectedModel, customerSelection, comment, onSave, onOpenChange]);
 
-  // Adicionar evento de click apenas uma vez
+  // Prevent dialog close when clicking inside
   const handleDialogClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
   }, []);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog 
+      open={open} 
+      onOpenChange={onOpenChange}
+    >
       <DialogContent 
         onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
         style={{ zIndex: 100 }}
         onPointerDownOutside={(e) => {
-          // Evita que cliques fora do diálogo o fechem acidentalmente
+          // Prevent outside clicks from closing the dialog accidentally
           e.preventDefault();
+        }}
+        onInteractOutside={(e) => {
+          // Prevent outside interactions from closing the dialog
+          e.preventDefault();
+        }}
+        onEscapeKeyDown={(e) => {
+          // Let Escape key work normally to close the dialog
+          // We don't prevent default here
         }}
       >
         <DialogHeader>
@@ -122,10 +133,22 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)} type="button">
+          <Button 
+            variant="outline" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpenChange(false);
+            }} 
+            type="button"
+          >
             Cancelar
           </Button>
-          <Button variant="default" onClick={handleSave} type="button">
+          <Button 
+            variant="default" 
+            onClick={handleSave} 
+            type="button"
+          >
             Salvar
           </Button>
         </DialogFooter>
