@@ -9,6 +9,9 @@ import { MotorcycleModelSelect } from "./MotorcycleModelSelect";
 import { CustomerSelect } from "./CustomerSelect";
 import { CustomerSelection } from "@/lib/types";
 
+// Dados simulados movidos para um arquivo separado
+import { mockMotorcycleModels, mockCustomers } from "@/lib/mock-data";
+
 interface CommentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -107,20 +110,3 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     </Dialog>
   );
 };
-
-// Dados simulados (Eventualmente estes dados seriam movidos para um contexto global ou API)
-export const mockMotorcycleModels = [
-  { id: "1", name: "Fazer 250" },
-  { id: "2", name: "CG 160" },
-  { id: "3", name: "XRE 300" },
-  { id: "4", name: "CB 300" },
-  { id: "5", name: "Biz 125" }
-];
-
-export const mockCustomers = [
-  { id: "1", name: "Valdo" },
-  { id: "2", name: "João" },
-  { id: "3", name: "Maria" },
-  { id: "4", name: "Pedro" },
-  { id: "5", name: "Ana" }
-];
