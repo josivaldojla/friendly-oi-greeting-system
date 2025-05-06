@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,7 +38,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     }
   }, [open]);
 
-  // Usar useCallback para evitar renderizações desnecessárias
+  // Usar useCallback para evitar renderizações desnecessárias e memoizar as funções
   const handleModelChange = useCallback((value: string) => {
     setSelectedModel(value);
   }, []);
@@ -47,7 +47,12 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     setCustomerSelection(customer);
   }, []);
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleCommentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+  }, []);
+
+  // Memoizar a função handleSave para evitar recriações desnecessárias
+  const handleSave = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
     
@@ -70,12 +75,17 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     
     onSave(formattedComment ? `_${formattedComment}_` : "");
     onOpenChange(false);
-  };
+  }, [selectedModel, customerSelection, comment, onSave, onOpenChange]);
+
+  // Adicionar evento de click apenas uma vez
+  const handleDialogClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        onClick={(e) => e.stopPropagation()} 
+        onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background"
         style={{ zIndex: 100 }}
       >
@@ -102,7 +112,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
               rows={3}
               value={comment}
               placeholder="Digite um comentário adicional para o serviço"
-              onChange={(e) => setComment(e.target.value)}
+              onChange={handleCommentChange}
             />
           </div>
         </div>

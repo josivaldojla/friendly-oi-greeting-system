@@ -1,5 +1,5 @@
 
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockMotorcycleModels } from "@/lib/mock-data";
@@ -9,17 +9,21 @@ interface MotorcycleModelSelectProps {
   setSelectedModel: (value: string) => void;
 }
 
-// Usando memo para evitar renderizações desnecessárias
 export const MotorcycleModelSelect = memo(({
   selectedModel,
   setSelectedModel
 }: MotorcycleModelSelectProps) => {
+  // Use useCallback to ensure the handler doesn't cause unnecessary re-renders
+  const handleValueChange = useCallback((value: string) => {
+    setSelectedModel(value);
+  }, [setSelectedModel]);
+  
   return (
     <div className="space-y-2">
       <Label htmlFor="motorcycle-model">Modelo</Label>
       <Select 
         value={selectedModel} 
-        onValueChange={setSelectedModel}
+        onValueChange={handleValueChange}
       >
         <SelectTrigger id="motorcycle-model">
           <SelectValue placeholder="Selecione um modelo" />
