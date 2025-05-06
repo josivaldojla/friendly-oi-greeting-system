@@ -72,19 +72,31 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
         onOpenChange={setIsCustomerListOpen}
       >
         <PopoverTrigger asChild>
-          <Input
-            id="customer"
-            value={customerInput}
-            onChange={handleCustomerInputChange}
-            onClick={() => setIsCustomerListOpen(true)}
-            placeholder="Digite ou selecione um cliente"
-            className="w-full"
-          />
+          <div className="w-full relative">
+            <Input
+              id="customer"
+              value={customerInput}
+              onChange={handleCustomerInputChange}
+              onClick={() => setIsCustomerListOpen(true)}
+              placeholder="Digite ou selecione um cliente"
+              className="w-full cursor-pointer"
+              autoComplete="off"
+            />
+          </div>
         </PopoverTrigger>
         <PopoverContent 
           className="w-full p-0" 
           align="start"
-          style={{ backgroundColor: "white", zIndex: 50 }}
+          side="bottom"
+          sideOffset={5}
+          style={{ 
+            backgroundColor: "white", 
+            zIndex: 100,
+            width: "var(--radix-popover-trigger-width)",
+            maxHeight: "300px",
+            overflowY: "auto"
+          }}
+          onInteractOutside={() => setIsCustomerListOpen(false)}
         >
           <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
             {filteredCustomers.length > 0 ? (

@@ -24,8 +24,6 @@ export const MotorcycleModelSelect = memo(({
       <Select 
         value={selectedModel} 
         onValueChange={handleValueChange}
-        // Adicionando uma posição fixa para o menu em dispositivos móveis
-        // e aumentando o z-index para garantir que esteja acima de outros elementos
       >
         <SelectTrigger id="motorcycle-model" className="bg-background">
           <SelectValue placeholder="Selecione um modelo" />
@@ -35,6 +33,17 @@ export const MotorcycleModelSelect = memo(({
           position="popper"
           sideOffset={5}
           align="start"
+          forceMount={false}
+          onInteractOutside={(e) => {
+            e.preventDefault();
+          }}
+          onEscapeKeyDown={(e) => {
+            e.preventDefault();
+          }}
+          onPointerDownOutside={(e) => {
+            // Fechará o menu ao clicar fora, mesmo sem selecionar uma opção
+            e.preventDefault();
+          }}
         >
           {mockMotorcycleModels.map((model) => (
             <SelectItem key={model.id} value={model.id}>
