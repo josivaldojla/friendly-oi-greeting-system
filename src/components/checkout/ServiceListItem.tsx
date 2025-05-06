@@ -5,7 +5,6 @@ import { Trash2 } from "lucide-react";
 
 interface ServiceListItemProps {
   service: Service;
-  index: number;
   formatPrice: (price: number) => string;
   onRemove: (id: string) => void;
 }
