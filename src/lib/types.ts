@@ -12,6 +12,7 @@ export interface Service {
   price: number;
   description: string;
   imageUrl?: string;
+  comment?: string;
 }
 
 export interface CompletedService {
@@ -25,3 +26,13 @@ export interface CompletedService {
 }
 
 export type ViewMode = 'list' | 'grid';
+
+export interface MotorcycleModel {
+  id: string;
+  name: string;
+}
+
+export interface Customer {
+  id: string;
+  name: string;
+}
