@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -10,7 +10,7 @@ import { CustomerSelect } from "./CustomerSelect";
 import { CustomerSelection } from "@/lib/types";
 
 // Dados simulados movidos para um arquivo separado
-import { mockMotorcycleModels, mockCustomers } from "@/lib/mock-data";
+import { mockMotorcycleModels } from "@/lib/mock-data";
 
 interface CommentDialogProps {
   open: boolean;
@@ -37,6 +37,15 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       setCustomerSelection({ name: "" });
     }
   }, [open]);
+
+  // Usar useCallback para evitar renderizações desnecessárias
+  const handleModelChange = useCallback((value: string) => {
+    setSelectedModel(value);
+  }, []);
+  
+  const handleCustomerChange = useCallback((customer: CustomerSelection) => {
+    setCustomerSelection(customer);
+  }, []);
 
   const handleSave = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -68,7 +77,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       <DialogContent 
         onClick={(e) => e.stopPropagation()} 
         className="sm:max-w-[425px] bg-background"
-        style={{ zIndex: 100 }} // Garantir que o Dialog está acima de todos os outros elementos
+        style={{ zIndex: 100 }}
       >
         <DialogHeader>
           <DialogTitle>Adicionar Comentário</DialogTitle>
@@ -77,12 +86,12 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
         <div className="space-y-4">
           <MotorcycleModelSelect
             selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
+            setSelectedModel={handleModelChange}
           />
           
           <CustomerSelect
             customerSelection={customerSelection}
-            setCustomerSelection={setCustomerSelection}
+            setCustomerSelection={handleCustomerChange}
           />
           
           <div className="space-y-2">

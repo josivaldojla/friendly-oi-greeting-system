@@ -20,7 +20,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const [isCustomerListOpen, setIsCustomerListOpen] = useState(false);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>(mockCustomers);
 
-  // Atualiza a lista filtrada de clientes quando o input muda
+  // Filtra clientes quando o input muda
   useEffect(() => {
     if (customerInput) {
       const filtered = mockCustomers.filter(customer => 
@@ -32,15 +32,15 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   }, [customerInput]);
 
-  // Atualiza o input quando customerSelection mudar
+  // Atualiza o input quando customerSelection mudar, mas evita loops
   useEffect(() => {
-    if (customerSelection && customerSelection.name) {
+    if (customerSelection && customerSelection.name && customerInput !== customerSelection.name) {
       setCustomerInput(customerSelection.name);
     }
-  }, [customerSelection]);
+  }, [customerSelection, customerInput]);
 
   const handleCustomerSelect = useCallback((customer: Customer) => {
-    // Definir seleção com ID e nome garantindo que os dados são capturados corretamente
+    // Defina a seleção uma única vez
     setCustomerSelection({ 
       id: customer.id, 
       name: customer.name,
@@ -48,25 +48,19 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     });
     
     setCustomerInput(customer.name);
-    
-    // Fechamos o popover com delay para garantir que o estado foi atualizado primeiro
-    setTimeout(() => {
-      setIsCustomerListOpen(false);
-    }, 150);
+    setIsCustomerListOpen(false);
   }, [setCustomerSelection]);
 
   const handleCustomerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCustomerInput(value);
     
-    // Se houver valor, consideramos como um novo cliente potencial
-    if (value) {
+    // Só atualize a seleção se o valor for diferente
+    if (value !== customerSelection.name) {
       setCustomerSelection({ 
         name: value, 
         isNew: true 
       });
-    } else {
-      setCustomerSelection({ name: "" });
     }
   };
 
@@ -90,7 +84,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
         <PopoverContent 
           className="w-full p-0" 
           align="start"
-          style={{ backgroundColor: "white", zIndex: 50 }} // Garantir fundo visível e z-index alto
+          style={{ backgroundColor: "white", zIndex: 50 }}
         >
           <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
             {filteredCustomers.length > 0 ? (
@@ -99,12 +93,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                   key={customer.id}
                   variant="ghost"
                   className="w-full justify-start text-left font-normal"
-                  onMouseDown={(e) => {
-                    // Usando onMouseDown em vez de onClick para garantir que aconteça antes do blur
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCustomerSelect(customer);
-                  }}
+                  onClick={() => handleCustomerSelect(customer)}
                 >
                   {customer.name}
                 </Button>

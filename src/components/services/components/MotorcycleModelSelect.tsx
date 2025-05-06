@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { memo } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockMotorcycleModels } from "@/lib/mock-data";
@@ -9,14 +9,18 @@ interface MotorcycleModelSelectProps {
   setSelectedModel: (value: string) => void;
 }
 
-export const MotorcycleModelSelect: React.FC<MotorcycleModelSelectProps> = ({
+// Usando memo para evitar renderizações desnecessárias
+export const MotorcycleModelSelect = memo(({
   selectedModel,
   setSelectedModel
-}) => {
+}: MotorcycleModelSelectProps) => {
   return (
     <div className="space-y-2">
       <Label htmlFor="motorcycle-model">Modelo</Label>
-      <Select value={selectedModel} onValueChange={setSelectedModel}>
+      <Select 
+        value={selectedModel} 
+        onValueChange={setSelectedModel}
+      >
         <SelectTrigger id="motorcycle-model">
           <SelectValue placeholder="Selecione um modelo" />
         </SelectTrigger>
@@ -30,4 +34,6 @@ export const MotorcycleModelSelect: React.FC<MotorcycleModelSelectProps> = ({
       </Select>
     </div>
   );
-};
+});
+
+MotorcycleModelSelect.displayName = "MotorcycleModelSelect";
