@@ -88,6 +88,10 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
         onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
         style={{ zIndex: 100 }}
+        onPointerDownOutside={(e) => {
+          // Evita que cliques fora do diálogo o fechem acidentalmente
+          e.preventDefault();
+        }}
       >
         <DialogHeader>
           <DialogTitle>Adicionar Comentário</DialogTitle>
@@ -118,10 +122,10 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button variant="outline" onClick={() => onOpenChange(false)} type="button">
             Cancelar
           </Button>
-          <Button variant="default" onClick={handleSave}>
+          <Button variant="default" onClick={handleSave} type="button">
             Salvar
           </Button>
         </DialogFooter>

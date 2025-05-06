@@ -32,15 +32,19 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   }, [customerInput]);
 
-  // Atualiza o input quando customerSelection mudar, mas evita loops
+  // Atualiza o input quando customerSelection mudar
   useEffect(() => {
-    if (customerSelection && customerSelection.name && customerInput !== customerSelection.name) {
+    if (customerSelection && customerSelection.name) {
       setCustomerInput(customerSelection.name);
     }
-  }, [customerSelection, customerInput]);
+  }, [customerSelection]);
 
-  const handleCustomerSelect = useCallback((customer: Customer) => {
-    // Defina a seleção uma única vez
+  const handleCustomerSelect = useCallback((customer: Customer, e: React.MouseEvent) => {
+    // Evite a propagação do evento para não fechar o diálogo
+    e.preventDefault();
+    e.stopPropagation();
+    
+    // Defina a seleção do cliente
     setCustomerSelection({ 
       id: customer.id, 
       name: customer.name,
@@ -105,7 +109,8 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                   key={customer.id}
                   variant="ghost"
                   className="w-full justify-start text-left font-normal"
-                  onClick={() => handleCustomerSelect(customer)}
+                  onClick={(e) => handleCustomerSelect(customer, e)}
+                  type="button"
                 >
                   {customer.name}
                 </Button>
