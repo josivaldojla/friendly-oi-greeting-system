@@ -55,15 +55,24 @@ export async function addCustomer(customer: Omit<Customer, "id">): Promise<Custo
   try {
     console.log('Adding customer:', customer);
     
-    // Insert using SQL directly
-    const { data, error } = await supabase
-      .from('customers')
-      .insert([{ 
-        name: customer.name, 
-        phone: customer.phone || null, 
-        email: customer.email || null, 
-        address: customer.address || null 
-      }]);
+    // First check if table exists
+    const { data: tableExists } = await supabase
+      .rpc('table_exists', { table_name: 'customers' })
+      .single();
+      
+    if (!tableExists) {
+      // Create the table if it doesn't exist
+      await supabase.rpc('create_customers_table');
+    }
+    
+    // Use RPC instead of direct table access
+    const { error } = await supabase
+      .rpc('add_customer', { 
+        p_name: customer.name, 
+        p_phone: customer.phone || null, 
+        p_email: customer.email || null, 
+        p_address: customer.address || null 
+      });
 
     if (error) {
       console.error('Error adding customer:', error);
@@ -86,17 +95,15 @@ export async function updateCustomer(customer: Customer): Promise<Customer[]> {
   try {
     console.log('Updating customer:', customer);
     
-    // Update using SQL directly
-    const { data, error } = await supabase
-      .from('customers')
-      .update({ 
-        name: customer.name, 
-        phone: customer.phone || null, 
-        email: customer.email || null, 
-        address: customer.address || null,
-        updated_at: new Date()
-      })
-      .eq('id', customer.id);
+    // Use RPC instead of direct table access
+    const { error } = await supabase
+      .rpc('update_customer', { 
+        p_id: customer.id,
+        p_name: customer.name, 
+        p_phone: customer.phone || null, 
+        p_email: customer.email || null, 
+        p_address: customer.address || null 
+      });
 
     if (error) {
       console.error('Error updating customer:', error);
@@ -115,11 +122,9 @@ export async function deleteCustomer(id: string): Promise<Customer[]> {
   try {
     console.log('Deleting customer with ID:', id);
     
-    // Delete using SQL directly
-    const { data, error } = await supabase
-      .from('customers')
-      .delete()
-      .eq('id', id);
+    // Use RPC instead of direct table access
+    const { error } = await supabase
+      .rpc('delete_customer', { p_id: id });
 
     if (error) {
       console.error('Error deleting customer:', error);
