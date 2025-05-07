@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Customer, CustomerSelection } from "@/lib/types";
 import { mockCustomers } from "@/lib/mock-data";
+import { getCustomers } from "@/lib/storage";
 
 interface CustomerSelectProps {
   customerSelection: CustomerSelection;
@@ -19,18 +20,38 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const [customerInput, setCustomerInput] = useState<string>("");
   const [isCustomerListOpen, setIsCustomerListOpen] = useState(false);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+
+  // Carregar clientes do banco de dados
+  useEffect(() => {
+    const loadCustomers = async () => {
+      try {
+        const fetchedCustomers = await getCustomers();
+        if (fetchedCustomers && fetchedCustomers.length > 0) {
+          setCustomers(fetchedCustomers);
+        } else {
+          setCustomers(mockCustomers);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar clientes:", error);
+        setCustomers(mockCustomers);
+      }
+    };
+    
+    loadCustomers();
+  }, []);
 
   // Reset filtered customers when opening the list, but don't show any by default
   useEffect(() => {
     if (isCustomerListOpen && customerInput) {
-      const filtered = mockCustomers.filter(customer => 
+      const filtered = customers.filter(customer => 
         customer.name.toLowerCase().includes(customerInput.toLowerCase())
       );
       setFilteredCustomers(filtered);
-    } else {
+    } else if (!customerInput) {
       setFilteredCustomers([]);
     }
-  }, [isCustomerListOpen, customerInput]);
+  }, [isCustomerListOpen, customerInput, customers]);
 
   // Update input when customerSelection changes
   useEffect(() => {
@@ -69,20 +90,33 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     
     // Show filtered results as user types
     if (value) {
-      const filtered = mockCustomers.filter(customer => 
+      const filtered = customers.filter(customer => 
         customer.name.toLowerCase().includes(value.toLowerCase())
       );
       setFilteredCustomers(filtered);
-      setIsCustomerListOpen(true);
+      if (filtered.length > 0) {
+        setIsCustomerListOpen(true);
+      }
     } else {
       setFilteredCustomers([]);
+      setIsCustomerListOpen(false);
     }
   };
 
   // Handle input focus
   const handleInputFocus = () => {
-    // Don't show the list automatically on first focus
-    // User needs to type something first
+    if (customerInput) {
+      const filtered = customers.filter(customer => 
+        customer.name.toLowerCase().includes(customerInput.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+      if (filtered.length > 0) {
+        setIsCustomerListOpen(true);
+      }
+    }
+  };
+
+  const handleClickOutside = () => {
     setIsCustomerListOpen(false);
   };
 
@@ -91,7 +125,12 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       <Label htmlFor="customer">Cliente</Label>
       <Popover 
         open={isCustomerListOpen} 
-        onOpenChange={setIsCustomerListOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            handleClickOutside();
+          }
+          setIsCustomerListOpen(open);
+        }}
       >
         <PopoverTrigger asChild>
           <div className="w-full relative">
@@ -112,9 +151,10 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
             align="start"
             side="bottom"
             sideOffset={5}
+            avoidCollisions={false}
             style={{ 
               backgroundColor: "white", 
-              zIndex: 200,
+              zIndex: 500,
               width: "var(--radix-popover-trigger-width)",
               maxHeight: "300px",
               overflowY: "auto"

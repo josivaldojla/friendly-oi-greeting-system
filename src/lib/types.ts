@@ -35,6 +35,9 @@ export interface MotorcycleModel {
 export interface Customer {
   id: string;
   name: string;
+  phone?: string;
+  email?: string;
+  address?: string;
 }
 
 // Adicionando nova interface para indicar o tipo de cliente

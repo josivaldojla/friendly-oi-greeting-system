@@ -29,10 +29,11 @@ export const MotorcycleModelSelect = memo(({
           <SelectValue placeholder="Selecione um modelo" />
         </SelectTrigger>
         <SelectContent 
-          className="bg-background z-[200]"
+          className="bg-background"
           position="popper"
           sideOffset={5}
           align="start"
+          style={{ zIndex: 500 }}
         >
           {mockMotorcycleModels.map((model) => (
             <SelectItem key={model.id} value={model.id}>

@@ -89,7 +89,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       onOpenChange={(newOpenState) => {
         // Só permitir fechar o diálogo através dos botões
         if (open && !newOpenState) {
-          // Permitir apenas fechar via botões e ESC
+          // Não fechamos o diálogo aqui, apenas através dos botões
           return;
         }
         onOpenChange(newOpenState);
@@ -98,7 +98,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       <DialogContent 
         onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
-        style={{ zIndex: 100 }}
+        style={{ zIndex: 400 }}
         onPointerDownOutside={(e) => {
           // Prevenir que cliques fora do diálogo o fechem
           e.preventDefault();

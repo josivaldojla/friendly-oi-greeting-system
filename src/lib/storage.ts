@@ -1,4 +1,4 @@
-import { Mechanic, Service, CompletedService } from "./types";
+import { Mechanic, Service, CompletedService, Customer } from "./types";
 import { supabase } from "@/integrations/supabase/client";
 
 // Função para converter arquivo para base64
@@ -207,6 +207,69 @@ export async function addCompletedService(completedService: Omit<CompletedServic
   }
 
   return getCompletedServices();
+}
+
+// Customers
+export async function getCustomers(): Promise<Customer[]> {
+  const { data, error } = await supabase
+    .from('customers')
+    .select('*')
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    console.error('Error fetching customers:', error);
+    return [];
+  }
+  
+  // Mapeando para o formato correto
+  return data.map(item => ({
+    id: item.id,
+    name: item.name,
+    phone: item.phone || undefined,
+    email: item.email || undefined,
+    address: item.address || undefined
+  }));
+}
+
+export async function addCustomer(customer: Omit<Customer, "id">): Promise<Customer[]> {
+  const { error } = await supabase
+    .from('customers')
+    .insert([customer]);
+
+  if (error) {
+    console.error('Error adding customer:', error);
+    return [];
+  }
+
+  return getCustomers();
+}
+
+export async function updateCustomer(customer: Customer): Promise<Customer[]> {
+  const { error } = await supabase
+    .from('customers')
+    .update(customer)
+    .eq('id', customer.id);
+
+  if (error) {
+    console.error('Error updating customer:', error);
+    return [];
+  }
+
+  return getCustomers();
+}
+
+export async function deleteCustomer(id: string): Promise<Customer[]> {
+  const { error } = await supabase
+    .from('customers')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting customer:', error);
+    return [];
+  }
+
+  return getCustomers();
 }
 
 // Utility functions for reports
