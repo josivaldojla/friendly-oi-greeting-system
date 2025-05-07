@@ -23,7 +23,7 @@ const PopoverContent = React.forwardRef<
       )}
       // Adding a higher z-index to ensure popover stays on top
       style={{
-        zIndex: 200,
+        zIndex: 300,
         ...props.style
       }}
       {...props}

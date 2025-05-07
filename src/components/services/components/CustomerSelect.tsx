@@ -18,21 +18,21 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
 }) => {
   const [customerInput, setCustomerInput] = useState<string>("");
   const [isCustomerListOpen, setIsCustomerListOpen] = useState(false);
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>(mockCustomers);
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
 
-  // Filtra clientes quando o input muda
+  // Reset filtered customers when opening the list, but don't show any by default
   useEffect(() => {
-    if (customerInput) {
+    if (isCustomerListOpen && customerInput) {
       const filtered = mockCustomers.filter(customer => 
         customer.name.toLowerCase().includes(customerInput.toLowerCase())
       );
       setFilteredCustomers(filtered);
     } else {
-      setFilteredCustomers(mockCustomers);
+      setFilteredCustomers([]);
     }
-  }, [customerInput]);
+  }, [isCustomerListOpen, customerInput]);
 
-  // Atualiza o input quando customerSelection mudar
+  // Update input when customerSelection changes
   useEffect(() => {
     if (customerSelection && customerSelection.name) {
       setCustomerInput(customerSelection.name);
@@ -40,11 +40,11 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   }, [customerSelection]);
 
   const handleCustomerSelect = useCallback((customer: Customer, e: React.MouseEvent) => {
-    // Evite a propagação do evento para não fechar o diálogo
+    // Prevent event propagation
     e.preventDefault();
     e.stopPropagation();
     
-    // Defina a seleção do cliente
+    // Set the selected customer
     setCustomerSelection({ 
       id: customer.id, 
       name: customer.name,
@@ -59,13 +59,31 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     const value = e.target.value;
     setCustomerInput(value);
     
-    // Só atualize a seleção se o valor for diferente
+    // Only update selection if value is different
     if (value !== customerSelection.name) {
       setCustomerSelection({ 
         name: value, 
         isNew: true 
       });
     }
+    
+    // Show filtered results as user types
+    if (value) {
+      const filtered = mockCustomers.filter(customer => 
+        customer.name.toLowerCase().includes(value.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+      setIsCustomerListOpen(true);
+    } else {
+      setFilteredCustomers([]);
+    }
+  };
+
+  // Handle input focus
+  const handleInputFocus = () => {
+    // Don't show the list automatically on first focus
+    // User needs to type something first
+    setIsCustomerListOpen(false);
   };
 
   return (
@@ -81,34 +99,33 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
               id="customer"
               value={customerInput}
               onChange={handleCustomerInputChange}
-              onClick={() => setIsCustomerListOpen(true)}
-              placeholder="Digite ou selecione um cliente"
-              className="w-full cursor-pointer"
+              onFocus={handleInputFocus}
+              placeholder="Digite para pesquisar ou adicionar cliente"
+              className="w-full"
               autoComplete="off"
             />
           </div>
         </PopoverTrigger>
-        <PopoverContent 
-          className="w-full p-0" 
-          align="start"
-          side="bottom"
-          sideOffset={5}
-          style={{ 
-            backgroundColor: "white", 
-            zIndex: 100,
-            width: "var(--radix-popover-trigger-width)",
-            maxHeight: "300px",
-            overflowY: "auto"
-          }}
-          onInteractOutside={(e) => {
-            // Prevent outside clicks from closing the dialog
-            e.preventDefault(); 
-            setIsCustomerListOpen(false);
-          }}
-        >
-          <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
-            {filteredCustomers.length > 0 ? (
-              filteredCustomers.map(customer => (
+        {filteredCustomers.length > 0 && (
+          <PopoverContent 
+            className="w-full p-0" 
+            align="start"
+            side="bottom"
+            sideOffset={5}
+            style={{ 
+              backgroundColor: "white", 
+              zIndex: 200,
+              width: "var(--radix-popover-trigger-width)",
+              maxHeight: "300px",
+              overflowY: "auto"
+            }}
+            onInteractOutside={(e) => {
+              e.preventDefault();
+              setIsCustomerListOpen(false);
+            }}
+          >
+            <div className="max-h-56 overflow-auto rounded-md bg-popover p-1">
+              {filteredCustomers.map(customer => (
                 <Button
                   key={customer.id}
                   variant="ghost"
@@ -118,14 +135,10 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                 >
                   {customer.name}
                 </Button>
-              ))
-            ) : (
-              <div className="p-2 text-sm text-muted-foreground">
-                Nenhum cliente encontrado. Digite para adicionar.
-              </div>
-            )}
-          </div>
-        </PopoverContent>
+              ))}
+            </div>
+          </PopoverContent>
+        )}
       </Popover>
     </div>
   );

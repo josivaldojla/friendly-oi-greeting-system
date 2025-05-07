@@ -1,4 +1,3 @@
-
 import * as React from "react"
 import * as SelectPrimitive from "@radix-ui/react-select"
 import { Check, ChevronDown, ChevronUp } from "lucide-react"
@@ -80,6 +79,11 @@ const SelectContent = React.forwardRef<
         className
       )}
       position={position}
+      // Ensure higher z-index to prevent overlapping issues
+      style={{
+        zIndex: 300,
+        ...props.style
+      }}
       {...props}
     >
       <SelectScrollUpButton />

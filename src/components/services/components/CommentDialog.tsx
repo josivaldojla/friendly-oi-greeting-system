@@ -29,16 +29,17 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ name: "" });
   
-  // Limpar estados quando fechar o diálogo
+  // Limpar estados quando o diálogo é aberto ou fechado
   useEffect(() => {
     if (!open) {
+      // Somente limpa quando fecha o diálogo
       setComment("");
       setSelectedModel("");
       setCustomerSelection({ name: "" });
     }
   }, [open]);
 
-  // Usar useCallback para evitar renderizações desnecessárias e memoizar as funções
+  // Usar useCallback para evitar renderizações desnecessárias
   const handleModelChange = useCallback((value: string) => {
     setSelectedModel(value);
   }, []);
@@ -51,7 +52,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     setComment(e.target.value);
   }, []);
 
-  // Memoizar a função handleSave para evitar recriações desnecessárias
+  // Memoizar a função handleSave
   const handleSave = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -77,7 +78,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     onOpenChange(false);
   }, [selectedModel, customerSelection, comment, onSave, onOpenChange]);
 
-  // Prevent dialog close when clicking inside
+  // Prevenir o fechamento do diálogo ao clicar dentro dele
   const handleDialogClick = useCallback((e: React.MouseEvent) => {
     e.stopPropagation();
   }, []);
@@ -85,23 +86,30 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
   return (
     <Dialog 
       open={open} 
-      onOpenChange={onOpenChange}
+      onOpenChange={(newOpenState) => {
+        // Só permitir fechar o diálogo através dos botões
+        if (open && !newOpenState) {
+          // Permitir apenas fechar via botões e ESC
+          return;
+        }
+        onOpenChange(newOpenState);
+      }}
     >
       <DialogContent 
         onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
         style={{ zIndex: 100 }}
         onPointerDownOutside={(e) => {
-          // Prevent outside clicks from closing the dialog accidentally
+          // Prevenir que cliques fora do diálogo o fechem
           e.preventDefault();
         }}
         onInteractOutside={(e) => {
-          // Prevent outside interactions from closing the dialog
+          // Prevenir que interações fora do diálogo o fechem
           e.preventDefault();
         }}
-        onEscapeKeyDown={(e) => {
-          // Let Escape key work normally to close the dialog
-          // We don't prevent default here
+        onEscapeKeyDown={() => {
+          // Permitir que o ESC feche o diálogo normalmente
+          onOpenChange(false);
         }}
       >
         <DialogHeader>

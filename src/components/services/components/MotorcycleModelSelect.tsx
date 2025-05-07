@@ -1,5 +1,5 @@
 
-import React, { memo, useCallback } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockMotorcycleModels } from "@/lib/mock-data";
@@ -24,7 +24,6 @@ export const MotorcycleModelSelect = memo(({
       <Select 
         value={selectedModel} 
         onValueChange={handleValueChange}
-        open={undefined} // Let the component control its own open state
       >
         <SelectTrigger id="motorcycle-model" className="bg-background">
           <SelectValue placeholder="Selecione um modelo" />
