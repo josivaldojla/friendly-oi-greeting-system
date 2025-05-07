@@ -23,7 +23,7 @@ export async function getCustomers(): Promise<Customer[]> {
       return [];
     }
 
-    // Query using SQL directly to avoid type errors
+    // Query using SQL directly
     const { data, error } = await supabase
       .rpc('get_all_customers');
 
@@ -56,13 +56,14 @@ export async function addCustomer(customer: Omit<Customer, "id">): Promise<Custo
     console.log('Adding customer:', customer);
     
     // Insert using SQL directly
-    const { error } = await supabase
-      .rpc('add_customer', { 
-        p_name: customer.name, 
-        p_phone: customer.phone || null, 
-        p_email: customer.email || null, 
-        p_address: customer.address || null 
-      });
+    const { data, error } = await supabase
+      .from('customers')
+      .insert([{ 
+        name: customer.name, 
+        phone: customer.phone || null, 
+        email: customer.email || null, 
+        address: customer.address || null 
+      }]);
 
     if (error) {
       console.error('Error adding customer:', error);
@@ -86,14 +87,16 @@ export async function updateCustomer(customer: Customer): Promise<Customer[]> {
     console.log('Updating customer:', customer);
     
     // Update using SQL directly
-    const { error } = await supabase
-      .rpc('update_customer', { 
-        p_id: customer.id,
-        p_name: customer.name, 
-        p_phone: customer.phone || null, 
-        p_email: customer.email || null, 
-        p_address: customer.address || null 
-      });
+    const { data, error } = await supabase
+      .from('customers')
+      .update({ 
+        name: customer.name, 
+        phone: customer.phone || null, 
+        email: customer.email || null, 
+        address: customer.address || null,
+        updated_at: new Date()
+      })
+      .eq('id', customer.id);
 
     if (error) {
       console.error('Error updating customer:', error);
@@ -113,8 +116,10 @@ export async function deleteCustomer(id: string): Promise<Customer[]> {
     console.log('Deleting customer with ID:', id);
     
     // Delete using SQL directly
-    const { error } = await supabase
-      .rpc('delete_customer', { p_id: id });
+    const { data, error } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', id);
 
     if (error) {
       console.error('Error deleting customer:', error);
