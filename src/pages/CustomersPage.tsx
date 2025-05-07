@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { CustomerForm } from "@/components/customers/CustomerForm";
 import { CustomerList } from "@/components/customers/CustomerList";
 import { Customer } from "@/lib/types";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { getCustomers } from "@/lib/storage";
 import { PlusIcon } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
@@ -14,6 +14,7 @@ import { useToast } from "@/components/ui/use-toast";
 
 const CustomersPage = () => {
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
@@ -25,7 +26,16 @@ const CustomersPage = () => {
   } = useQuery({
     queryKey: ['customers'],
     queryFn: getCustomers,
+    refetchOnMount: true,
+    refetchOnWindowFocus: true,
+    staleTime: 0, // Sempre buscar dados novos ao montar o componente
   });
+
+  // Log para debug
+  useEffect(() => {
+    console.log("CustomersPage mounted or updated");
+    console.log("Customers data:", customers);
+  }, [customers]);
 
   const handleNewCustomer = () => {
     setSelectedCustomer(null);
@@ -45,6 +55,9 @@ const CustomersPage = () => {
   const handleFormSuccess = () => {
     setShowForm(false);
     setSelectedCustomer(null);
+    
+    // Forçar atualização dos dados
+    queryClient.invalidateQueries({ queryKey: ['customers'] });
     refetch();
     
     toast({
@@ -82,7 +95,10 @@ const CustomersPage = () => {
                 customers={customers}
                 isLoading={isLoading}
                 onEdit={handleEditCustomer}
-                onRefresh={refetch}
+                onRefresh={() => {
+                  queryClient.invalidateQueries({ queryKey: ['customers'] });
+                  refetch();
+                }}
               />
             )}
           </CardContent>

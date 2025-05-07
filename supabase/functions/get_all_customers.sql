@@ -19,6 +19,6 @@ BEGIN
   RETURN QUERY
     SELECT c.id, c.name, c.phone, c.email, c.address, c.created_at, c.updated_at
     FROM public.customers c
-    ORDER BY c.created_at ASC;
+    ORDER BY c.name ASC;
 END;
 $$;

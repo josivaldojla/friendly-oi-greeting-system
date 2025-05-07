@@ -5,13 +5,21 @@ import { supabase } from "@/integrations/supabase/client";
 export async function getCustomers(): Promise<Customer[]> {
   try {
     // Check if the table exists using SQL directly
-    const { data: tableExists } = await supabase
+    const { data: tableExists, error: tableCheckError } = await supabase
       .rpc('table_exists', { table_name: 'customers' })
       .single();
     
+    if (tableCheckError) {
+      console.error('Error checking if table exists:', tableCheckError);
+      return [];
+    }
+    
     if (!tableExists) {
       // If the table doesn't exist, create it
-      await supabase.rpc('create_customers_table');
+      const { error: createError } = await supabase.rpc('create_customers_table');
+      if (createError) {
+        console.error('Error creating customers table:', createError);
+      }
       return [];
     }
 
@@ -23,6 +31,8 @@ export async function getCustomers(): Promise<Customer[]> {
       console.error('Error fetching customers:', error);
       return [];
     }
+    
+    console.log('Fetched customers from DB:', data);
     
     return (data || []).map((item: any) => ({
       id: item.id,
@@ -43,6 +53,8 @@ export async function addCustomer(customer: Omit<Customer, "id">): Promise<Custo
   }
   
   try {
+    console.log('Adding customer:', customer);
+    
     // Insert using SQL directly
     const { error } = await supabase
       .rpc('add_customer', { 
@@ -54,13 +66,14 @@ export async function addCustomer(customer: Omit<Customer, "id">): Promise<Custo
 
     if (error) {
       console.error('Error adding customer:', error);
-      return [];
+      throw error;
     }
 
+    // Return updated list of customers
     return getCustomers();
   } catch (error) {
     console.error('Error in addCustomer:', error);
-    return [];
+    throw error;
   }
 }
 
@@ -70,6 +83,8 @@ export async function updateCustomer(customer: Customer): Promise<Customer[]> {
   }
   
   try {
+    console.log('Updating customer:', customer);
+    
     // Update using SQL directly
     const { error } = await supabase
       .rpc('update_customer', { 
@@ -82,30 +97,34 @@ export async function updateCustomer(customer: Customer): Promise<Customer[]> {
 
     if (error) {
       console.error('Error updating customer:', error);
-      return [];
+      throw error;
     }
 
+    // Return updated list of customers
     return getCustomers();
   } catch (error) {
     console.error('Error in updateCustomer:', error);
-    return [];
+    throw error;
   }
 }
 
 export async function deleteCustomer(id: string): Promise<Customer[]> {
   try {
+    console.log('Deleting customer with ID:', id);
+    
     // Delete using SQL directly
     const { error } = await supabase
       .rpc('delete_customer', { p_id: id });
 
     if (error) {
       console.error('Error deleting customer:', error);
-      return [];
+      throw error;
     }
 
+    // Return updated list of customers
     return getCustomers();
   } catch (error) {
     console.error('Error in deleteCustomer:', error);
-    return [];
+    throw error;
   }
 }
