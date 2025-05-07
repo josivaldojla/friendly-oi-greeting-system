@@ -212,30 +212,27 @@ export async function addCompletedService(completedService: Omit<CompletedServic
 // Customers
 export async function getCustomers(): Promise<Customer[]> {
   try {
-    // Verifica se a tabela customers existe no esquema
-    const { data: exists } = await supabase
-      .from('customers')
-      .select('id')
-      .limit(1)
+    // Usamos query SQL direta para verificar se a tabela existe
+    const { data: tableExists } = await supabase
+      .rpc('table_exists', { table_name: 'customers' })
       .single();
-
-    if (!exists) {
-      console.warn('A tabela "customers" não existe no banco de dados.');
+    
+    if (!tableExists) {
+      // Se a tabela não existir, vamos criá-la
+      await supabase.rpc('create_customers_table');
       return [];
     }
 
+    // Agora podemos consultar usando SQL direto para evitar erros de tipo
     const { data, error } = await supabase
-      .from('customers')
-      .select('*')
-      .order('created_at', { ascending: true });
+      .rpc('get_all_customers');
 
     if (error) {
       console.error('Error fetching customers:', error);
       return [];
     }
     
-    // Mapeando para o formato correto
-    return data.map(item => ({
+    return (data || []).map((item: any) => ({
       id: item.id,
       name: item.name,
       phone: item.phone || undefined,
@@ -254,14 +251,14 @@ export async function addCustomer(customer: Omit<Customer, "id">): Promise<Custo
   }
   
   try {
+    // Inserir usando SQL direto
     const { error } = await supabase
-      .from('customers')
-      .insert([{
-        name: customer.name,
-        phone: customer.phone || null,
-        email: customer.email || null,
-        address: customer.address || null
-      }]);
+      .rpc('add_customer', { 
+        p_name: customer.name, 
+        p_phone: customer.phone || null, 
+        p_email: customer.email || null, 
+        p_address: customer.address || null 
+      });
 
     if (error) {
       console.error('Error adding customer:', error);
@@ -281,15 +278,15 @@ export async function updateCustomer(customer: Customer): Promise<Customer[]> {
   }
   
   try {
+    // Atualizar usando SQL direto
     const { error } = await supabase
-      .from('customers')
-      .update({
-        name: customer.name,
-        phone: customer.phone || null,
-        email: customer.email || null,
-        address: customer.address || null
-      })
-      .eq('id', customer.id);
+      .rpc('update_customer', { 
+        p_id: customer.id,
+        p_name: customer.name, 
+        p_phone: customer.phone || null, 
+        p_email: customer.email || null, 
+        p_address: customer.address || null 
+      });
 
     if (error) {
       console.error('Error updating customer:', error);
@@ -305,10 +302,9 @@ export async function updateCustomer(customer: Customer): Promise<Customer[]> {
 
 export async function deleteCustomer(id: string): Promise<Customer[]> {
   try {
+    // Excluir usando SQL direto
     const { error } = await supabase
-      .from('customers')
-      .delete()
-      .eq('id', id);
+      .rpc('delete_customer', { p_id: id });
 
     if (error) {
       console.error('Error deleting customer:', error);

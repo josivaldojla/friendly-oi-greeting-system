@@ -39,6 +39,12 @@ const Index = () => {
                 Relatórios
               </Button>
             </Link>
+            
+            <Link to="/customers" className="w-full">
+              <Button className="w-full h-16 text-lg" variant="outline">
+                Clientes
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
