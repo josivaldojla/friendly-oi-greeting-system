@@ -71,6 +71,11 @@ const Navbar = () => {
                 <span className="text-base">Relatórios</span>
               </div>
             </Link>
+            <Link to="/customers" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
+              <div className="flex items-center">
+                <span className="text-base">Clientes</span>
+              </div>
+            </Link>
           </div>
         )}
       </div>
@@ -98,6 +103,11 @@ const NavLinks = () => (
     <Link to="/reports">
       <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Relatórios
+      </Button>
+    </Link>
+    <Link to="/customers">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
+        Clientes
       </Button>
     </Link>
   </>

@@ -48,14 +48,22 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({
       if (isEditMode && customer) {
         await updateCustomer({
           id: customer.id,
-          ...data,
+          name: data.name, // Ensure name is always provided
+          phone: data.phone,
+          email: data.email,
+          address: data.address,
         });
         toast({
           title: "Cliente atualizado",
           description: "Os dados do cliente foram atualizados com sucesso.",
         });
       } else {
-        await addCustomer(data);
+        await addCustomer({
+          name: data.name, // Ensure name is always provided
+          phone: data.phone,
+          email: data.email,
+          address: data.address,
+        });
         toast({
           title: "Cliente adicionado",
           description: "O novo cliente foi adicionado com sucesso.",
