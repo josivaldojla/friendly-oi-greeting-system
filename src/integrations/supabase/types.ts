@@ -47,6 +47,36 @@ export type Database = {
           },
         ]
       }
+      customers: {
+        Row: {
+          address: string | null
+          created_at: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          created_at?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       mechanics: {
         Row: {
           created_at: string
@@ -109,7 +139,33 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      add_customer: {
+        Args: {
+          p_name: string
+          p_phone: string
+          p_email: string
+          p_address: string
+        }
+        Returns: string
+      }
+      create_customers_table: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      delete_customer: {
+        Args: { p_id: string }
+        Returns: undefined
+      }
+      update_customer: {
+        Args: {
+          p_id: string
+          p_name: string
+          p_phone: string
+          p_email: string
+          p_address: string
+        }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

@@ -4,31 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 export async function getCustomers(): Promise<Customer[]> {
   try {
-    // Verificar se a tabela existe usando information_schema ao invés de pg_tables
-    const { data: existingTables, error: tableCheckError } = await supabase
-      .from('information_schema.tables')
-      .select('table_name')
-      .eq('table_schema', 'public')
-      .eq('table_name', 'customers') as any;
-      
-    if (tableCheckError) {
-      console.error('Erro ao verificar se a tabela existe:', tableCheckError);
-      return [];
-    }
-    
-    // Se a tabela não existir, criá-la usando SQL direto
-    if (!existingTables || existingTables.length === 0) {
-      // Criar tabela de clientes usando rpc
-      const { error: createTableError } = await supabase.rpc('create_customers_table') as any;
-      
-      if (createTableError) {
-        console.error('Erro ao criar tabela de clientes:', createTableError);
-      }
-      
-      return [];
-    }
-    
-    // Buscar todos os clientes
+    // Buscar todos os clientes diretamente da tabela
     const { data, error } = await supabase
       .from('customers')
       .select('*')
@@ -63,7 +39,7 @@ export async function addCustomer(customer: Omit<Customer, "id">): Promise<Custo
     console.log('Adicionando cliente:', customer);
     
     // Usar diretamente o rpc para adicionar cliente
-    const { error } = await supabase.rpc('add_customer', {
+    const { data, error } = await supabase.rpc('add_customer', {
       p_name: customer.name,
       p_phone: customer.phone || null,
       p_email: customer.email || null,
