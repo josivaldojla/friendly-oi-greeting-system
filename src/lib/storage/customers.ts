@@ -4,35 +4,61 @@ import { supabase } from "@/integrations/supabase/client";
 
 export async function getCustomers(): Promise<Customer[]> {
   try {
-    // Check if the table exists using SQL directly
-    const { data: tableExists, error: tableCheckError } = await supabase
-      .rpc('table_exists', { table_name: 'customers' } as any)
-      .single();
-    
+    // Verificar se a tabela existe
+    const { data: existingTables, error: tableCheckError } = await supabase
+      .from('pg_tables')
+      .select('tablename')
+      .eq('schemaname', 'public')
+      .eq('tablename', 'customers');
+      
     if (tableCheckError) {
-      console.error('Error checking if table exists:', tableCheckError);
+      console.error('Erro ao verificar se a tabela existe:', tableCheckError);
       return [];
     }
     
-    if (!tableExists) {
-      // If the table doesn't exist, create it
-      const { error: createError } = await supabase.rpc('create_customers_table' as any);
-      if (createError) {
-        console.error('Error creating customers table:', createError);
+    // Se a tabela não existir, criá-la
+    if (!existingTables || existingTables.length === 0) {
+      // Criar tabela de clientes
+      const { error: createTableError } = await supabase.query(`
+        CREATE TABLE IF NOT EXISTS public.customers (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          name TEXT NOT NULL,
+          phone TEXT,
+          email TEXT,
+          address TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+        );
+        
+        ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
+        
+        DROP POLICY IF EXISTS "Enable full access to all users" ON public.customers;
+        
+        CREATE POLICY "Enable full access to all users" 
+          ON public.customers 
+          USING (true) 
+          WITH CHECK (true);
+      `);
+      
+      if (createTableError) {
+        console.error('Erro ao criar tabela de clientes:', createTableError);
       }
-      return [];
-    }
-
-    // Query using SQL directly
-    const { data, error } = await supabase
-      .rpc('get_all_customers' as any);
-
-    if (error) {
-      console.error('Error fetching customers:', error);
+      
       return [];
     }
     
-    console.log('Fetched customers from DB:', data);
+    // Buscar todos os clientes
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .order('name');
+      
+    if (error) {
+      console.error('Erro ao buscar clientes:', error);
+      return [];
+    }
+    
+    console.log('Clientes obtidos do banco:', data);
     
     return (data || []).map((item: any) => ({
       id: item.id,
@@ -42,99 +68,127 @@ export async function getCustomers(): Promise<Customer[]> {
       address: item.address || undefined
     }));
   } catch (error) {
-    console.error('Error accessing customers table:', error);
+    console.error('Erro ao acessar tabela de clientes:', error);
     return [];
   }
 }
 
 export async function addCustomer(customer: Omit<Customer, "id">): Promise<Customer[]> {
   if (!customer.name) {
-    throw new Error("Customer name is required");
+    throw new Error("Nome do cliente é obrigatório");
   }
   
   try {
-    console.log('Adding customer:', customer);
+    console.log('Adicionando cliente:', customer);
     
-    // First check if table exists
-    const { data: tableExists } = await supabase
-      .rpc('table_exists', { table_name: 'customers' } as any)
-      .single();
+    // Verificar se a tabela existe
+    const { data: existingTables } = await supabase
+      .from('pg_tables')
+      .select('tablename')
+      .eq('schemaname', 'public')
+      .eq('tablename', 'customers');
       
-    if (!tableExists) {
-      // Create the table if it doesn't exist
-      await supabase.rpc('create_customers_table' as any);
+    // Se a tabela não existir, criá-la
+    if (!existingTables || existingTables.length === 0) {
+      await supabase.query(`
+        CREATE TABLE IF NOT EXISTS public.customers (
+          id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+          name TEXT NOT NULL,
+          phone TEXT,
+          email TEXT,
+          address TEXT,
+          created_at TIMESTAMP WITH TIME ZONE DEFAULT now(),
+          updated_at TIMESTAMP WITH TIME ZONE DEFAULT now()
+        );
+        
+        ALTER TABLE public.customers ENABLE ROW LEVEL SECURITY;
+        
+        DROP POLICY IF EXISTS "Enable full access to all users" ON public.customers;
+        
+        CREATE POLICY "Enable full access to all users" 
+          ON public.customers 
+          USING (true) 
+          WITH CHECK (true);
+      `);
     }
     
-    // Use RPC instead of direct table access
+    // Inserir cliente
     const { error } = await supabase
-      .rpc('add_customer', { 
-        p_name: customer.name, 
-        p_phone: customer.phone || null, 
-        p_email: customer.email || null, 
-        p_address: customer.address || null 
-      } as any);
+      .from('customers')
+      .insert([
+        {
+          name: customer.name,
+          phone: customer.phone || null,
+          email: customer.email || null,
+          address: customer.address || null
+        }
+      ]);
 
     if (error) {
-      console.error('Error adding customer:', error);
+      console.error('Erro ao adicionar cliente:', error);
       throw error;
     }
 
-    // Return updated list of customers
+    // Retornar lista atualizada de clientes
     return getCustomers();
   } catch (error) {
-    console.error('Error in addCustomer:', error);
+    console.error('Erro em addCustomer:', error);
     throw error;
   }
 }
 
 export async function updateCustomer(customer: Customer): Promise<Customer[]> {
   if (!customer.name) {
-    throw new Error("Customer name is required");
+    throw new Error("Nome do cliente é obrigatório");
   }
   
   try {
-    console.log('Updating customer:', customer);
+    console.log('Atualizando cliente:', customer);
     
-    // Use RPC instead of direct table access
+    // Atualizar cliente
     const { error } = await supabase
-      .rpc('update_customer', { 
-        p_id: customer.id,
-        p_name: customer.name, 
-        p_phone: customer.phone || null, 
-        p_email: customer.email || null, 
-        p_address: customer.address || null 
-      } as any);
+      .from('customers')
+      .update({
+        name: customer.name,
+        phone: customer.phone || null,
+        email: customer.email || null,
+        address: customer.address || null,
+        updated_at: new Date()
+      })
+      .eq('id', customer.id);
 
     if (error) {
-      console.error('Error updating customer:', error);
+      console.error('Erro ao atualizar cliente:', error);
       throw error;
     }
 
-    // Return updated list of customers
+    // Retornar lista atualizada de clientes
     return getCustomers();
   } catch (error) {
-    console.error('Error in updateCustomer:', error);
+    console.error('Erro em updateCustomer:', error);
     throw error;
   }
 }
 
 export async function deleteCustomer(id: string): Promise<Customer[]> {
   try {
-    console.log('Deleting customer with ID:', id);
+    console.log('Excluindo cliente com ID:', id);
     
-    // Use RPC instead of direct table access
+    // Excluir cliente
     const { error } = await supabase
-      .rpc('delete_customer', { p_id: id } as any);
+      .from('customers')
+      .delete()
+      .eq('id', id);
 
     if (error) {
-      console.error('Error deleting customer:', error);
+      console.error('Erro ao excluir cliente:', error);
       throw error;
     }
 
-    // Return updated list of customers
+    // Retornar lista atualizada de clientes
     return getCustomers();
   } catch (error) {
-    console.error('Error in deleteCustomer:', error);
+    console.error('Erro em deleteCustomer:', error);
     throw error;
   }
 }
