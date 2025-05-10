@@ -45,6 +45,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
   }, []);
   
   const handleCustomerChange = useCallback((customer: CustomerSelection) => {
+    console.log("CommentDialog - Cliente selecionado:", customer);
     setCustomerSelection(customer);
   }, []);
 
@@ -98,7 +99,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       <DialogContent 
         onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
-        style={{ zIndex: 400 }}
+        style={{ zIndex: 1000 }}
         onPointerDownOutside={(e) => {
           // Prevenir que cliques fora do diálogo o fechem
           e.preventDefault();

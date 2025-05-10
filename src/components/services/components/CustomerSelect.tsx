@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Customer, CustomerSelection } from "@/lib/types";
-import { mockCustomers } from "@/lib/mock-data";
 import { getCustomers } from "@/lib/storage";
 import { useQuery } from "@tanstack/react-query";
 
@@ -21,6 +20,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const [customerInput, setCustomerInput] = useState<string>("");
   const [isCustomerListOpen, setIsCustomerListOpen] = useState(false);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const inputRef = React.useRef<HTMLInputElement>(null);
   
   // Carregar clientes do banco de dados usando React Query
   const { data: customers = [] } = useQuery({
@@ -33,6 +33,13 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   useEffect(() => {
     console.log("CustomerSelect - Customers loaded:", customers);
   }, [customers]);
+
+  // Update input when customerSelection changes
+  useEffect(() => {
+    if (customerSelection && customerSelection.name) {
+      setCustomerInput(customerSelection.name);
+    }
+  }, [customerSelection]);
 
   // Reset filtered customers when opening the list
   useEffect(() => {
@@ -49,13 +56,6 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   }, [isCustomerListOpen, customerInput, customers]);
 
-  // Update input when customerSelection changes
-  useEffect(() => {
-    if (customerSelection && customerSelection.name) {
-      setCustomerInput(customerSelection.name);
-    }
-  }, [customerSelection]);
-
   const handleCustomerSelect = useCallback((customer: Customer) => {
     console.log("Selecionando cliente:", customer);
     
@@ -66,8 +66,18 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       isNew: false
     });
     
+    // Importante: definir o input primeiro antes de fechar o popover
     setCustomerInput(customer.name);
-    setIsCustomerListOpen(false);
+    
+    // Fechar o popover após a seleção
+    setTimeout(() => {
+      setIsCustomerListOpen(false);
+      
+      // Manter o foco no input
+      if (inputRef.current) {
+        inputRef.current.focus();
+      }
+    }, 100);
   }, [setCustomerSelection]);
 
   const handleCustomerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -132,6 +142,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
               placeholder="Digite para pesquisar ou adicionar cliente"
               className="w-full"
               autoComplete="off"
+              ref={inputRef}
             />
           </div>
         </PopoverTrigger>
@@ -143,7 +154,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
           avoidCollisions={false}
           style={{ 
             backgroundColor: "white", 
-            zIndex: 500,
+            zIndex: 999,
             width: "var(--radix-popover-trigger-width)",
             maxHeight: "300px",
             overflowY: "auto"
@@ -156,7 +167,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                   key={customer.id}
                   variant="ghost"
                   className="w-full justify-start text-left font-normal"
-                  onMouseDown={(e) => {
+                  onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();
                     handleCustomerSelect(customer);
