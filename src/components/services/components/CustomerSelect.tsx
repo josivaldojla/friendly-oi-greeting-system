@@ -100,8 +100,6 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       setFilteredCustomers(filtered);
       if (filtered.length > 0) {
         setIsCustomerListOpen(true);
-      } else {
-        setIsCustomerListOpen(false);
       }
     } else {
       // Mostrar todos os clientes quando não há entrada
@@ -112,16 +110,18 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
 
   // Handle input focus
   const handleInputFocus = () => {
-    // Mostrar todos os clientes ao focar se não houver filtro
-    if (!customerInput && customers.length > 0) {
-      setFilteredCustomers(customers);
+    console.log("Input recebeu foco, clientes disponíveis:", customers.length);
+    // Sempre abrir a lista quando o input receber foco
+    if (customers.length > 0) {
+      if (customerInput) {
+        const filtered = customers.filter(customer => 
+          customer.name.toLowerCase().includes(customerInput.toLowerCase())
+        );
+        setFilteredCustomers(filtered);
+      } else {
+        setFilteredCustomers(customers);
+      }
       setIsCustomerListOpen(true);
-    } else if (customerInput) {
-      const filtered = customers.filter(customer => 
-        customer.name.toLowerCase().includes(customerInput.toLowerCase())
-      );
-      setFilteredCustomers(filtered);
-      setIsCustomerListOpen(filtered.length > 0);
     }
   };
 
@@ -139,6 +139,10 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
               value={customerInput}
               onChange={handleCustomerInputChange}
               onFocus={handleInputFocus}
+              onClick={() => {
+                // Também abrir ao clicar no input
+                handleInputFocus();
+              }}
               placeholder="Digite para pesquisar ou adicionar cliente"
               className="w-full"
               autoComplete="off"
@@ -154,7 +158,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
           avoidCollisions={false}
           style={{ 
             backgroundColor: "white", 
-            zIndex: 999,
+            zIndex: 9999, // Aumentado para garantir que fique na frente de outros elementos
             width: "var(--radix-popover-trigger-width)",
             maxHeight: "300px",
             overflowY: "auto"
