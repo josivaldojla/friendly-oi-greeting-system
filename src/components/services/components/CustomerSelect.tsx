@@ -23,7 +23,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const inputRef = React.useRef<HTMLInputElement>(null);
   
   // Carregar clientes do banco de dados usando React Query
-  const { data: customers = [] } = useQuery({
+  const { data: customers = [], isLoading } = useQuery({
     queryKey: ['customers'],
     queryFn: getCustomers,
     staleTime: 60000, // 1 minuto
@@ -108,10 +108,10 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   };
 
-  // Handle input focus
+  // Handle input focus and click
   const handleInputFocus = () => {
     console.log("Input recebeu foco, clientes disponíveis:", customers.length);
-    // Sempre abrir a lista quando o input receber foco
+    // Forçar abertura da lista independente da condição
     if (customers.length > 0) {
       if (customerInput) {
         const filtered = customers.filter(customer => 
@@ -158,14 +158,18 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
           avoidCollisions={false}
           style={{ 
             backgroundColor: "white", 
-            zIndex: 9999, // Aumentado para garantir que fique na frente de outros elementos
+            zIndex: 99999, // Z-index muito alto para garantir que aparece acima de tudo
             width: "var(--radix-popover-trigger-width)",
             maxHeight: "300px",
             overflowY: "auto"
           }}
         >
           <div className="max-h-56 overflow-auto rounded-md bg-white p-1">
-            {filteredCustomers.length > 0 ? (
+            {isLoading ? (
+              <div className="px-2 py-1 text-sm text-gray-500">
+                Carregando clientes...
+              </div>
+            ) : filteredCustomers.length > 0 ? (
               filteredCustomers.map(customer => (
                 <Button
                   key={customer.id}

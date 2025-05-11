@@ -41,6 +41,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
 
   // Usar useCallback para evitar renderizações desnecessárias
   const handleModelChange = useCallback((value: string) => {
+    console.log("Modelo selecionado no diálogo:", value);
     setSelectedModel(value);
   }, []);
   
@@ -99,7 +100,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
       <DialogContent 
         onClick={handleDialogClick} 
         className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
-        style={{ zIndex: 1000 }}
+        style={{ zIndex: 50000 }} // Z-index mais alto que os componentes internos
         onPointerDownOutside={(e) => {
           // Prevenir que cliques fora do diálogo o fechem
           e.preventDefault();

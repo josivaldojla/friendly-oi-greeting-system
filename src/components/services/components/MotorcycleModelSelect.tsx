@@ -1,5 +1,5 @@
 
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback } from "react";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { mockMotorcycleModels } from "@/lib/mock-data";
@@ -15,6 +15,7 @@ export const MotorcycleModelSelect = memo(({
 }: MotorcycleModelSelectProps) => {
   // Use useCallback to ensure the handler doesn't cause unnecessary re-renders
   const handleValueChange = useCallback((value: string) => {
+    console.log("Modelo selecionado:", value);
     setSelectedModel(value);
   }, [setSelectedModel]);
   
@@ -33,7 +34,7 @@ export const MotorcycleModelSelect = memo(({
           position="popper"
           sideOffset={5}
           align="start"
-          style={{ zIndex: 500 }}
+          style={{ zIndex: 99999 }} // Z-index muito alto para garantir visibilidade
         >
           {mockMotorcycleModels.map((model) => (
             <SelectItem key={model.id} value={model.id}>
