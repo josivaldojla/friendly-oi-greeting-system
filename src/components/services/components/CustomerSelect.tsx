@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -19,7 +19,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const [customerInput, setCustomerInput] = useState<string>("");
   const [isCustomerListOpen, setIsCustomerListOpen] = useState(false);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
-  const inputRef = React.useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   
   // Carregar clientes do banco de dados usando React Query
   const { data: customers = [], isLoading } = useQuery({
@@ -40,21 +40,33 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     }
   }, [customerSelection]);
 
-  // Atualizar clientes filtrados quando o input muda ou quando a lista é aberta
+  // Atualizar clientes filtrados quando o input muda
   useEffect(() => {
-    if (isCustomerListOpen) {
-      if (customerInput) {
-        const filtered = customers.filter(customer => 
-          customer.name.toLowerCase().includes(customerInput.toLowerCase())
-        );
-        setFilteredCustomers(filtered);
-      } else {
-        setFilteredCustomers(customers);
-      }
+    if (customerInput) {
+      const filtered = customers.filter(customer => 
+        customer.name.toLowerCase().includes(customerInput.toLowerCase())
+      );
+      setFilteredCustomers(filtered);
+    } else {
+      setFilteredCustomers(customers);
     }
-  }, [isCustomerListOpen, customerInput, customers]);
+  }, [customerInput, customers]);
 
-  const handleCustomerSelect = useCallback((customer: Customer) => {
+  // Detectar cliques fora do componente para fechar a lista
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+        setIsCustomerListOpen(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  const handleCustomerSelect = (customer: Customer) => {
     console.log("Selecionando cliente:", customer);
     
     // Definir seleção com ID e nome
@@ -64,17 +76,10 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       isNew: false
     });
     
-    // Definir o input primeiro antes de fechar a lista
+    // Definir o input e fechar a lista imediatamente
     setCustomerInput(customer.name);
-    
-    // Fechar a lista IMEDIATAMENTE após a seleção
     setIsCustomerListOpen(false);
-    
-    // Manter o foco no input
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [setCustomerSelection]);
+  };
 
   const handleCustomerInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -88,64 +93,17 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       });
     }
     
-    // Mostrar resultados filtrados conforme o usuário digita
-    if (value) {
-      const filtered = customers.filter(customer => 
-        customer.name.toLowerCase().includes(value.toLowerCase())
-      );
-      setFilteredCustomers(filtered);
-      
-      // Só abrir a lista se houver resultados
-      setIsCustomerListOpen(filtered.length > 0);
-    } else {
-      // Mostrar todos os clientes quando não há entrada
-      setFilteredCustomers(customers);
-      setIsCustomerListOpen(!!customers.length);
-    }
+    // Mostrar a lista se estiver digitando
+    setIsCustomerListOpen(true);
   };
 
   // Lidar com foco e clique no input
   const handleInputFocus = () => {
-    console.log("Input recebeu foco, clientes disponíveis:", customers.length);
-    
-    // Não abrir a lista se o campo já tem um valor selecionado
-    if (customerSelection && customerSelection.id) {
-      console.log("Cliente já selecionado, não abrindo lista");
-      return;
-    }
-    
-    // Abrir a lista se houver clientes disponíveis
-    if (customers.length > 0) {
-      setIsCustomerListOpen(true);
-      
-      if (customerInput) {
-        const filtered = customers.filter(customer => 
-          customer.name.toLowerCase().includes(customerInput.toLowerCase())
-        );
-        setFilteredCustomers(filtered.length > 0 ? filtered : customers);
-      } else {
-        setFilteredCustomers(customers);
-      }
-    }
+    setIsCustomerListOpen(true);
   };
 
-  // Função para lidar com clique fora da lista
-  const handleClickOutside = useCallback((e: MouseEvent) => {
-    if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-      setIsCustomerListOpen(false);
-    }
-  }, []);
-
-  // Adicionar e remover o event listener para cliques fora
-  useEffect(() => {
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [handleClickOutside]);
-
   return (
-    <div className="space-y-2">
+    <div className="space-y-2" ref={containerRef}>
       <Label htmlFor="customer">Cliente</Label>
       <div className="w-full relative">
         <Input
@@ -157,7 +115,6 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
           placeholder="Digite para pesquisar ou adicionar cliente"
           className="w-full"
           autoComplete="off"
-          ref={inputRef}
         />
         
         {isCustomerListOpen && (
