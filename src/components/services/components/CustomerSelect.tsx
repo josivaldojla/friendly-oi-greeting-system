@@ -26,7 +26,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const { data: customers = [], isLoading } = useQuery({
     queryKey: ['customers'],
     queryFn: getCustomers,
-    staleTime: 60000, // 1 minuto
+    staleTime: 10000, // 10 segundos
   });
   
   // Log para depuração
@@ -112,87 +112,74 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
   const handleInputFocus = () => {
     console.log("Input recebeu foco, clientes disponíveis:", customers.length);
     // Forçar abertura da lista independente da condição
+    setIsCustomerListOpen(true); // Sempre forçar abertura da lista
+    
     if (customers.length > 0) {
       if (customerInput) {
         const filtered = customers.filter(customer => 
           customer.name.toLowerCase().includes(customerInput.toLowerCase())
         );
-        setFilteredCustomers(filtered);
+        setFilteredCustomers(filtered.length > 0 ? filtered : customers);
       } else {
         setFilteredCustomers(customers);
       }
-      setIsCustomerListOpen(true);
     }
   };
 
   return (
     <div className="space-y-2">
       <Label htmlFor="customer">Cliente</Label>
-      <Popover 
-        open={isCustomerListOpen} 
-        onOpenChange={setIsCustomerListOpen}
-      >
-        <PopoverTrigger asChild>
-          <div className="w-full relative">
-            <Input
-              id="customer"
-              value={customerInput}
-              onChange={handleCustomerInputChange}
-              onFocus={handleInputFocus}
-              onClick={() => {
-                // Também abrir ao clicar no input
-                handleInputFocus();
-              }}
-              placeholder="Digite para pesquisar ou adicionar cliente"
-              className="w-full"
-              autoComplete="off"
-              ref={inputRef}
-            />
+      <div className="w-full relative">
+        <Input
+          id="customer"
+          value={customerInput}
+          onChange={handleCustomerInputChange}
+          onFocus={handleInputFocus}
+          onClick={handleInputFocus}
+          placeholder="Digite para pesquisar ou adicionar cliente"
+          className="w-full"
+          autoComplete="off"
+          ref={inputRef}
+        />
+        
+        {isCustomerListOpen && (
+          <div 
+            className="absolute z-[99999] w-full mt-1 rounded-md border border-gray-200 bg-white shadow-lg"
+            style={{
+              maxHeight: "300px",
+              overflowY: "auto"
+            }}
+          >
+            <div className="p-1">
+              {isLoading ? (
+                <div className="px-2 py-1 text-sm text-gray-500">
+                  Carregando clientes...
+                </div>
+              ) : filteredCustomers.length > 0 ? (
+                filteredCustomers.map(customer => (
+                  <Button
+                    key={customer.id}
+                    variant="ghost"
+                    className="w-full justify-start text-left font-normal"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleCustomerSelect(customer);
+                    }}
+                    type="button"
+                  >
+                    {customer.name}
+                  </Button>
+                ))
+              ) : (
+                <div className="px-2 py-1 text-sm text-gray-500">
+                  Nenhum cliente encontrado
+                </div>
+              )}
+            </div>
           </div>
-        </PopoverTrigger>
-        <PopoverContent 
-          className="w-full p-0" 
-          align="start"
-          side="bottom"
-          sideOffset={5}
-          avoidCollisions={false}
-          style={{ 
-            backgroundColor: "white", 
-            zIndex: 99999, // Z-index muito alto para garantir que aparece acima de tudo
-            width: "var(--radix-popover-trigger-width)",
-            maxHeight: "300px",
-            overflowY: "auto"
-          }}
-        >
-          <div className="max-h-56 overflow-auto rounded-md bg-white p-1">
-            {isLoading ? (
-              <div className="px-2 py-1 text-sm text-gray-500">
-                Carregando clientes...
-              </div>
-            ) : filteredCustomers.length > 0 ? (
-              filteredCustomers.map(customer => (
-                <Button
-                  key={customer.id}
-                  variant="ghost"
-                  className="w-full justify-start text-left font-normal"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    handleCustomerSelect(customer);
-                  }}
-                  type="button"
-                >
-                  {customer.name}
-                </Button>
-              ))
-            ) : (
-              <div className="px-2 py-1 text-sm text-gray-500">
-                Nenhum cliente encontrado
-              </div>
-            )}
-          </div>
-        </PopoverContent>
-      </Popover>
+        )}
+      </div>
     </div>
   );
 };
