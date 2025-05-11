@@ -76,7 +76,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       isNew: false
     });
     
-    // Definir o input e fechar a lista imediatamente
+    // Atualizar o input e fechar a lista
     setCustomerInput(customer.name);
     setIsCustomerListOpen(false);
   };
@@ -85,7 +85,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
     const value = e.target.value;
     setCustomerInput(value);
     
-    // Atualizar seleção se o valor for diferente
+    // Atualizar seleção apenas se estiver digitando um novo cliente
     if (value !== customerSelection?.name) {
       setCustomerSelection({ 
         name: value, 
@@ -93,12 +93,19 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
       });
     }
     
-    // Mostrar a lista se estiver digitando
+    // Mostrar a lista sempre que estiver digitando
+    if (value.trim().length > 0) {
+      setIsCustomerListOpen(true);
+    }
+  };
+
+  // Focar no input abre a lista
+  const handleInputFocus = () => {
     setIsCustomerListOpen(true);
   };
 
-  // Lidar com foco e clique no input
-  const handleInputFocus = () => {
+  // Clicar no input também abre a lista
+  const handleInputClick = () => {
     setIsCustomerListOpen(true);
   };
 
@@ -111,13 +118,13 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
           value={customerInput}
           onChange={handleCustomerInputChange}
           onFocus={handleInputFocus}
-          onClick={handleInputFocus}
+          onClick={handleInputClick}
           placeholder="Digite para pesquisar ou adicionar cliente"
           className="w-full"
           autoComplete="off"
         />
         
-        {isCustomerListOpen && (
+        {isCustomerListOpen && filteredCustomers.length > 0 && (
           <div 
             className="absolute z-[99999] w-full mt-1 rounded-md border border-gray-200 bg-white shadow-lg"
             style={{
@@ -130,7 +137,7 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                 <div className="px-2 py-1 text-sm text-gray-500">
                   Carregando clientes...
                 </div>
-              ) : filteredCustomers.length > 0 ? (
+              ) : (
                 filteredCustomers.map(customer => (
                   <Button
                     key={customer.id}
@@ -142,10 +149,6 @@ export const CustomerSelect: React.FC<CustomerSelectProps> = ({
                     {customer.name}
                   </Button>
                 ))
-              ) : (
-                <div className="px-2 py-1 text-sm text-gray-500">
-                  Nenhum cliente encontrado
-                </div>
               )}
             </div>
           </div>
