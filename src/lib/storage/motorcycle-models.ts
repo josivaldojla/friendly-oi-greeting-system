@@ -2,11 +2,11 @@
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
-// Since we're getting TypeScript errors about the 'motorcycle_models' table not being in the types,
-// we'll use a type assertion to work around this limitation until the types are updated
+// Since the motorcycle_models table isn't in the TypeScript types yet,
+// we'll use any to work around this limitation until the types are updated
 export async function getMotorcycleModels(): Promise<MotorcycleModel[]> {
   try {
-    // Use type assertion to bypass the TypeScript error
+    // Use a more generic approach that doesn't rely on typed tables
     const { data, error } = await supabase
       .from('motorcycle_models')
       .select('*')
@@ -38,7 +38,8 @@ export async function addMotorcycleModel(model: Omit<MotorcycleModel, "id">): Pr
   try {
     console.log('Adicionando modelo:', model);
     
-    const { data, error } = await supabase
+    // Use a more generic approach for inserting data
+    const { error } = await supabase
       .from('motorcycle_models')
       .insert([{
         name: model.name,
@@ -65,6 +66,7 @@ export async function updateMotorcycleModel(model: MotorcycleModel): Promise<Mot
   try {
     console.log('Atualizando modelo:', model);
     
+    // Use a more generic approach for updating data
     const { error } = await supabase
       .from('motorcycle_models')
       .update({
@@ -89,6 +91,7 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   try {
     console.log('Excluindo modelo com ID:', id);
     
+    // Use a more generic approach for deleting data
     const { error } = await supabase
       .from('motorcycle_models')
       .delete()
@@ -103,5 +106,33 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   } catch (error) {
     console.error('Erro em deleteMotorcycleModel:', error);
     throw error;
+  }
+}
+
+// New function to populate the database with motorcycle models
+export async function populateModelsIfEmpty(): Promise<boolean> {
+  try {
+    // Check if the table has any entries
+    const { count, error } = await supabase
+      .from('motorcycle_models')
+      .select('*', { count: 'exact', head: true });
+      
+    if (error) {
+      console.error('Erro ao verificar modelos existentes:', error);
+      return false;
+    }
+    
+    // If there are already models, don't populate
+    if (count && count > 0) {
+      console.log('Tabela já possui modelos, pulando importação');
+      return true;
+    }
+    
+    // Import from motorcycle-models-data.ts
+    const { populateMotorcycleModels } = await import('../motorcycle-models-data');
+    return await populateMotorcycleModels();
+  } catch (error) {
+    console.error('Erro ao verificar e importar modelos:', error);
+    return false;
   }
 }

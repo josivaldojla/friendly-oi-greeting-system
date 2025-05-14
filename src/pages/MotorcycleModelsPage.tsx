@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel } from "@/lib/storage";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, populateModelsIfEmpty } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -18,6 +18,7 @@ const MotorcycleModelsPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
   
   const queryClient = useQueryClient();
   
@@ -27,6 +28,24 @@ const MotorcycleModelsPage = () => {
     queryFn: getMotorcycleModels
   });
   
+  // Inicializa o banco de dados com modelos padrão, se necessário
+  useEffect(() => {
+    const initializeModels = async () => {
+      if (isInitialized) return;
+      
+      try {
+        await populateModelsIfEmpty();
+        queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
+      } catch (error) {
+        console.error("Erro ao inicializar modelos:", error);
+      } finally {
+        setIsInitialized(true);
+      }
+    };
+    
+    initializeModels();
+  }, [queryClient, isInitialized]);
+  
   // Filtra os modelos pela marca selecionada (se houver)
   const filteredModels = selectedBrand
     ? motorcycleModels.filter(model => model.brand?.toLowerCase() === selectedBrand.toLowerCase())
@@ -35,7 +54,7 @@ const MotorcycleModelsPage = () => {
   // Extrai as marcas únicas para os botões de filtro
   const uniqueBrands = Array.from(
     new Set(motorcycleModels.map(model => model.brand).filter(Boolean) as string[])
-  ).sort();
+  );
   
   // Mutação para adicionar um modelo
   const addModelMutation = useMutation({
@@ -70,6 +89,16 @@ const MotorcycleModelsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
       toast.success("Modelo excluído com sucesso");
       setIsDeleteDialogOpen(false);
+      
+      // Se excluiu o último modelo da marca filtrada, limpa o filtro
+      if (selectedBrand && 
+        !motorcycleModels.some(model => 
+          model.brand?.toLowerCase() === selectedBrand.toLowerCase() && 
+          model.id !== currentModel?.id
+        )
+      ) {
+        setSelectedBrand(null);
+      }
     },
     onError: (error) => {
       toast.error(`Erro ao excluir modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
@@ -118,11 +147,13 @@ const MotorcycleModelsPage = () => {
         </div>
         
         {/* Filtro de Marcas */}
-        <BrandFilterButtons 
-          brands={uniqueBrands} 
-          selectedBrand={selectedBrand} 
-          onSelectBrand={handleBrandFilter} 
-        />
+        {!isLoading && motorcycleModels.length > 0 && (
+          <BrandFilterButtons 
+            brands={uniqueBrands} 
+            selectedBrand={selectedBrand} 
+            onSelectBrand={handleBrandFilter} 
+          />
+        )}
         
         {isLoading ? (
           <div className="flex justify-center p-8">
