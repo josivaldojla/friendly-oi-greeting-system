@@ -2,7 +2,7 @@
 import * as React from "react"
 import {
   toast as sonnerToast,
-  type Toast,
+  ToastT as Toast,
 } from "sonner"
 
 type ToastProps = Toast & {

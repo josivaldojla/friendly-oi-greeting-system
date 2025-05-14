@@ -104,6 +104,27 @@ export type Database = {
         }
         Relationships: []
       }
+      motorcycle_models: {
+        Row: {
+          brand: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          brand?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          brand?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       services: {
         Row: {
           created_at: string

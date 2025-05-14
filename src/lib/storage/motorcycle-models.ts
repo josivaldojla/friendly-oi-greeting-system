@@ -2,11 +2,8 @@
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
-// Since the motorcycle_models table isn't in the TypeScript types yet,
-// we'll use any to work around this limitation until the types are updated
 export async function getMotorcycleModels(): Promise<MotorcycleModel[]> {
   try {
-    // Use a more generic approach that doesn't rely on typed tables
     const { data, error } = await supabase
       .from('motorcycle_models')
       .select('*')
@@ -38,7 +35,6 @@ export async function addMotorcycleModel(model: Omit<MotorcycleModel, "id">): Pr
   try {
     console.log('Adicionando modelo:', model);
     
-    // Use a more generic approach for inserting data
     const { error } = await supabase
       .from('motorcycle_models')
       .insert([{
@@ -66,7 +62,6 @@ export async function updateMotorcycleModel(model: MotorcycleModel): Promise<Mot
   try {
     console.log('Atualizando modelo:', model);
     
-    // Use a more generic approach for updating data
     const { error } = await supabase
       .from('motorcycle_models')
       .update({
@@ -91,7 +86,6 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   try {
     console.log('Excluindo modelo com ID:', id);
     
-    // Use a more generic approach for deleting data
     const { error } = await supabase
       .from('motorcycle_models')
       .delete()
