@@ -30,6 +30,7 @@ export type ViewMode = 'list' | 'grid';
 export interface MotorcycleModel {
   id: string;
   name: string;
+  brand?: string;
 }
 
 export interface Customer {

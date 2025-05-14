@@ -45,6 +45,12 @@ const Index = () => {
                 Clientes
               </Button>
             </Link>
+            
+            <Link to="/motorcycle-models" className="w-full">
+              <Button className="w-full h-16 text-lg" variant="outline">
+                Modelos de Motos
+              </Button>
+            </Link>
           </div>
         </div>
       </div>

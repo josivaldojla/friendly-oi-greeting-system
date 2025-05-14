@@ -6,3 +6,4 @@ export * from './services';
 export * from './completed-services';
 export * from './customers';
 export * from './reports';
+export * from './motorcycle-models';
