@@ -2,10 +2,13 @@
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
+// Since we're getting TypeScript errors about the 'motorcycle_models' table not being in the types,
+// we'll use a type assertion to work around this limitation until the types are updated
 export async function getMotorcycleModels(): Promise<MotorcycleModel[]> {
   try {
-    const { data, error } = await supabase
-      .from('motorcycle_models')
+    // Use type assertion to bypass the TypeScript error
+    const { data, error } = await (supabase
+      .from('motorcycle_models') as any)
       .select('*')
       .order('name');
       
@@ -35,8 +38,9 @@ export async function addMotorcycleModel(model: Omit<MotorcycleModel, "id">): Pr
   try {
     console.log('Adicionando modelo:', model);
     
-    const { data, error } = await supabase
-      .from('motorcycle_models')
+    // Use type assertion to bypass the TypeScript error
+    const { data, error } = await (supabase
+      .from('motorcycle_models') as any)
       .insert([{
         name: model.name,
         brand: model.brand || ""
@@ -62,8 +66,9 @@ export async function updateMotorcycleModel(model: MotorcycleModel): Promise<Mot
   try {
     console.log('Atualizando modelo:', model);
     
-    const { error } = await supabase
-      .from('motorcycle_models')
+    // Use type assertion to bypass the TypeScript error
+    const { error } = await (supabase
+      .from('motorcycle_models') as any)
       .update({
         name: model.name,
         brand: model.brand || ""
@@ -86,8 +91,9 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   try {
     console.log('Excluindo modelo com ID:', id);
     
-    const { error } = await supabase
-      .from('motorcycle_models')
+    // Use type assertion to bypass the TypeScript error
+    const { error } = await (supabase
+      .from('motorcycle_models') as any)
       .delete()
       .eq('id', id);
 

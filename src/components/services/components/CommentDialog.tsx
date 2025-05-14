@@ -8,9 +8,8 @@ import { Service } from "@/lib/types";
 import { MotorcycleModelSelect } from "./MotorcycleModelSelect";
 import { CustomerSelect } from "./CustomerSelect";
 import { CustomerSelection } from "@/lib/types";
-
-// Dados simulados movidos para um arquivo separado
-import { mockMotorcycleModels } from "@/lib/mock-data";
+import { useQuery } from "@tanstack/react-query";
+import { getMotorcycleModels } from "@/lib/storage";
 
 interface CommentDialogProps {
   open: boolean;
@@ -28,6 +27,13 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
   const [comment, setComment] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ name: "" });
+  
+  // Carregando modelos de motos do banco de dados
+  const { data: motorcycleModels = [] } = useQuery({
+    queryKey: ['motorcycleModels'],
+    queryFn: getMotorcycleModels,
+    staleTime: 10000 // 10 segundos
+  });
   
   // Limpar estados quando o diálogo é aberto ou fechado
   useEffect(() => {
@@ -62,9 +68,9 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     let formattedComment = "";
     
     if (selectedModel) {
-      const model = mockMotorcycleModels.find(m => m.id === selectedModel);
+      const model = motorcycleModels.find(m => m.id === selectedModel);
       if (model) {
-        formattedComment += `Modelo: ${model.name}\n`;
+        formattedComment += `Modelo: ${model.name}${model.brand ? ` (${model.brand})` : ''}\n`;
       }
     }
     
@@ -78,7 +84,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
     
     onSave(formattedComment ? `_${formattedComment}_` : "");
     onOpenChange(false);
-  }, [selectedModel, customerSelection, comment, onSave, onOpenChange]);
+  }, [selectedModel, customerSelection, comment, onSave, onOpenChange, motorcycleModels]);
 
   // Prevenir o fechamento do diálogo ao clicar dentro dele
   const handleDialogClick = useCallback((e: React.MouseEvent) => {

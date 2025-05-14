@@ -1,1 +1,18 @@
+
 project_id = "rpsgcekegbdvcopeelfk"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[[tables]]
+name = "motorcycle_models"
+columns = [
+  { name = "id", type = "uuid", primary_key = true, default = "uuid_generate_v4()" },
+  { name = "name", type = "text", not_null = true },
+  { name = "brand", type = "text" }
+]
+
