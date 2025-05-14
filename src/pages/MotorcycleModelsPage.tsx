@@ -1,21 +1,23 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import { toast } from "@/hooks/use-toast";
 import { MotorcycleModelForm } from "@/components/motorcycle-models/MotorcycleModelForm";
 import { MotorcycleModelsTable } from "@/components/motorcycle-models/MotorcycleModelsTable";
 import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDialog";
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
+import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
+  const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   
   const queryClient = useQueryClient();
   
@@ -24,6 +26,16 @@ const MotorcycleModelsPage = () => {
     queryKey: ['motorcycleModels'],
     queryFn: getMotorcycleModels
   });
+  
+  // Filtra os modelos pela marca selecionada (se houver)
+  const filteredModels = selectedBrand
+    ? motorcycleModels.filter(model => model.brand?.toLowerCase() === selectedBrand.toLowerCase())
+    : motorcycleModels;
+  
+  // Extrai as marcas únicas para os botões de filtro
+  const uniqueBrands = Array.from(
+    new Set(motorcycleModels.map(model => model.brand).filter(Boolean) as string[])
+  ).sort();
   
   // Mutação para adicionar um modelo
   const addModelMutation = useMutation({
@@ -92,6 +104,10 @@ const MotorcycleModelsPage = () => {
     setCurrentModel(null);
     setIsAddDialogOpen(true);
   };
+  
+  const handleBrandFilter = (brand: string | null) => {
+    setSelectedBrand(brand);
+  };
 
   return (
     <Layout>
@@ -101,15 +117,22 @@ const MotorcycleModelsPage = () => {
           <Button onClick={openAddDialog}>Adicionar Modelo</Button>
         </div>
         
+        {/* Filtro de Marcas */}
+        <BrandFilterButtons 
+          brands={uniqueBrands} 
+          selectedBrand={selectedBrand} 
+          onSelectBrand={handleBrandFilter} 
+        />
+        
         {isLoading ? (
           <div className="flex justify-center p-8">
             <div className="text-lg">Carregando...</div>
           </div>
-        ) : motorcycleModels.length === 0 ? (
+        ) : filteredModels.length === 0 ? (
           <EmptyModelsPlaceholder onAddClick={openAddDialog} />
         ) : (
           <MotorcycleModelsTable 
-            models={motorcycleModels}
+            models={filteredModels}
             onEdit={openEditDialog}
             onDelete={openDeleteDialog}
           />
