@@ -74,7 +74,7 @@ export const MotorcycleModelSelect = memo(({
     setModelInput(model.name);
     setIsModelListOpen(false);
   }, [setSelectedModel]);
-
+  
   const handleModelInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setModelInput(value);
@@ -87,7 +87,7 @@ export const MotorcycleModelSelect = memo(({
 
   // Focar no input abre a lista
   const handleInputFocus = useCallback(() => {
-    setIsModelListOpen(true);
+    setIsModelListOpen(false); // Não mostramos automaticamente na inicialização
   }, []);
 
   // Clicar no input também abre a lista
