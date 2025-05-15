@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useCallback } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ export const CommentDialog: React.FC<CommentDialogProps> = ({
   onSave,
   service
 }) => {
+  
   const [comment, setComment] = useState<string>("");
   const [selectedModel, setSelectedModel] = useState<string>("");
   const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ name: "" });
