@@ -3,7 +3,6 @@ import * as React from "react"
 import { toast as sonnerToast } from "sonner"
 
 type ToastProps = {
-  id?: string;
   title?: React.ReactNode
   description?: React.ReactNode
   action?: React.ReactNode
