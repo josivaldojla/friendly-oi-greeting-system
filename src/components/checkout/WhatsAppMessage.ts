@@ -20,7 +20,7 @@ export const formatWhatsAppMessage = (
   services.forEach((service, index) => {
     const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
     // Adiciona negrito aos números do serviço e ao traço
-    message += `*${index + 1}-* ${service.name} =R$ ${formattedPrice}\n`;
+    message += `*${index + 1}-* ${service.name} R$= ${formattedPrice}\n`;
     
     // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
