@@ -18,38 +18,36 @@ export const formatWhatsAppMessage = (
   message += "--------------------------------------------------\n\n";
   
   services.forEach((service, index) => {
-    const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
-    // Adiciona negrito aos números do serviço e ao traço
-    message += `*${index + 1}-* ${service.name} =R$ ${formattedPrice}\n`;
+    // Formata o número do serviço com negrito
+    message += `*${index + 1}-* ${service.name}\n`;
     
-    // Verificar se há um comentário e formatá-lo corretamente
+    // Se houver comentários ou detalhes adicionais, os formatamos como pontos
     if (service.comment) {
-      // Remove underscores e parênteses do comentário
+      // Remove formatações indesejadas do comentário
       const cleanComment = service.comment
-        .replace(/^_/, '') // Remove underscore no início
-        .replace(/_$/, '') // Remove underscore no final
-        .replace(/\(_/, '') // Remove parentese e underscore no início
-        .replace(/_\)$/, '') // Remove underscore e parentese no final
-        .replace(/\(|\)/g, ''); // Remove todos os parênteses restantes
+        .replace(/^_/, '')
+        .replace(/_$/, '')
+        .replace(/\(_/, '')
+        .replace(/_\)$/, '')
+        .replace(/\(|\)/g, '');
       
-      // Dividir o comentário por linhas para formatar cada uma corretamente
+      // Dividir o comentário por linhas
       const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
       
       lines.forEach(line => {
-        // Usar espaçamento para alinhar com o texto após os números
-        // Adiciona espaço extra após o bullet para alinhar com o texto após o número
-        message += `  • ${line}\n`;  // Dois espaços antes do bullet para alinhar corretamente
+        message += `• ${line}\n`;
       });
     }
     
-    // Adicione uma linha em branco após cada serviço
-    message += "\n";
+    // Adiciona o valor com o formato exato da imagem (R$= 0,00)
+    const priceValue = formatPrice(service.price).replace('R$', '').trim();
+    message += `• Valor ........................R$= ${priceValue}\n\n`;
   });
 
   message += "--------------------------------------------------\n";
-  message += `*Total...............R$* = ${formatPrice(total).replace('R$', '').trim()}\n`;
-  message += `*Adiantado.......R$* = ${formatPrice(received).replace('R$', '').trim()}\n`;
-  message += `*Total Geral......R$* = ${formatPrice(remaining).replace('R$', '').trim()}`;
+  message += `Total...............R$ = ${formatPrice(total).replace('R$', '').trim()}\n`;
+  message += `Adiantado.......R$ = ${formatPrice(received).replace('R$', '').trim()}\n`;
+  message += `Total Geral......R$ = ${formatPrice(remaining).replace('R$', '').trim()}`;
 
   return message;
 };
