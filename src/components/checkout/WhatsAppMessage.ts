@@ -35,8 +35,9 @@ export const formatWhatsAppMessage = (
       const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
       
       lines.forEach(line => {
-        // Garantir alinhamento consistente, usando 2 espaços após o ponto
-        message += `• ${line}\n`;
+        // Usar espaçamento para alinhar com o texto após os números
+        // Adiciona espaço extra após o bullet para alinhar com o texto após o número
+        message += `  • ${line}\n`;  // Dois espaços antes do bullet para alinhar corretamente
       });
     }
     
