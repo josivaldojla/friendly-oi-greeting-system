@@ -38,7 +38,7 @@ export const formatWhatsAppMessage = (
       lines.forEach(line => {
         // Usar espaçamento para alinhar com o texto após os números
         // Adiciona espaço extra após o bullet para alinhar com o texto após o número
-        message += `  • ${line}\n`;  // Dois espaços antes do bullet para alinhar corretamente
+        message += `• .(• ${line}\n`;  // Dois espaços antes do bullet para alinhar corretamente
       });
     }
     
