@@ -1,11 +1,14 @@
-
-import { useState } from "react";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import React, { useState, useEffect, useCallback } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Service } from "@/lib/types";
+import { MotorcycleModelSelect } from "./MotorcycleModelSelect";
+import { CustomerSelect } from "./CustomerSelect";
+import { CustomerSelection } from "@/lib/types";
+import { useQuery } from "@tanstack/react-query";
+import { getMotorcycleModels } from "@/lib/storage";
 
 interface CommentDialogProps {
   open: boolean;
@@ -14,92 +17,156 @@ interface CommentDialogProps {
   service: Service;
 }
 
-export const CommentDialog = ({ open, onOpenChange, onSave, service }: CommentDialogProps) => {
-  const [comment, setComment] = useState("");
-  const [modelName, setModelName] = useState("");
-  const [clientName, setClientName] = useState("");
-  const [identification, setIdentification] = useState("");
+export const CommentDialog: React.FC<CommentDialogProps> = ({
+  open,
+  onOpenChange,
+  onSave,
+  service
+}) => {
+  
+  const [comment, setComment] = useState<string>("");
+  const [selectedModel, setSelectedModel] = useState<string>("");
+  const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ name: "" });
+  
+  // Carregando modelos de motos do banco de dados
+  const { data: motorcycleModels = [] } = useQuery({
+    queryKey: ['motorcycleModels'],
+    queryFn: getMotorcycleModels,
+    staleTime: 10000 // 10 segundos
+  });
+  
+  // Limpar estados quando o diálogo é aberto ou fechado
+  useEffect(() => {
+    if (!open) {
+      // Somente limpa quando fecha o diálogo
+      setComment("");
+      setSelectedModel("");
+      setCustomerSelection({ name: "" });
+    }
+  }, [open]);
 
-  const handleSave = () => {
-    // Formata o comentário incluindo informações de modelo, cliente e identificação
+  // Usar useCallback para evitar renderizações desnecessárias
+  const handleModelChange = useCallback((value: string) => {
+    console.log("Modelo selecionado no diálogo:", value);
+    setSelectedModel(value);
+  }, []);
+  
+  const handleCustomerChange = useCallback((customer: CustomerSelection) => {
+    console.log("CommentDialog - Cliente selecionado:", customer);
+    setCustomerSelection(customer);
+  }, []);
+
+  const handleCommentChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setComment(e.target.value);
+  }, []);
+
+  // Memoizar a função handleSave
+  const handleSave = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     let formattedComment = "";
     
-    if (modelName) {
-      formattedComment += `• Modelo: ${modelName}\n`;
+    if (selectedModel) {
+      const model = motorcycleModels.find(m => m.id === selectedModel);
+      if (model) {
+        formattedComment += `Modelo: ${model.name}${model.brand ? ` (${model.brand})` : ''}\n`;
+      }
     }
     
-    if (clientName) {
-      formattedComment += `• Cliente: ${clientName}\n`;
+    if (customerSelection && customerSelection.name) {
+      formattedComment += `Cliente: ${customerSelection.name}\n`;
     }
     
-    if (identification) {
-      formattedComment += `• ${identification}\n`;
+    if (comment.trim()) {
+      formattedComment += comment.trim();
     }
     
-    if (comment) {
-      formattedComment += comment;
-    }
-    
-    onSave(formattedComment);
-    
-    // Limpa os campos após salvar
-    setComment("");
-    setModelName("");
-    setClientName("");
-    setIdentification("");
-  };
+    onSave(formattedComment ? `_${formattedComment}_` : "");
+    onOpenChange(false);
+  }, [selectedModel, customerSelection, comment, onSave, onOpenChange, motorcycleModels]);
+
+  // Prevenir o fechamento do diálogo ao clicar dentro dele
+  const handleDialogClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+  }, []);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px]">
+    <Dialog 
+      open={open} 
+      onOpenChange={(newOpenState) => {
+        // Só permitir fechar o diálogo através dos botões
+        if (open && !newOpenState) {
+          // Não fechamos o diálogo aqui, apenas através dos botões
+          return;
+        }
+        onOpenChange(newOpenState);
+      }}
+    >
+      <DialogContent 
+        onClick={handleDialogClick} 
+        className="sm:max-w-[425px] bg-background overflow-y-auto max-h-[90vh]"
+        style={{ zIndex: 50000 }} // Z-index mais alto que os componentes internos
+        onPointerDownOutside={(e) => {
+          // Prevenir que cliques fora do diálogo o fechem
+          e.preventDefault();
+        }}
+        onInteractOutside={(e) => {
+          // Prevenir que interações fora do diálogo o fechem
+          e.preventDefault();
+        }}
+        onEscapeKeyDown={() => {
+          // Permitir que o ESC feche o diálogo normalmente
+          onOpenChange(false);
+        }}
+      >
         <DialogHeader>
-          <DialogTitle>Adicionar detalhes para {service.name}</DialogTitle>
+          <DialogTitle>Adicionar Comentário</DialogTitle>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div>
-            <Label htmlFor="model">Modelo da Moto</Label>
-            <Input
-              id="model"
-              value={modelName}
-              onChange={(e) => setModelName(e.target.value)}
-              placeholder="Ex: CB 500 Honda"
-            />
-          </div>
+        
+        <div className="space-y-4">
+          <MotorcycleModelSelect
+            selectedModel={selectedModel}
+            setSelectedModel={handleModelChange}
+          />
           
-          <div>
-            <Label htmlFor="client">Nome do Cliente</Label>
-            <Input
-              id="client"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
-              placeholder="Ex: José Silva"
-            />
-          </div>
+          <CustomerSelect
+            customerSelection={customerSelection}
+            setCustomerSelection={handleCustomerChange}
+          />
           
-          <div>
-            <Label htmlFor="identification">Identificação</Label>
-            <Input
-              id="identification"
-              value={identification}
-              onChange={(e) => setIdentification(e.target.value)}
-              placeholder="Ex: f86c8tc8td5"
-            />
-          </div>
-          
-          <div>
-            <Label htmlFor="comment">Comentário Adicional (opcional)</Label>
+          <div className="space-y-2">
+            <Label htmlFor="comment">Comentário (Opcional)</Label>
             <Textarea
               id="comment"
+              className="w-full bg-background"
+              rows={3}
               value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              placeholder="Adicione informações extras aqui..."
-              className="min-h-[100px]"
+              placeholder="Digite um comentário adicional para o serviço"
+              onChange={handleCommentChange}
             />
           </div>
         </div>
+
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)} variant="outline">Cancelar</Button>
-          <Button onClick={handleSave}>Adicionar</Button>
+          <Button 
+            variant="outline" 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpenChange(false);
+            }} 
+            type="button"
+          >
+            Cancelar
+          </Button>
+          <Button 
+            variant="default" 
+            onClick={handleSave} 
+            type="button"
+          >
+            Salvar
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
