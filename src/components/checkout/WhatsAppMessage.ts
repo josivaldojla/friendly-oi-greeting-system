@@ -1,3 +1,4 @@
+
 import { Service } from "@/lib/types";
 
 type ServiceWithOptionalComment = Service & { comment?: string };
@@ -18,13 +19,34 @@ export const formatWhatsAppMessage = (
   
   services.forEach((service, index) => {
     const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
-    message += `*${index + 1}-* ${service.name} =R$ ${formattedPrice}\n`;
-    if (service.description) {
-      message += `${service.description}\n`;
-    }
+    message += `${index + 1}- ${service.name} =R$ ${formattedPrice}\n`;
+    
+    // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
-      message += `(${service.comment})\n`;
+      // Remove underscores e parênteses do comentário
+      const cleanComment = service.comment
+        .replace(/^_/, '') // Remove underscore no início
+        .replace(/_$/, '') // Remove underscore no final
+        .replace(/\(_/, '') // Remove parentese e underscore no início
+        .replace(/_\)$/, ''); // Remove underscore e parentese no final
+      
+      // Dividir o comentário por linhas para formatar cada uma corretamente
+      const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
+      
+      lines.forEach(line => {
+        // Se a linha contém "Modelo:", "Cliente:" ou outra informação específica
+        if (line.includes('Modelo:')) {
+          message += `• ${line}\n`;
+        } else if (line.includes('Cliente:')) {
+          message += `• ${line}\n`;
+        } else {
+          // Qualquer outro texto de comentário
+          message += `• ${line}\n`;
+        }
+      });
     }
+    
+    // Adicione uma linha em branco após cada serviço
     message += "\n";
   });
 
