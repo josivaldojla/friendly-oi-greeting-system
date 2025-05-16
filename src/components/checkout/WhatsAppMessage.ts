@@ -28,21 +28,15 @@ export const formatWhatsAppMessage = (
         .replace(/^_/, '') // Remove underscore no início
         .replace(/_$/, '') // Remove underscore no final
         .replace(/\(_/, '') // Remove parentese e underscore no início
-        .replace(/_\)$/, ''); // Remove underscore e parentese no final
+        .replace(/_\)$/, '') // Remove underscore e parentese no final
+        .replace(/\(|\)/g, ''); // Remove todos os parênteses restantes
       
       // Dividir o comentário por linhas para formatar cada uma corretamente
       const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
       
       lines.forEach(line => {
-        // Se a linha contém "Modelo:", "Cliente:" ou outra informação específica
-        if (line.includes('Modelo:')) {
-          message += `• ${line}\n`;
-        } else if (line.includes('Cliente:')) {
-          message += `• ${line}\n`;
-        } else {
-          // Qualquer outro texto de comentário
-          message += `• ${line}\n`;
-        }
+        // Garantir alinhamento consistente, usando 2 espaços após o ponto
+        message += `• ${line}\n`;
       });
     }
     
