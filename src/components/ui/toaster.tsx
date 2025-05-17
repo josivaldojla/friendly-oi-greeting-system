@@ -15,6 +15,7 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, variant, ...props }) {
+        // Removendo o atributo variant pois não é compatível com os tipos esperados
         return (
           <Toast key={id} {...props}>
             <div className="grid gap-1">
