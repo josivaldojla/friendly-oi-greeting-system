@@ -18,7 +18,7 @@ const Index = () => {
           <div className="grid grid-cols-1 gap-4 w-full">
             <Link to="/mechanics" className="w-full">
               <Button className="w-full h-16 text-lg" variant="outline">
-                Mecânicosfgg
+                Mecânicos
               </Button>
             </Link>
             
