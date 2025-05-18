@@ -38,12 +38,12 @@ export const formatWhatsAppMessage = (
       
       lines.forEach(line => {
         // Usar espaçamento para alinhar com o texto após os números
-        message += ` • ${line}\n`;  // Bullet point para cada linha do comentário
+        message += `  • ${line}\n`;  // Bullet point para cada linha do comentário
       });
     }
     
     // Adiciona o valor no final de cada serviço (após comentários)
-message += ` • Valor....................R$= ${formattedPrice}\n`;
+message += `  • Valor....................R$= ${formattedPrice}\n`;
     
     // Adicione uma linha em branco após cada serviço
     message += "\n";
