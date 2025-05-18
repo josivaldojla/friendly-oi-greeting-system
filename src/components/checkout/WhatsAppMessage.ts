@@ -22,6 +22,8 @@ export const formatWhatsAppMessage = (
     
     // Coloca a descrição do serviço primeiro
     message += `*${index + 1}-* ${service.name}\n`;
+    // Coloca o valor logo abaixo da descrição do serviço (antes de modelo/cliente)
+    message += `• Valor....................R$= ${formattedPrice}\n`;
     
     // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
@@ -32,16 +34,13 @@ export const formatWhatsAppMessage = (
         .replace(/\(_/, '') // Remove parentese e underscore no início
         .replace(/_\)$/, '') // Remove underscore e parentese no final
         .replace(/\(|\)/g, ''); // Remove todos os parênteses restantes
-
-    // Coloca o valor abaixo com bullet point
-    message += ` •   Valor....................R$= ${formattedPrice}\n`;
       
       // Dividir o comentário por linhas para formatar cada uma corretamente
       const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
       
       lines.forEach(line => {
         // Usar espaçamento para alinhar com o texto após os números
-        message += `  • ${line}\n`;  // Dois espaços antes do bullet para alinhar corretamente
+        message += `• ${line}\n`;  // Bullet point para cada linha do comentário
       });
     }
     
