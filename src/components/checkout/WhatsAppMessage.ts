@@ -23,9 +23,6 @@ export const formatWhatsAppMessage = (
     // Coloca a descrição do serviço primeiro
     message += `*${index + 1}-* ${service.name}\n`;
     
-    // Coloca o valor abaixo com bullet point
-    message += ` •   Valor....................R$= ${formattedPrice}\n`;
-    
     // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
       // Remove underscores e parênteses do comentário
@@ -35,6 +32,9 @@ export const formatWhatsAppMessage = (
         .replace(/\(_/, '') // Remove parentese e underscore no início
         .replace(/_\)$/, '') // Remove underscore e parentese no final
         .replace(/\(|\)/g, ''); // Remove todos os parênteses restantes
+
+    // Coloca o valor abaixo com bullet point
+    message += ` •   Valor....................R$= ${formattedPrice}\n`;
       
       // Dividir o comentário por linhas para formatar cada uma corretamente
       const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
