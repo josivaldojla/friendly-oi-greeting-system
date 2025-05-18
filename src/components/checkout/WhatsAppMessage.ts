@@ -19,6 +19,9 @@ export const formatWhatsAppMessage = (
   
   services.forEach((service, index) => {
     const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
+
+// Coloca a descrição do serviço primeiro
+    message += `*${index + 1}-* ${service.name}\n`;
     
     // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
