@@ -24,7 +24,7 @@ export const formatWhatsAppMessage = (
     message += `*${index + 1}-* ${service.name}\n`;
     
     // Coloca o valor abaixo com bullet point
-    message += ` •teste xjdnfjfncj Valor....................R$= ${formattedPrice}\n`;
+    message += ` •  Valor....................R$= ${formattedPrice}\n`;
     
     // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
