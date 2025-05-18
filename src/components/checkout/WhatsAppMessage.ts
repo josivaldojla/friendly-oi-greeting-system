@@ -20,11 +20,6 @@ export const formatWhatsAppMessage = (
   services.forEach((service, index) => {
     const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
     
-    // Coloca a descrição do serviço primeiro
-    message += `*${index + 1}-* ${service.name}\n`;
-    // Coloca o valor logo abaixo da descrição do serviço (antes de modelo/cliente)
-    message += `• Valor....................R$= ${formattedPrice}\n`;
-    
     // Verificar se há um comentário e formatá-lo corretamente
     if (service.comment) {
       // Remove underscores e parênteses do comentário
