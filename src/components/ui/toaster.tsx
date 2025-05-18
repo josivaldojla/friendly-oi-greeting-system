@@ -15,8 +15,8 @@ export function Toaster() {
   return (
     <ToastProvider>
       {toasts.map(function ({ id, title, description, action, ...props }) {
-        // Remove variant and any other props not compatible with Toast component
-        const { variant, ...restProps } = props;
+        // Remover propriedades não compatíveis antes de passar para o Toast
+        const { variant, ...restProps } = props as any;
         
         return (
           <Toast key={id} {...restProps}>

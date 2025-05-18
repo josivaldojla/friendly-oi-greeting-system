@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Service, Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
@@ -12,6 +11,10 @@ import { addCompletedService, saveServiceHistory } from "@/lib/storage";
 import ServiceListItem from "./ServiceListItem";
 import ServiceTotals from "./ServiceTotals";
 import { formatWhatsAppMessage } from "./WhatsAppMessage";
+
+const STORAGE_KEY_MECHANIC = "selectedMechanicId";
+const STORAGE_KEY_RECEIVED_AMOUNT = "receivedAmount";
+const STORAGE_KEY_HISTORY_TITLE = "historyTitle";
 
 interface SelectedServicesListProps {
   selectedServices: Service[];
@@ -33,6 +36,53 @@ const SelectedServicesList = ({
   const [currentDate, setCurrentDate] = useState<string>("");
   const [historyTitle, setHistoryTitle] = useState<string>("");
   const [showSaveHistory, setShowSaveHistory] = useState<boolean>(false);
+
+  // Carregar valores salvos do localStorage
+  useEffect(() => {
+    try {
+      const savedMechanicId = localStorage.getItem(STORAGE_KEY_MECHANIC);
+      if (savedMechanicId) {
+        setSelectedMechanicId(savedMechanicId);
+      }
+
+      const savedReceivedAmount = localStorage.getItem(STORAGE_KEY_RECEIVED_AMOUNT);
+      if (savedReceivedAmount) {
+        setReceivedAmount(parseFloat(savedReceivedAmount));
+      }
+
+      const savedHistoryTitle = localStorage.getItem(STORAGE_KEY_HISTORY_TITLE);
+      if (savedHistoryTitle) {
+        setHistoryTitle(savedHistoryTitle);
+      }
+    } catch (error) {
+      console.error('Erro ao carregar dados salvos:', error);
+    }
+  }, []);
+
+  // Salvar valores no localStorage quando forem alterados
+  useEffect(() => {
+    if (selectedMechanicId) {
+      localStorage.setItem(STORAGE_KEY_MECHANIC, selectedMechanicId);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_MECHANIC);
+    }
+  }, [selectedMechanicId]);
+
+  useEffect(() => {
+    if (receivedAmount > 0) {
+      localStorage.setItem(STORAGE_KEY_RECEIVED_AMOUNT, receivedAmount.toString());
+    } else {
+      localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
+    }
+  }, [receivedAmount]);
+
+  useEffect(() => {
+    if (historyTitle) {
+      localStorage.setItem(STORAGE_KEY_HISTORY_TITLE, historyTitle);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_HISTORY_TITLE);
+    }
+  }, [historyTitle]);
 
   useEffect(() => {
     const today = new Date();
@@ -106,6 +156,12 @@ const SelectedServicesList = ({
 
     addCompletedService(completedService);
     onCompleteCheckout();
+    
+    // Limpar storage após finalizar
+    localStorage.removeItem(STORAGE_KEY_MECHANIC);
+    localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
+    localStorage.removeItem(STORAGE_KEY_HISTORY_TITLE);
+    
     toast.success("Serviço registrado com sucesso");
   };
 
@@ -133,6 +189,7 @@ const SelectedServicesList = ({
       
       // Limpar o título após salvar
       setHistoryTitle("");
+      localStorage.removeItem(STORAGE_KEY_HISTORY_TITLE);
     } catch (error) {
       console.error("Erro ao salvar histórico:", error);
       toast.error("Não foi possível salvar o histórico");

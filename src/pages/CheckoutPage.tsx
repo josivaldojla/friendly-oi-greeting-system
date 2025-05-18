@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
 import { getServices, getMechanics, addService, updateService, deleteService } from "@/lib/storage";
@@ -9,6 +8,10 @@ import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
+const STORAGE_KEY = "selectedServices";
+const STORAGE_KEY_MECHANIC = "selectedMechanicId";
+const STORAGE_KEY_RECEIVED_AMOUNT = "receivedAmount";
+
 const CheckoutPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
@@ -16,6 +19,31 @@ const CheckoutPage = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("services");
+
+  // Carregar dados do localStorage quando o componente for montado
+  useEffect(() => {
+    const loadSavedServices = () => {
+      try {
+        const savedServices = localStorage.getItem(STORAGE_KEY);
+        if (savedServices) {
+          setSelectedServices(JSON.parse(savedServices));
+        }
+      } catch (error) {
+        console.error('Erro ao carregar serviços salvos:', error);
+      }
+    };
+
+    loadSavedServices();
+  }, []);
+
+  // Salvar serviços selecionados no localStorage sempre que forem alterados
+  useEffect(() => {
+    if (selectedServices.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedServices));
+    } else {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  }, [selectedServices]);
 
   useEffect(() => {
     const loadData = async () => {

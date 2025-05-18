@@ -44,13 +44,13 @@ export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'c
   // Precisamos garantir que estamos enviando service_data como JSONB compatível
   const { error } = await supabase
     .from('service_history')
-    .insert([{
+    .insert({
       title: history.title,
       mechanic_id: history.mechanic_id,
       service_data: history.service_data, // já é JSON compatível
       total_amount: history.total_amount,
       received_amount: history.received_amount
-    }]);
+    });
 
   if (error) {
     console.error('Error saving service history:', error);
