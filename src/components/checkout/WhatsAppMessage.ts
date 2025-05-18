@@ -44,6 +44,9 @@ export const formatWhatsAppMessage = (
       });
     }
     
+    // Adiciona o valor no final de cada serviço (após comentários)
+message += `• Valor....................R$= ${formattedPrice}\n`;
+    
     // Adicione uma linha em branco após cada serviço
     message += "\n";
   });
