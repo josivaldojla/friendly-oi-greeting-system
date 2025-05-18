@@ -15,7 +15,7 @@ export const formatWhatsAppMessage = (
   let message = `*HELENO MOTOS*\n`;
   message += `*Mecânico:* ${mechanicName}\n`;
   message += `*Data:* ${currentDate}\n`;
-  message += "--------------------------------------------------\n\n";
+  message += "-------------------------------------------------------\n\n";
   
   services.forEach((service, index) => {
     const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
@@ -49,7 +49,7 @@ message += `  • Valor..............................R$= ${formattedPrice}\n`;
     message += "\n";
   });
 
-  message += "--------------------------------------------------\n";
+  message += "-------------------------------------------------------\n";
   message += `*Total...............R$* = ${formatPrice(total).replace('R$', '').trim()}\n`;
   message += `*Adiantado.......R$* = ${formatPrice(received).replace('R$', '').trim()}\n`;
   message += `*Total Geral......R$* = ${formatPrice(remaining).replace('R$', '').trim()}`;
