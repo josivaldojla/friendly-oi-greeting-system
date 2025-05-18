@@ -1,10 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { Service, Mechanic, ViewMode } from "@/lib/types";
+import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
 import { getServices, getMechanics, addService, updateService, deleteService } from "@/lib/storage";
 import ServiceList from "@/components/services/ServiceList";
 import SelectedServicesList from "@/components/checkout/SelectedServicesList";
+import ServiceHistoryList from "@/components/checkout/ServiceHistoryList";
 import Layout from "@/components/layout/Layout";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 
 const CheckoutPage = () => {
@@ -13,6 +15,7 @@ const CheckoutPage = () => {
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>("services");
 
   useEffect(() => {
     const loadData = async () => {
@@ -88,6 +91,14 @@ const CheckoutPage = () => {
     setSelectedServices([]);
   };
 
+  const handleSelectHistory = (history: ServiceHistory) => {
+    // Adicionar serviços do histórico à seleção atual
+    setSelectedServices(history.service_data);
+    toast.success(`Histórico "${history.title}" carregado com ${history.service_data.length} serviços`);
+    // Mudar para a aba de serviços
+    setActiveTab("services");
+  };
+
   if (loading) {
     return (
       <Layout>
@@ -103,33 +114,46 @@ const CheckoutPage = () => {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Serviços Executados</h2>
         
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <div className="space-y-6">
-              <ServiceList
-                services={services}
-                onAddService={handleAddService}
-                onUpdateService={handleUpdateService}
-                onDeleteService={handleDeleteService}
-                selectable={true}
-                viewMode={viewMode}
-                onViewModeChange={setViewMode}
-                onAddToSelection={handleAddToSelection}
-                showAddButton={true}
-                hideHeading={true}
-              />
-            </div>
-          </div>
+        <Tabs defaultValue="services" value={activeTab} onValueChange={setActiveTab}>
+          <TabsList>
+            <TabsTrigger value="services">Serviços</TabsTrigger>
+            <TabsTrigger value="history">Histórico</TabsTrigger>
+          </TabsList>
           
-          <div className="space-y-6">
-            <SelectedServicesList 
-              selectedServices={selectedServices}
-              mechanics={mechanics}
-              onRemoveService={handleRemoveService}
-              onCompleteCheckout={handleCompleteCheckout}
-            />
-          </div>
-        </div>
+          <TabsContent value="services" className="mt-4">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <div className="space-y-6">
+                  <ServiceList
+                    services={services}
+                    onAddService={handleAddService}
+                    onUpdateService={handleUpdateService}
+                    onDeleteService={handleDeleteService}
+                    selectable={true}
+                    viewMode={viewMode}
+                    onViewModeChange={setViewMode}
+                    onAddToSelection={handleAddToSelection}
+                    showAddButton={true}
+                    hideHeading={true}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <SelectedServicesList 
+                  selectedServices={selectedServices}
+                  mechanics={mechanics}
+                  onRemoveService={handleRemoveService}
+                  onCompleteCheckout={handleCompleteCheckout}
+                />
+              </div>
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="history" className="mt-4">
+            <ServiceHistoryList onSelect={handleSelectHistory} />
+          </TabsContent>
+        </Tabs>
       </div>
     </Layout>
   );

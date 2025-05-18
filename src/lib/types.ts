@@ -47,3 +47,15 @@ export interface CustomerSelection {
   name: string; // Nome do cliente (existente ou novo)
   isNew?: boolean; // Indica se é um novo cliente
 }
+
+// Nova interface para histórico de serviços
+export interface ServiceHistory {
+  id: string;
+  title: string;
+  mechanic_id: string;
+  service_data: Service[];
+  total_amount: number;
+  received_amount: number;
+  created_at: string;
+  mechanic?: Mechanic; // Relação com o mecânico
+}

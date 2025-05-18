@@ -125,6 +125,44 @@ export type Database = {
         }
         Relationships: []
       }
+      service_history: {
+        Row: {
+          created_at: string
+          id: string
+          mechanic_id: string | null
+          received_amount: number
+          service_data: Json
+          title: string
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          mechanic_id?: string | null
+          received_amount?: number
+          service_data: Json
+          title: string
+          total_amount?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          mechanic_id?: string | null
+          received_amount?: number
+          service_data?: Json
+          title?: string
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_history_mechanic_id_fkey"
+            columns: ["mechanic_id"]
+            isOneToOne: false
+            referencedRelation: "mechanics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string

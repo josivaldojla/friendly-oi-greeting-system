@@ -3,11 +3,12 @@ import { useState, useEffect } from "react";
 import { Service, Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Send } from "lucide-react";
+import { Send, Save } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { addCompletedService } from "@/lib/storage";
+import { addCompletedService, saveServiceHistory } from "@/lib/storage";
 import ServiceListItem from "./ServiceListItem";
 import ServiceTotals from "./ServiceTotals";
 import { formatWhatsAppMessage } from "./WhatsAppMessage";
@@ -30,6 +31,8 @@ const SelectedServicesList = ({
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [remainingAmount, setRemainingAmount] = useState<number>(0);
   const [currentDate, setCurrentDate] = useState<string>("");
+  const [historyTitle, setHistoryTitle] = useState<string>("");
+  const [showSaveHistory, setShowSaveHistory] = useState<boolean>(false);
 
   useEffect(() => {
     const today = new Date();
@@ -42,6 +45,11 @@ const SelectedServicesList = ({
     setRemainingAmount(total - receivedAmount);
   }, [selectedServices, receivedAmount]);
 
+  useEffect(() => {
+    // Mostrar opção de salvar histórico apenas se houver serviços selecionados
+    setShowSaveHistory(selectedServices.length > 0);
+  }, [selectedServices]);
+
   const formatPrice = (price: number) => {
     return price.toLocaleString('pt-BR', {
       style: 'currency',
@@ -52,6 +60,10 @@ const SelectedServicesList = ({
   const handleReceivedAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
     setReceivedAmount(value);
+  };
+
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setHistoryTitle(e.target.value);
   };
 
   const handleSendWhatsApp = () => {
@@ -95,6 +107,36 @@ const SelectedServicesList = ({
     addCompletedService(completedService);
     onCompleteCheckout();
     toast.success("Serviço registrado com sucesso");
+  };
+
+  const handleSaveHistory = async () => {
+    if (!selectedMechanicId) {
+      toast.error("Por favor, selecione um mecânico responsável");
+      return;
+    }
+
+    if (!historyTitle.trim()) {
+      toast.error("Por favor, dê um título para salvar no histórico");
+      return;
+    }
+
+    try {
+      await saveServiceHistory({
+        title: historyTitle.trim(),
+        mechanic_id: selectedMechanicId,
+        service_data: selectedServices,
+        total_amount: totalAmount,
+        received_amount: receivedAmount
+      });
+      
+      toast.success("Histórico salvo com sucesso");
+      
+      // Limpar o título após salvar
+      setHistoryTitle("");
+    } catch (error) {
+      console.error("Erro ao salvar histórico:", error);
+      toast.error("Não foi possível salvar o histórico");
+    }
   };
 
   return (
@@ -145,6 +187,29 @@ const SelectedServicesList = ({
               formatPrice={formatPrice}
               onReceivedAmountChange={handleReceivedAmountChange}
             />
+
+            {showSaveHistory && (
+              <div className="space-y-2 border-t pt-4">
+                <Label htmlFor="history-title">Título do Histórico</Label>
+                <div className="flex space-x-2">
+                  <Input 
+                    id="history-title" 
+                    value={historyTitle} 
+                    onChange={handleTitleChange}
+                    placeholder="Ex: Cliente João - Honda CG 160" 
+                    className="flex-1"
+                  />
+                  <Button
+                    variant="outline"
+                    onClick={handleSaveHistory}
+                    disabled={!historyTitle.trim() || !selectedMechanicId}
+                  >
+                    <Save className="h-4 w-4 mr-1" />
+                    Salvar
+                  </Button>
+                </div>
+              </div>
+            )}
           </>
         )}
       </CardContent>
@@ -153,7 +218,7 @@ const SelectedServicesList = ({
           <Button 
             className="w-full" 
             onClick={handleSendWhatsApp}
-            disabled={!selectedServices.length}
+            disabled={!selectedServices.length || !selectedMechanicId}
           >
             <Send className="mr-2 h-4 w-4" />
             Enviar por WhatsApp
