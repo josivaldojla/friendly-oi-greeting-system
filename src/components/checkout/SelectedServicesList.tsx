@@ -1,88 +1,46 @@
+
 import { useState, useEffect } from "react";
 import { Service, Mechanic } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Send, Save } from "lucide-react";
+import { Send } from "lucide-react";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { addCompletedService, saveServiceHistory } from "@/lib/storage";
+import { addCompletedService } from "@/lib/storage";
 import ServiceListItem from "./ServiceListItem";
 import ServiceTotals from "./ServiceTotals";
 import { formatWhatsAppMessage } from "./WhatsAppMessage";
-
-const STORAGE_KEY_MECHANIC = "selectedMechanicId";
-const STORAGE_KEY_RECEIVED_AMOUNT = "receivedAmount";
-const STORAGE_KEY_HISTORY_TITLE = "historyTitle";
+import { format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface SelectedServicesListProps {
   selectedServices: Service[];
   mechanics: Mechanic[];
   onRemoveService: (id: string) => void;
   onCompleteCheckout: () => void;
+  selectedMechanicId: string;
+  onMechanicChange: (mechanicId: string) => void;
+  receivedAmount: number;
+  onReceivedAmountChange: (amount: number) => void;
+  autoSave?: boolean;
 }
 
 const SelectedServicesList = ({ 
   selectedServices, 
   mechanics,
   onRemoveService,
-  onCompleteCheckout
+  onCompleteCheckout,
+  selectedMechanicId,
+  onMechanicChange,
+  receivedAmount,
+  onReceivedAmountChange,
+  autoSave = false
 }: SelectedServicesListProps) => {
-  const [receivedAmount, setReceivedAmount] = useState<number>(0);
-  const [selectedMechanicId, setSelectedMechanicId] = useState<string>("");
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [remainingAmount, setRemainingAmount] = useState<number>(0);
   const [currentDate, setCurrentDate] = useState<string>("");
-  const [historyTitle, setHistoryTitle] = useState<string>("");
-  const [showSaveHistory, setShowSaveHistory] = useState<boolean>(false);
-
-  // Carregar valores salvos do localStorage
-  useEffect(() => {
-    try {
-      const savedMechanicId = localStorage.getItem(STORAGE_KEY_MECHANIC);
-      if (savedMechanicId) {
-        setSelectedMechanicId(savedMechanicId);
-      }
-
-      const savedReceivedAmount = localStorage.getItem(STORAGE_KEY_RECEIVED_AMOUNT);
-      if (savedReceivedAmount) {
-        setReceivedAmount(parseFloat(savedReceivedAmount));
-      }
-
-      const savedHistoryTitle = localStorage.getItem(STORAGE_KEY_HISTORY_TITLE);
-      if (savedHistoryTitle) {
-        setHistoryTitle(savedHistoryTitle);
-      }
-    } catch (error) {
-      console.error('Erro ao carregar dados salvos:', error);
-    }
-  }, []);
-
-  // Salvar valores no localStorage quando forem alterados
-  useEffect(() => {
-    if (selectedMechanicId) {
-      localStorage.setItem(STORAGE_KEY_MECHANIC, selectedMechanicId);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_MECHANIC);
-    }
-  }, [selectedMechanicId]);
-
-  useEffect(() => {
-    if (receivedAmount > 0) {
-      localStorage.setItem(STORAGE_KEY_RECEIVED_AMOUNT, receivedAmount.toString());
-    } else {
-      localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
-    }
-  }, [receivedAmount]);
-
-  useEffect(() => {
-    if (historyTitle) {
-      localStorage.setItem(STORAGE_KEY_HISTORY_TITLE, historyTitle);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_HISTORY_TITLE);
-    }
-  }, [historyTitle]);
 
   useEffect(() => {
     const today = new Date();
@@ -95,11 +53,6 @@ const SelectedServicesList = ({
     setRemainingAmount(total - receivedAmount);
   }, [selectedServices, receivedAmount]);
 
-  useEffect(() => {
-    // Mostrar opção de salvar histórico apenas se houver serviços selecionados
-    setShowSaveHistory(selectedServices.length > 0);
-  }, [selectedServices]);
-
   const formatPrice = (price: number) => {
     return price.toLocaleString('pt-BR', {
       style: 'currency',
@@ -109,11 +62,7 @@ const SelectedServicesList = ({
 
   const handleReceivedAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseFloat(e.target.value) || 0;
-    setReceivedAmount(value);
-  };
-
-  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setHistoryTitle(e.target.value);
+    onReceivedAmountChange(value);
   };
 
   const handleSendWhatsApp = () => {
@@ -156,50 +105,18 @@ const SelectedServicesList = ({
 
     addCompletedService(completedService);
     onCompleteCheckout();
-    
-    // Limpar storage após finalizar
-    localStorage.removeItem(STORAGE_KEY_MECHANIC);
-    localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
-    localStorage.removeItem(STORAGE_KEY_HISTORY_TITLE);
-    
     toast.success("Serviço registrado com sucesso");
-  };
-
-  const handleSaveHistory = async () => {
-    if (!selectedMechanicId) {
-      toast.error("Por favor, selecione um mecânico responsável");
-      return;
-    }
-
-    if (!historyTitle.trim()) {
-      toast.error("Por favor, dê um título para salvar no histórico");
-      return;
-    }
-
-    try {
-      await saveServiceHistory({
-        title: historyTitle.trim(),
-        mechanic_id: selectedMechanicId,
-        service_data: selectedServices,
-        total_amount: totalAmount,
-        received_amount: receivedAmount
-      });
-      
-      toast.success("Histórico salvo com sucesso");
-      
-      // Limpar o título após salvar
-      setHistoryTitle("");
-      localStorage.removeItem(STORAGE_KEY_HISTORY_TITLE);
-    } catch (error) {
-      console.error("Erro ao salvar histórico:", error);
-      toast.error("Não foi possível salvar o histórico");
-    }
   };
 
   return (
     <Card>
       <CardHeader>
         <CardTitle>Serviços Selecionados</CardTitle>
+        {autoSave && selectedServices.length > 0 && selectedMechanicId && (
+          <p className="text-xs text-muted-foreground">
+            Os serviços estão sendo salvos automaticamente
+          </p>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         {selectedServices.length > 0 ? (
@@ -223,7 +140,7 @@ const SelectedServicesList = ({
           <>
             <div>
               <Label htmlFor="mechanic">Mecânico Responsável</Label>
-              <Select value={selectedMechanicId} onValueChange={setSelectedMechanicId}>
+              <Select value={selectedMechanicId} onValueChange={onMechanicChange}>
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um mecânico" />
                 </SelectTrigger>
@@ -244,29 +161,6 @@ const SelectedServicesList = ({
               formatPrice={formatPrice}
               onReceivedAmountChange={handleReceivedAmountChange}
             />
-
-            {showSaveHistory && (
-              <div className="space-y-2 border-t pt-4">
-                <Label htmlFor="history-title">Título do Histórico</Label>
-                <div className="flex space-x-2">
-                  <Input 
-                    id="history-title" 
-                    value={historyTitle} 
-                    onChange={handleTitleChange}
-                    placeholder="Ex: Cliente João - Honda CG 160" 
-                    className="flex-1"
-                  />
-                  <Button
-                    variant="outline"
-                    onClick={handleSaveHistory}
-                    disabled={!historyTitle.trim() || !selectedMechanicId}
-                  >
-                    <Save className="h-4 w-4 mr-1" />
-                    Salvar
-                  </Button>
-                </div>
-              </div>
-            )}
           </>
         )}
       </CardContent>

@@ -1,12 +1,14 @@
+
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
-import { getServices, getMechanics, addService, updateService, deleteService } from "@/lib/storage";
+import { getServices, getMechanics, addService, updateService, deleteService, saveServiceHistory } from "@/lib/storage";
 import ServiceList from "@/components/services/ServiceList";
 import SelectedServicesList from "@/components/checkout/SelectedServicesList";
 import ServiceHistoryList from "@/components/checkout/ServiceHistoryList";
 import Layout from "@/components/layout/Layout";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { format } from "date-fns";
 
 const STORAGE_KEY = "selectedServices";
 const STORAGE_KEY_MECHANIC = "selectedMechanicId";
@@ -16,9 +18,12 @@ const CheckoutPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [selectedMechanicId, setSelectedMechanicId] = useState<string>("");
+  const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("services");
+  const [lastSaveTimestamp, setLastSaveTimestamp] = useState<number>(0);
 
   // Carregar dados do localStorage quando o componente for montado
   useEffect(() => {
@@ -27,6 +32,16 @@ const CheckoutPage = () => {
         const savedServices = localStorage.getItem(STORAGE_KEY);
         if (savedServices) {
           setSelectedServices(JSON.parse(savedServices));
+        }
+
+        const savedMechanicId = localStorage.getItem(STORAGE_KEY_MECHANIC);
+        if (savedMechanicId) {
+          setSelectedMechanicId(savedMechanicId);
+        }
+
+        const savedReceivedAmount = localStorage.getItem(STORAGE_KEY_RECEIVED_AMOUNT);
+        if (savedReceivedAmount) {
+          setReceivedAmount(parseFloat(savedReceivedAmount));
         }
       } catch (error) {
         console.error('Erro ao carregar serviços salvos:', error);
@@ -44,6 +59,24 @@ const CheckoutPage = () => {
       localStorage.removeItem(STORAGE_KEY);
     }
   }, [selectedServices]);
+
+  // Salvar mechanic ID no localStorage
+  useEffect(() => {
+    if (selectedMechanicId) {
+      localStorage.setItem(STORAGE_KEY_MECHANIC, selectedMechanicId);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_MECHANIC);
+    }
+  }, [selectedMechanicId]);
+
+  // Salvar valor recebido no localStorage
+  useEffect(() => {
+    if (receivedAmount > 0) {
+      localStorage.setItem(STORAGE_KEY_RECEIVED_AMOUNT, receivedAmount.toString());
+    } else {
+      localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
+    }
+  }, [receivedAmount]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -64,6 +97,47 @@ const CheckoutPage = () => {
     
     loadData();
   }, []);
+
+  // Auto save service history when conditions are met
+  useEffect(() => {
+    const autoSaveHistory = async () => {
+      // Only save if we have services and a mechanic selected
+      if (selectedServices.length > 0 && selectedMechanicId) {
+        const now = Date.now();
+        // Only save if at least 5 seconds have passed since last save
+        if (now - lastSaveTimestamp > 5000) {
+          const formattedDate = format(new Date(), "dd/MM/yyyy HH:mm");
+          const registrationNumber = Math.floor(10000 + Math.random() * 90000); // 5-digit number
+          
+          const totalAmount = selectedServices.reduce((sum, service) => sum + service.price, 0);
+          
+          const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
+          
+          try {
+            await saveServiceHistory({
+              title: autoTitle,
+              mechanic_id: selectedMechanicId,
+              service_data: selectedServices,
+              total_amount: totalAmount,
+              received_amount: receivedAmount
+            });
+            
+            setLastSaveTimestamp(now);
+            console.log('Auto-saved service history:', autoTitle);
+          } catch (error) {
+            console.error('Error auto-saving service history:', error);
+          }
+        }
+      }
+    };
+
+    // Debounce the auto save for 2 seconds after changes
+    const debounceTimer = setTimeout(() => {
+      autoSaveHistory();
+    }, 2000);
+
+    return () => clearTimeout(debounceTimer);
+  }, [selectedServices, selectedMechanicId, receivedAmount, lastSaveTimestamp]);
 
   const handleAddService = async (service: Service) => {
     try {
@@ -117,14 +191,27 @@ const CheckoutPage = () => {
 
   const handleCompleteCheckout = () => {
     setSelectedServices([]);
+    setReceivedAmount(0);
+    setSelectedMechanicId("");
+    
+    // Limpar localStorage ao finalizar
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY_MECHANIC);
+    localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
   };
 
   const handleSelectHistory = (history: ServiceHistory) => {
     // Adicionar serviços do histórico à seleção atual
     setSelectedServices(history.service_data);
+    setSelectedMechanicId(history.mechanic_id);
+    setReceivedAmount(history.received_amount);
     toast.success(`Histórico "${history.title}" carregado com ${history.service_data.length} serviços`);
     // Mudar para a aba de serviços
     setActiveTab("services");
+  };
+
+  const handleReceivedAmountChange = (amount: number) => {
+    setReceivedAmount(amount);
   };
 
   if (loading) {
@@ -173,6 +260,11 @@ const CheckoutPage = () => {
                   mechanics={mechanics}
                   onRemoveService={handleRemoveService}
                   onCompleteCheckout={handleCompleteCheckout}
+                  selectedMechanicId={selectedMechanicId}
+                  onMechanicChange={setSelectedMechanicId}
+                  receivedAmount={receivedAmount}
+                  onReceivedAmountChange={handleReceivedAmountChange}
+                  autoSave={true}
                 />
               </div>
             </div>
