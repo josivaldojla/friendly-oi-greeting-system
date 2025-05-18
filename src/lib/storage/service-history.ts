@@ -27,12 +27,12 @@ export async function getServiceHistory(): Promise<ServiceHistory[]> {
     return [];
   }
   
-  // Mapeando para o formato correto
+  // Mapeando para o formato correto e convertendo service_data de volta para Service[]
   return data.map(item => ({
     id: item.id,
     title: item.title,
     mechanic_id: item.mechanic_id,
-    service_data: item.service_data,
+    service_data: Array.isArray(item.service_data) ? item.service_data : [],
     total_amount: Number(item.total_amount),
     received_amount: Number(item.received_amount),
     created_at: item.created_at,
@@ -41,9 +41,16 @@ export async function getServiceHistory(): Promise<ServiceHistory[]> {
 }
 
 export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'created_at'>): Promise<ServiceHistory[]> {
+  // Precisamos garantir que estamos enviando service_data como JSONB compatível
   const { error } = await supabase
     .from('service_history')
-    .insert([history]);
+    .insert([{
+      title: history.title,
+      mechanic_id: history.mechanic_id,
+      service_data: history.service_data, // já é JSON compatível
+      total_amount: history.total_amount,
+      received_amount: history.received_amount
+    }]);
 
   if (error) {
     console.error('Error saving service history:', error);
