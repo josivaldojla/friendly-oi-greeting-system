@@ -90,21 +90,30 @@ const CheckoutPage = () => {
           const currentTime = new Date().getTime();
           const oneHour = 60 * 60 * 1000;
           
-          if (currentTime - historyTime < oneHour) {
+          // Se estiver dentro de 1 hora, use esse ID
+          // E se não tivermos um ID definido ainda
+          if (currentTime - historyTime < oneHour && !currentHistoryId) {
+            console.log("Usando histórico existente recente com ID:", latestHistory.id);
             setCurrentHistoryId(latestHistory.id);
             localStorage.setItem(STORAGE_KEY_HISTORY_ID, latestHistory.id);
+          } else if (currentHistoryId) {
+            console.log("Mantendo histórico atual com ID:", currentHistoryId);
+          } else {
+            // Caso contrário, nenhum histórico adequado encontrado, será criado um novo
+            console.log("Nenhum histórico recente encontrado, um novo será criado");
           }
         }
       };
       
       // Somente verifique um histórico existente se não tivermos um atual
-      if (!currentHistoryId) {
+      // E se estamos iniciando uma nova sessão de serviços
+      if (!currentHistoryId && selectedServices.length > 0) {
         checkExistingHistory();
       }
     } else {
       localStorage.removeItem(STORAGE_KEY_MECHANIC);
     }
-  }, [selectedMechanicId, currentHistoryId]);
+  }, [selectedMechanicId, currentHistoryId, selectedServices.length]);
 
   // Salvar valor recebido no localStorage
   useEffect(() => {
@@ -160,6 +169,7 @@ const CheckoutPage = () => {
           try {
             if (currentHistoryId) {
               // Atualizar histórico existente
+              console.log("Atualizando histórico com ID:", currentHistoryId);
               await updateServiceHistory(currentHistoryId, {
                 service_data: selectedServices,
                 total_amount: totalAmount,
@@ -168,6 +178,7 @@ const CheckoutPage = () => {
               console.log("Histórico atualizado com ID:", currentHistoryId);
             } else {
               // Criar novo histórico
+              console.log("Criando novo histórico...");
               const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
               const result = await saveServiceHistory({
                 title: autoTitle,
@@ -180,9 +191,9 @@ const CheckoutPage = () => {
               // Salvar o ID do novo histórico criado
               if (result.length > 0) {
                 const newHistoryId = result[0].id;
+                console.log("Novo histórico criado com ID:", newHistoryId);
                 setCurrentHistoryId(newHistoryId);
                 localStorage.setItem(STORAGE_KEY_HISTORY_ID, newHistoryId);
-                console.log("Novo histórico criado com ID:", newHistoryId);
               }
             }
             
@@ -202,6 +213,7 @@ const CheckoutPage = () => {
     return () => clearTimeout(debounceTimer);
   }, [selectedServices, selectedMechanicId, receivedAmount, lastSaveTimestamp, currentHistoryId]);
 
+  // Função para adicionar um serviço
   const handleAddService = async (service: Service) => {
     try {
       const updatedServices = await addService(service);
@@ -253,6 +265,7 @@ const CheckoutPage = () => {
   };
 
   const handleCompleteCheckout = () => {
+    // Limpar tudo ao finalizar o checkout
     setSelectedServices([]);
     setReceivedAmount(0);
     setSelectedMechanicId("");
@@ -263,14 +276,17 @@ const CheckoutPage = () => {
     localStorage.removeItem(STORAGE_KEY_MECHANIC);
     localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
     localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
+    
+    toast.success("Checkout finalizado com sucesso!");
   };
 
   const handleSelectHistory = (history: ServiceHistory) => {
+    // Limpar o histórico atual quando selecionar um histórico existente
+    setCurrentHistoryId(history.id);
     // Adicionar serviços do histórico à seleção atual
     setSelectedServices(history.service_data);
     setSelectedMechanicId(history.mechanic_id);
     setReceivedAmount(history.received_amount);
-    setCurrentHistoryId(history.id);
     toast.success(`Histórico "${history.title}" carregado com ${history.service_data.length} serviços`);
     // Mudar para a aba de serviços
     setActiveTab("services");
