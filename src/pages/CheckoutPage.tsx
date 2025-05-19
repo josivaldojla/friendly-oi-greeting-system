@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
 import { 
@@ -21,6 +22,7 @@ import { format } from "date-fns";
 const STORAGE_KEY = "selectedServices";
 const STORAGE_KEY_MECHANIC = "selectedMechanicId";
 const STORAGE_KEY_RECEIVED_AMOUNT = "receivedAmount";
+const STORAGE_KEY_HISTORY_ID = "currentHistoryId";
 
 const CheckoutPage = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -51,6 +53,11 @@ const CheckoutPage = () => {
         const savedReceivedAmount = localStorage.getItem(STORAGE_KEY_RECEIVED_AMOUNT);
         if (savedReceivedAmount) {
           setReceivedAmount(parseFloat(savedReceivedAmount));
+        }
+        
+        const savedHistoryId = localStorage.getItem(STORAGE_KEY_HISTORY_ID);
+        if (savedHistoryId) {
+          setCurrentHistoryId(savedHistoryId);
         }
       } catch (error) {
         console.error('Erro ao carregar serviços salvos:', error);
@@ -85,20 +92,19 @@ const CheckoutPage = () => {
           
           if (currentTime - historyTime < oneHour) {
             setCurrentHistoryId(latestHistory.id);
-          } else {
-            setCurrentHistoryId(null); // Crie um novo se o último for mais antigo que 1 hora
+            localStorage.setItem(STORAGE_KEY_HISTORY_ID, latestHistory.id);
           }
-        } else {
-          setCurrentHistoryId(null);
         }
       };
       
-      checkExistingHistory();
+      // Somente verifique um histórico existente se não tivermos um atual
+      if (!currentHistoryId) {
+        checkExistingHistory();
+      }
     } else {
       localStorage.removeItem(STORAGE_KEY_MECHANIC);
-      setCurrentHistoryId(null);
     }
-  }, [selectedMechanicId]);
+  }, [selectedMechanicId, currentHistoryId]);
 
   // Salvar valor recebido no localStorage
   useEffect(() => {
@@ -108,6 +114,15 @@ const CheckoutPage = () => {
       localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
     }
   }, [receivedAmount]);
+  
+  // Salvar currentHistoryId no localStorage
+  useEffect(() => {
+    if (currentHistoryId) {
+      localStorage.setItem(STORAGE_KEY_HISTORY_ID, currentHistoryId);
+    } else {
+      localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
+    }
+  }, [currentHistoryId]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -150,6 +165,7 @@ const CheckoutPage = () => {
                 total_amount: totalAmount,
                 received_amount: receivedAmount
               });
+              console.log("Histórico atualizado com ID:", currentHistoryId);
             } else {
               // Criar novo histórico
               const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
@@ -163,7 +179,10 @@ const CheckoutPage = () => {
               
               // Salvar o ID do novo histórico criado
               if (result.length > 0) {
-                setCurrentHistoryId(result[0].id);
+                const newHistoryId = result[0].id;
+                setCurrentHistoryId(newHistoryId);
+                localStorage.setItem(STORAGE_KEY_HISTORY_ID, newHistoryId);
+                console.log("Novo histórico criado com ID:", newHistoryId);
               }
             }
             
@@ -243,6 +262,7 @@ const CheckoutPage = () => {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(STORAGE_KEY_MECHANIC);
     localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
+    localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
   };
 
   const handleSelectHistory = (history: ServiceHistory) => {
