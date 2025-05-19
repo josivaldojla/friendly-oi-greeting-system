@@ -62,6 +62,30 @@ export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'c
   return getServiceHistory();
 }
 
+export async function updateServiceHistory(
+  id: string, 
+  history: Pick<ServiceHistory, 'service_data' | 'total_amount' | 'received_amount'>
+): Promise<ServiceHistory[]> {
+  // We need to ensure that service_data is JSONB compatible
+  const serviceData = JSON.parse(JSON.stringify(history.service_data));
+  
+  const { error } = await supabase
+    .from('service_history')
+    .update({
+      service_data: serviceData,
+      total_amount: history.total_amount,
+      received_amount: history.received_amount
+    })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating service history:', error);
+    return [];
+  }
+
+  return getServiceHistory();
+}
+
 export async function deleteServiceHistory(id: string): Promise<ServiceHistory[]> {
   const { error } = await supabase
     .from('service_history')
@@ -74,4 +98,34 @@ export async function deleteServiceHistory(id: string): Promise<ServiceHistory[]
   }
 
   return getServiceHistory();
+}
+
+// Função para buscar o histórico de serviço mais recente para um mecânico específico
+export async function getLatestServiceHistoryByMechanicId(mechanicId: string): Promise<ServiceHistory | null> {
+  const { data, error } = await supabase
+    .from('service_history')
+    .select(`
+      *,
+      mechanics:mechanic_id (*)
+    `)
+    .eq('mechanic_id', mechanicId)
+    .order('created_at', { ascending: false })
+    .limit(1);
+
+  if (error || !data || data.length === 0) {
+    if (error) console.error('Error fetching latest service history:', error);
+    return null;
+  }
+  
+  const item = data[0];
+  return {
+    id: item.id,
+    title: item.title,
+    mechanic_id: item.mechanic_id,
+    service_data: Array.isArray(item.service_data) ? item.service_data as Service[] : [],
+    total_amount: Number(item.total_amount),
+    received_amount: Number(item.received_amount),
+    created_at: item.created_at,
+    mechanic: item.mechanics
+  };
 }

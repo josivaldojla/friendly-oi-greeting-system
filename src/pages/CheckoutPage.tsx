@@ -1,7 +1,15 @@
-
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
-import { getServices, getMechanics, addService, updateService, deleteService, saveServiceHistory } from "@/lib/storage";
+import { 
+  getServices, 
+  getMechanics, 
+  addService, 
+  updateService, 
+  deleteService, 
+  saveServiceHistory, 
+  getLatestServiceHistoryByMechanicId,
+  updateServiceHistory 
+} from "@/lib/storage";
 import ServiceList from "@/components/services/ServiceList";
 import SelectedServicesList from "@/components/checkout/SelectedServicesList";
 import ServiceHistoryList from "@/components/checkout/ServiceHistoryList";
@@ -24,6 +32,7 @@ const CheckoutPage = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("services");
   const [lastSaveTimestamp, setLastSaveTimestamp] = useState<number>(0);
+  const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
 
   // Carregar dados do localStorage quando o componente for montado
   useEffect(() => {
@@ -64,8 +73,30 @@ const CheckoutPage = () => {
   useEffect(() => {
     if (selectedMechanicId) {
       localStorage.setItem(STORAGE_KEY_MECHANIC, selectedMechanicId);
+      
+      // Verificar se já existe um histórico para este mecânico
+      const checkExistingHistory = async () => {
+        const latestHistory = await getLatestServiceHistoryByMechanicId(selectedMechanicId);
+        if (latestHistory) {
+          // Se encontrou um histórico recente (menos de 1 hora), use-o
+          const historyTime = new Date(latestHistory.created_at).getTime();
+          const currentTime = new Date().getTime();
+          const oneHour = 60 * 60 * 1000;
+          
+          if (currentTime - historyTime < oneHour) {
+            setCurrentHistoryId(latestHistory.id);
+          } else {
+            setCurrentHistoryId(null); // Crie um novo se o último for mais antigo que 1 hora
+          }
+        } else {
+          setCurrentHistoryId(null);
+        }
+      };
+      
+      checkExistingHistory();
     } else {
       localStorage.removeItem(STORAGE_KEY_MECHANIC);
+      setCurrentHistoryId(null);
     }
   }, [selectedMechanicId]);
 
@@ -104,26 +135,39 @@ const CheckoutPage = () => {
       // Only save if we have services and a mechanic selected
       if (selectedServices.length > 0 && selectedMechanicId) {
         const now = Date.now();
-        // Only save if at least 5 seconds have passed since last save
-        if (now - lastSaveTimestamp > 5000) {
+        // Only save if at least 2 seconds have passed since last save
+        if (now - lastSaveTimestamp > 2000) {
           const formattedDate = format(new Date(), "dd/MM/yyyy HH:mm");
           const registrationNumber = Math.floor(10000 + Math.random() * 90000); // 5-digit number
           
           const totalAmount = selectedServices.reduce((sum, service) => sum + service.price, 0);
           
-          const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
-          
           try {
-            await saveServiceHistory({
-              title: autoTitle,
-              mechanic_id: selectedMechanicId,
-              service_data: selectedServices,
-              total_amount: totalAmount,
-              received_amount: receivedAmount
-            });
+            if (currentHistoryId) {
+              // Atualizar histórico existente
+              await updateServiceHistory(currentHistoryId, {
+                service_data: selectedServices,
+                total_amount: totalAmount,
+                received_amount: receivedAmount
+              });
+            } else {
+              // Criar novo histórico
+              const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
+              const result = await saveServiceHistory({
+                title: autoTitle,
+                mechanic_id: selectedMechanicId,
+                service_data: selectedServices,
+                total_amount: totalAmount,
+                received_amount: receivedAmount
+              });
+              
+              // Salvar o ID do novo histórico criado
+              if (result.length > 0) {
+                setCurrentHistoryId(result[0].id);
+              }
+            }
             
             setLastSaveTimestamp(now);
-            console.log('Auto-saved service history:', autoTitle);
           } catch (error) {
             console.error('Error auto-saving service history:', error);
           }
@@ -137,7 +181,7 @@ const CheckoutPage = () => {
     }, 2000);
 
     return () => clearTimeout(debounceTimer);
-  }, [selectedServices, selectedMechanicId, receivedAmount, lastSaveTimestamp]);
+  }, [selectedServices, selectedMechanicId, receivedAmount, lastSaveTimestamp, currentHistoryId]);
 
   const handleAddService = async (service: Service) => {
     try {
@@ -193,6 +237,7 @@ const CheckoutPage = () => {
     setSelectedServices([]);
     setReceivedAmount(0);
     setSelectedMechanicId("");
+    setCurrentHistoryId(null);
     
     // Limpar localStorage ao finalizar
     localStorage.removeItem(STORAGE_KEY);
@@ -205,6 +250,7 @@ const CheckoutPage = () => {
     setSelectedServices(history.service_data);
     setSelectedMechanicId(history.mechanic_id);
     setReceivedAmount(history.received_amount);
+    setCurrentHistoryId(history.id);
     toast.success(`Histórico "${history.title}" carregado com ${history.service_data.length} serviços`);
     // Mudar para a aba de serviços
     setActiveTab("services");
