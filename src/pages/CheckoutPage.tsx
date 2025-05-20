@@ -1,131 +1,30 @@
+
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
-import { 
-  getServices, 
-  getMechanics, 
-  addService, 
-  updateService, 
-  deleteService, 
-  saveServiceHistory, 
-  getLatestServiceHistoryByMechanicId,
-  updateServiceHistory 
-} from "@/lib/storage";
+import { getServices, getMechanics } from "@/lib/storage";
 import ServiceList from "@/components/services/ServiceList";
 import SelectedServicesList from "@/components/checkout/SelectedServicesList";
-import ServiceHistoryList from "@/components/checkout/ServiceHistoryList";
 import Layout from "@/components/layout/Layout";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
-import { format } from "date-fns";
-
-const STORAGE_KEY = "selectedServices";
-const STORAGE_KEY_MECHANIC = "selectedMechanicId";
-const STORAGE_KEY_RECEIVED_AMOUNT = "receivedAmount";
-const STORAGE_KEY_HISTORY_ID = "currentHistoryId";
+import { useServiceSelection } from "@/hooks/useServiceSelection";
+import { useMechanicSelection } from "@/hooks/useMechanicSelection";
+import { useServiceHistory } from "@/hooks/useServiceHistory";
+import { ServiceTabs } from "@/components/checkout/ServiceTabs";
 
 const CheckoutPage = () => {
   const [services, setServices] = useState<Service[]>([]);
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);
-  const [selectedServices, setSelectedServices] = useState<Service[]>([]);
-  const [selectedMechanicId, setSelectedMechanicId] = useState<string>("");
-  const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("services");
-  const [lastSaveTimestamp, setLastSaveTimestamp] = useState<number>(0);
-  const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
-
-  // Carregar dados do localStorage quando o componente for montado
-  useEffect(() => {
-    const loadSavedServices = () => {
-      try {
-        const savedServices = localStorage.getItem(STORAGE_KEY);
-        if (savedServices) {
-          setSelectedServices(JSON.parse(savedServices));
-        }
-
-        const savedMechanicId = localStorage.getItem(STORAGE_KEY_MECHANIC);
-        if (savedMechanicId) {
-          setSelectedMechanicId(savedMechanicId);
-        }
-
-        const savedReceivedAmount = localStorage.getItem(STORAGE_KEY_RECEIVED_AMOUNT);
-        if (savedReceivedAmount) {
-          setReceivedAmount(parseFloat(savedReceivedAmount));
-        }
-        
-        const savedHistoryId = localStorage.getItem(STORAGE_KEY_HISTORY_ID);
-        if (savedHistoryId) {
-          console.log("Carregando histórico salvo com ID:", savedHistoryId);
-          setCurrentHistoryId(savedHistoryId);
-        }
-      } catch (error) {
-        console.error('Erro ao carregar serviços salvos:', error);
-      }
-    };
-
-    loadSavedServices();
-  }, []);
-
-  // Salvar serviços selecionados no localStorage sempre que forem alterados
-  useEffect(() => {
-    if (selectedServices.length > 0) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(selectedServices));
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
-  }, [selectedServices]);
-
-  // Salvar mechanic ID no localStorage
-  useEffect(() => {
-    if (selectedMechanicId) {
-      localStorage.setItem(STORAGE_KEY_MECHANIC, selectedMechanicId);
-      
-      // Aqui é onde criamos um novo histórico se não temos um atual
-      if (!currentHistoryId && selectedServices.length > 0) {
-        console.log("Nenhum histórico atual. Criando um novo...");
-        const formattedDate = format(new Date(), "dd/MM/yyyy HH:mm");
-        const registrationNumber = Math.floor(10000 + Math.random() * 90000); // 5-digit number
-        const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
-        const totalAmount = selectedServices.reduce((sum, service) => sum + service.price, 0);
-        
-        saveServiceHistory({
-          title: autoTitle,
-          mechanic_id: selectedMechanicId,
-          service_data: selectedServices,
-          total_amount: totalAmount,
-          received_amount: receivedAmount
-        }).then(result => {
-          if (result.length > 0) {
-            const newHistoryId = result[0].id;
-            console.log("Novo histórico criado com ID:", newHistoryId);
-            setCurrentHistoryId(newHistoryId);
-            localStorage.setItem(STORAGE_KEY_HISTORY_ID, newHistoryId);
-          }
-        });
-      }
-    } else {
-      localStorage.removeItem(STORAGE_KEY_MECHANIC);
-    }
-  }, [selectedMechanicId, currentHistoryId, selectedServices.length]);
-
-  // Salvar valor recebido no localStorage
-  useEffect(() => {
-    if (receivedAmount > 0) {
-      localStorage.setItem(STORAGE_KEY_RECEIVED_AMOUNT, receivedAmount.toString());
-    } else {
-      localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
-    }
-  }, [receivedAmount]);
   
-  // Salvar currentHistoryId no localStorage
-  useEffect(() => {
-    if (currentHistoryId) {
-      localStorage.setItem(STORAGE_KEY_HISTORY_ID, currentHistoryId);
-    } else {
-      localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
-    }
-  }, [currentHistoryId]);
+  // Custom hooks
+  const { selectedServices, addService, removeService, clearServices, setSelectedServices } = useServiceSelection();
+  const { selectedMechanicId, setSelectedMechanicId } = useMechanicSelection();
+  const { receivedAmount, setReceivedAmount, clearHistory, setCurrentHistoryId } = useServiceHistory({
+    selectedServices,
+    selectedMechanicId
+  });
 
   useEffect(() => {
     const loadData = async () => {
@@ -147,105 +46,19 @@ const CheckoutPage = () => {
     loadData();
   }, []);
 
-  // Auto save service history when conditions are met
-  useEffect(() => {
-    const autoSaveHistory = async () => {
-      // Only save if we have services and a mechanic selected and a currentHistoryId
-      if (selectedServices.length > 0 && selectedMechanicId && currentHistoryId) {
-        const now = Date.now();
-        // Only save if at least 2 seconds have passed since last save
-        if (now - lastSaveTimestamp > 2000) {
-          const totalAmount = selectedServices.reduce((sum, service) => sum + service.price, 0);
-          
-          try {
-            // Atualizar histórico existente
-            console.log("Atualizando histórico com ID:", currentHistoryId);
-            await updateServiceHistory(currentHistoryId, {
-              service_data: selectedServices,
-              total_amount: totalAmount,
-              received_amount: receivedAmount
-            });
-            console.log("Histórico atualizado com ID:", currentHistoryId);
-            
-            setLastSaveTimestamp(now);
-          } catch (error) {
-            console.error('Error auto-saving service history:', error);
-          }
-        }
-      }
-    };
-
-    // Debounce the auto save for 2 seconds after changes
-    const debounceTimer = setTimeout(() => {
-      autoSaveHistory();
-    }, 2000);
-
-    return () => clearTimeout(debounceTimer);
-  }, [selectedServices, selectedMechanicId, receivedAmount, lastSaveTimestamp, currentHistoryId]);
-
-  // Função para adicionar um serviço
-  const handleAddService = async (service: Service) => {
-    try {
-      const updatedServices = await addService(service);
-      setServices(updatedServices);
-      toast.success(`Serviço ${service.name} adicionado com sucesso`);
-    } catch (error) {
-      console.error('Erro ao adicionar serviço:', error);
-      toast.error('Erro ao adicionar serviço');
-    }
-  };
-
-  const handleUpdateService = async (service: Service) => {
-    try {
-      const updatedServices = await updateService(service);
-      setServices(updatedServices);
-      toast.success(`Serviço ${service.name} atualizado com sucesso`);
-    } catch (error) {
-      console.error('Erro ao atualizar serviço:', error);
-      toast.error('Erro ao atualizar serviço');
-    }
-  };
-
-  const handleDeleteService = async (id: string) => {
-    try {
-      const updatedServices = await deleteService(id);
-      setServices(updatedServices);
-      toast.success('Serviço removido com sucesso');
-    } catch (error) {
-      console.error('Erro ao remover serviço:', error);
-      toast.error('Erro ao remover serviço');
-    }
-  };
-
   const handleAddToSelection = (service: Service, comment?: string) => {
-    setSelectedServices(prev => [
-      ...prev,
-      comment 
-        ? { ...service, comment } 
-        : { ...service }
-    ]);
+    addService(service, comment);
     const msg = comment 
       ? `${service.name} adicionado à seleção com comentário`
       : `${service.name} adicionado à seleção`;
     toast.success(msg);
   };
 
-  const handleRemoveService = (id: string) => {
-    setSelectedServices(selectedServices.filter(service => service.id !== id));
-  };
-
   const handleCompleteCheckout = () => {
     // Limpar tudo ao finalizar o checkout
-    setSelectedServices([]);
-    setReceivedAmount(0);
+    clearServices();
     setSelectedMechanicId("");
-    setCurrentHistoryId(null);
-    
-    // Limpar localStorage ao finalizar
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(STORAGE_KEY_MECHANIC);
-    localStorage.removeItem(STORAGE_KEY_RECEIVED_AMOUNT);
-    localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
+    clearHistory();
     
     toast.success("Checkout finalizado com sucesso!");
   };
@@ -260,10 +73,6 @@ const CheckoutPage = () => {
     toast.success(`Histórico "${history.title}" carregado com ${history.service_data.length} serviços`);
     // Mudar para a aba de serviços
     setActiveTab("services");
-  };
-
-  const handleReceivedAmountChange = (amount: number) => {
-    setReceivedAmount(amount);
   };
 
   if (loading) {
@@ -281,51 +90,41 @@ const CheckoutPage = () => {
       <div className="space-y-6">
         <h2 className="text-2xl font-bold">Serviços Executados</h2>
         
-        <Tabs defaultValue="services" value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
-            <TabsTrigger value="services">Serviços</TabsTrigger>
-            <TabsTrigger value="history">Histórico</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="services" className="mt-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <div className="space-y-6">
-                  <ServiceList
-                    services={services}
-                    onAddService={handleAddService}
-                    onUpdateService={handleUpdateService}
-                    onDeleteService={handleDeleteService}
-                    selectable={true}
-                    viewMode={viewMode}
-                    onViewModeChange={setViewMode}
-                    onAddToSelection={handleAddToSelection}
-                    showAddButton={true}
-                    hideHeading={true}
-                  />
-                </div>
-              </div>
-              
+        <ServiceTabs 
+          activeTab={activeTab} 
+          setActiveTab={setActiveTab}
+          onSelectHistory={handleSelectHistory}
+        >
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
               <div className="space-y-6">
-                <SelectedServicesList 
-                  selectedServices={selectedServices}
-                  mechanics={mechanics}
-                  onRemoveService={handleRemoveService}
-                  onCompleteCheckout={handleCompleteCheckout}
-                  selectedMechanicId={selectedMechanicId}
-                  onMechanicChange={setSelectedMechanicId}
-                  receivedAmount={receivedAmount}
-                  onReceivedAmountChange={handleReceivedAmountChange}
-                  autoSave={true}
+                <ServiceList
+                  services={services}
+                  selectable={true}
+                  viewMode={viewMode}
+                  onViewModeChange={setViewMode}
+                  onAddToSelection={handleAddToSelection}
+                  showAddButton={true}
+                  hideHeading={true}
                 />
               </div>
             </div>
-          </TabsContent>
-          
-          <TabsContent value="history" className="mt-4">
-            <ServiceHistoryList onSelect={handleSelectHistory} />
-          </TabsContent>
-        </Tabs>
+            
+            <div className="space-y-6">
+              <SelectedServicesList 
+                selectedServices={selectedServices}
+                mechanics={mechanics}
+                onRemoveService={removeService}
+                onCompleteCheckout={handleCompleteCheckout}
+                selectedMechanicId={selectedMechanicId}
+                onMechanicChange={setSelectedMechanicId}
+                receivedAmount={receivedAmount}
+                onReceivedAmountChange={setReceivedAmount}
+                autoSave={true}
+              />
+            </div>
+          </div>
+        </ServiceTabs>
       </div>
     </Layout>
   );
