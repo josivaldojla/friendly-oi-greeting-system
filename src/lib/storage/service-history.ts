@@ -41,10 +41,12 @@ export async function getServiceHistory(): Promise<ServiceHistory[]> {
 }
 
 export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'created_at'>): Promise<ServiceHistory[]> {
+  console.log('Criando novo histórico:', history.title);
+  
   // We need to ensure that service_data is JSONB compatible
   const serviceData = JSON.parse(JSON.stringify(history.service_data));
   
-  const { error } = await supabase
+  const { data, error } = await supabase
     .from('service_history')
     .insert({
       title: history.title,
@@ -52,13 +54,15 @@ export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'c
       service_data: serviceData,
       total_amount: history.total_amount,
       received_amount: history.received_amount
-    });
+    })
+    .select('id');
 
   if (error) {
     console.error('Error saving service history:', error);
     return [];
   }
 
+  console.log('Novo histórico criado com ID:', data?.[0]?.id);
   return getServiceHistory();
 }
 
@@ -66,6 +70,8 @@ export async function updateServiceHistory(
   id: string, 
   history: Pick<ServiceHistory, 'service_data' | 'total_amount' | 'received_amount'>
 ): Promise<ServiceHistory[]> {
+  console.log('Atualizando histórico com ID:', id);
+  
   // We need to ensure that service_data is JSONB compatible
   const serviceData = JSON.parse(JSON.stringify(history.service_data));
   
@@ -83,6 +89,7 @@ export async function updateServiceHistory(
     return [];
   }
 
+  console.log('Histórico atualizado com ID:', id);
   return getServiceHistory();
 }
 
@@ -102,6 +109,8 @@ export async function deleteServiceHistory(id: string): Promise<ServiceHistory[]
 
 // Função para buscar o histórico de serviço mais recente para um mecânico específico
 export async function getLatestServiceHistoryByMechanicId(mechanicId: string): Promise<ServiceHistory | null> {
+  console.log('Buscando histórico mais recente para o mecânico:', mechanicId);
+  
   const { data, error } = await supabase
     .from('service_history')
     .select(`
@@ -118,6 +127,8 @@ export async function getLatestServiceHistoryByMechanicId(mechanicId: string): P
   }
   
   const item = data[0];
+  console.log('Histórico encontrado:', item.id);
+  
   return {
     id: item.id,
     title: item.title,

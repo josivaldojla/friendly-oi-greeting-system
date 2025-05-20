@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
 import { 
@@ -57,6 +56,7 @@ const CheckoutPage = () => {
         
         const savedHistoryId = localStorage.getItem(STORAGE_KEY_HISTORY_ID);
         if (savedHistoryId) {
+          console.log("Carregando histórico salvo com ID:", savedHistoryId);
           setCurrentHistoryId(savedHistoryId);
         }
       } catch (error) {
@@ -81,34 +81,28 @@ const CheckoutPage = () => {
     if (selectedMechanicId) {
       localStorage.setItem(STORAGE_KEY_MECHANIC, selectedMechanicId);
       
-      // Verificar se já existe um histórico para este mecânico
-      const checkExistingHistory = async () => {
-        const latestHistory = await getLatestServiceHistoryByMechanicId(selectedMechanicId);
-        if (latestHistory) {
-          // Se encontrou um histórico recente (menos de 1 hora), use-o
-          const historyTime = new Date(latestHistory.created_at).getTime();
-          const currentTime = new Date().getTime();
-          const oneHour = 60 * 60 * 1000;
-          
-          // Se estiver dentro de 1 hora, use esse ID
-          // E se não tivermos um ID definido ainda
-          if (currentTime - historyTime < oneHour && !currentHistoryId) {
-            console.log("Usando histórico existente recente com ID:", latestHistory.id);
-            setCurrentHistoryId(latestHistory.id);
-            localStorage.setItem(STORAGE_KEY_HISTORY_ID, latestHistory.id);
-          } else if (currentHistoryId) {
-            console.log("Mantendo histórico atual com ID:", currentHistoryId);
-          } else {
-            // Caso contrário, nenhum histórico adequado encontrado, será criado um novo
-            console.log("Nenhum histórico recente encontrado, um novo será criado");
-          }
-        }
-      };
-      
-      // Somente verifique um histórico existente se não tivermos um atual
-      // E se estamos iniciando uma nova sessão de serviços
+      // Aqui é onde criamos um novo histórico se não temos um atual
       if (!currentHistoryId && selectedServices.length > 0) {
-        checkExistingHistory();
+        console.log("Nenhum histórico atual. Criando um novo...");
+        const formattedDate = format(new Date(), "dd/MM/yyyy HH:mm");
+        const registrationNumber = Math.floor(10000 + Math.random() * 90000); // 5-digit number
+        const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
+        const totalAmount = selectedServices.reduce((sum, service) => sum + service.price, 0);
+        
+        saveServiceHistory({
+          title: autoTitle,
+          mechanic_id: selectedMechanicId,
+          service_data: selectedServices,
+          total_amount: totalAmount,
+          received_amount: receivedAmount
+        }).then(result => {
+          if (result.length > 0) {
+            const newHistoryId = result[0].id;
+            console.log("Novo histórico criado com ID:", newHistoryId);
+            setCurrentHistoryId(newHistoryId);
+            localStorage.setItem(STORAGE_KEY_HISTORY_ID, newHistoryId);
+          }
+        });
       }
     } else {
       localStorage.removeItem(STORAGE_KEY_MECHANIC);
@@ -156,46 +150,22 @@ const CheckoutPage = () => {
   // Auto save service history when conditions are met
   useEffect(() => {
     const autoSaveHistory = async () => {
-      // Only save if we have services and a mechanic selected
-      if (selectedServices.length > 0 && selectedMechanicId) {
+      // Only save if we have services and a mechanic selected and a currentHistoryId
+      if (selectedServices.length > 0 && selectedMechanicId && currentHistoryId) {
         const now = Date.now();
         // Only save if at least 2 seconds have passed since last save
         if (now - lastSaveTimestamp > 2000) {
-          const formattedDate = format(new Date(), "dd/MM/yyyy HH:mm");
-          const registrationNumber = Math.floor(10000 + Math.random() * 90000); // 5-digit number
-          
           const totalAmount = selectedServices.reduce((sum, service) => sum + service.price, 0);
           
           try {
-            if (currentHistoryId) {
-              // Atualizar histórico existente
-              console.log("Atualizando histórico com ID:", currentHistoryId);
-              await updateServiceHistory(currentHistoryId, {
-                service_data: selectedServices,
-                total_amount: totalAmount,
-                received_amount: receivedAmount
-              });
-              console.log("Histórico atualizado com ID:", currentHistoryId);
-            } else {
-              // Criar novo histórico
-              console.log("Criando novo histórico...");
-              const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
-              const result = await saveServiceHistory({
-                title: autoTitle,
-                mechanic_id: selectedMechanicId,
-                service_data: selectedServices,
-                total_amount: totalAmount,
-                received_amount: receivedAmount
-              });
-              
-              // Salvar o ID do novo histórico criado
-              if (result.length > 0) {
-                const newHistoryId = result[0].id;
-                console.log("Novo histórico criado com ID:", newHistoryId);
-                setCurrentHistoryId(newHistoryId);
-                localStorage.setItem(STORAGE_KEY_HISTORY_ID, newHistoryId);
-              }
-            }
+            // Atualizar histórico existente
+            console.log("Atualizando histórico com ID:", currentHistoryId);
+            await updateServiceHistory(currentHistoryId, {
+              service_data: selectedServices,
+              total_amount: totalAmount,
+              received_amount: receivedAmount
+            });
+            console.log("Histórico atualizado com ID:", currentHistoryId);
             
             setLastSaveTimestamp(now);
           } catch (error) {
