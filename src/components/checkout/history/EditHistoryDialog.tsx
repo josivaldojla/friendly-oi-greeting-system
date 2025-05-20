@@ -12,8 +12,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Service, ServiceHistory } from "@/lib/types";
-import { Plus, Minus } from "lucide-react";
+import { Plus, Minus, Search } from "lucide-react";
 import { toast } from "sonner";
+import { getServices } from "@/lib/storage";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface EditHistoryDialogProps {
   open: boolean;
@@ -33,6 +35,28 @@ export const EditHistoryDialog = ({
   const [receivedAmount, setReceivedAmount] = useState(0);
   const [isSaving, setIsSaving] = useState(false);
   const [totalAmount, setTotalAmount] = useState(0);
+  const [availableServices, setAvailableServices] = useState<Service[]>([]);
+  const [loadingServices, setLoadingServices] = useState(false);
+
+  // Carregar a lista de serviços cadastrados quando o diálogo abrir
+  useEffect(() => {
+    const loadAvailableServices = async () => {
+      if (open) {
+        setLoadingServices(true);
+        try {
+          const servicesData = await getServices();
+          setAvailableServices(servicesData);
+        } catch (error) {
+          console.error("Erro ao carregar serviços:", error);
+          toast.error("Não foi possível carregar a lista de serviços");
+        } finally {
+          setLoadingServices(false);
+        }
+      }
+    };
+    
+    loadAvailableServices();
+  }, [open]);
 
   // Atualizar os dados quando o item de histórico mudar
   useEffect(() => {
@@ -107,6 +131,23 @@ export const EditHistoryDialog = ({
     setServices(services.filter((_, i) => i !== index));
   };
 
+  const handleSelectRegisteredService = (index: number, serviceId: string) => {
+    const selectedService = availableServices.find(s => s.id === serviceId);
+    if (selectedService) {
+      const updatedServices = [...services];
+      // Manter o comentário existente se houver
+      const existingComment = updatedServices[index].comment;
+      
+      updatedServices[index] = {
+        ...selectedService,
+        comment: existingComment
+      };
+      
+      setServices(updatedServices);
+      toast.success(`Serviço atualizado para ${selectedService.name}`);
+    }
+  };
+
   // Formatar preço para exibição
   const formatPrice = (price: number) => {
     return price.toLocaleString('pt-BR', {
@@ -139,19 +180,37 @@ export const EditHistoryDialog = ({
             {services.map((service, index) => (
               <div key={`${service.id}-${index}`} className="p-3 border rounded-md space-y-3">
                 <div className="flex justify-between items-center">
-                  <div className="flex-grow">
+                  <div className="flex-grow space-y-2">
                     <Label htmlFor={`service-name-${index}`}>Nome do Serviço</Label>
-                    <Input
-                      id={`service-name-${index}`}
-                      value={service.name}
-                      onChange={(e) => handleUpdateServiceName(index, e.target.value)}
-                      className="mt-1"
-                    />
+                    <div className="flex gap-2 items-center">
+                      <Input
+                        id={`service-name-${index}`}
+                        value={service.name}
+                        onChange={(e) => handleUpdateServiceName(index, e.target.value)}
+                        className="flex-grow"
+                      />
+                      
+                      <Select 
+                        onValueChange={(value) => handleSelectRegisteredService(index, value)}
+                        disabled={loadingServices}
+                      >
+                        <SelectTrigger className="w-auto">
+                          <Search className="h-4 w-4" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableServices.map((s) => (
+                            <SelectItem key={s.id} value={s.id}>
+                              {s.name} - {formatPrice(s.price)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
                   <Button 
                     variant="ghost" 
                     size="icon" 
-                    className="ml-2 mt-6 text-red-500 hover:bg-red-50 hover:text-red-600"
+                    className="ml-2 text-red-500 hover:bg-red-50 hover:text-red-600"
                     onClick={() => handleRemoveService(index)}
                   >
                     <Minus className="h-4 w-4" />
