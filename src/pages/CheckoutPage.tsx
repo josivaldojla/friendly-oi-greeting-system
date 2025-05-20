@@ -2,14 +2,14 @@
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
 import { getServices, getMechanics } from "@/lib/storage";
-import ServiceList from "@/components/services/ServiceList";
-import SelectedServicesList from "@/components/checkout/SelectedServicesList";
 import Layout from "@/components/layout/Layout";
 import { toast } from "sonner";
 import { useServiceSelection } from "@/hooks/useServiceSelection";
 import { useMechanicSelection } from "@/hooks/useMechanicSelection";
 import { useServiceHistory } from "@/hooks/useServiceHistory";
 import { ServiceTabs } from "@/components/checkout/ServiceTabs";
+import { ServiceListWrapper } from "@/components/checkout/ServiceListWrapper";
+import { CheckoutSidebar } from "@/components/checkout/CheckoutSidebar";
 
 const CheckoutPage = () => {
   const [services, setServices] = useState<Service[]>([]);
@@ -64,13 +64,15 @@ const CheckoutPage = () => {
   };
 
   const handleSelectHistory = (history: ServiceHistory) => {
-    // Limpar o histórico atual quando selecionar um histórico existente
-    setCurrentHistoryId(history.id);
+    // IMPORTANTE: Limpar o histórico atual para garantir que um novo será criado depois
+    clearHistory();
+    
     // Adicionar serviços do histórico à seleção atual
     setSelectedServices(history.service_data);
     setSelectedMechanicId(history.mechanic_id);
     setReceivedAmount(history.received_amount);
     toast.success(`Histórico "${history.title}" carregado com ${history.service_data.length} serviços`);
+    
     // Mudar para a aba de serviços
     setActiveTab("services");
   };
@@ -97,21 +99,16 @@ const CheckoutPage = () => {
         >
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
-              <div className="space-y-6">
-                <ServiceList
-                  services={services}
-                  selectable={true}
-                  viewMode={viewMode}
-                  onViewModeChange={setViewMode}
-                  onAddToSelection={handleAddToSelection}
-                  showAddButton={true}
-                  hideHeading={true}
-                />
-              </div>
+              <ServiceListWrapper 
+                services={services}
+                viewMode={viewMode}
+                setViewMode={setViewMode}
+                onAddToSelection={handleAddToSelection}
+              />
             </div>
             
             <div className="space-y-6">
-              <SelectedServicesList 
+              <CheckoutSidebar 
                 selectedServices={selectedServices}
                 mechanics={mechanics}
                 onRemoveService={removeService}

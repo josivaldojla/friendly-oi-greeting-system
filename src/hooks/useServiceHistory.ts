@@ -16,6 +16,7 @@ export const useServiceHistory = ({ selectedServices, selectedMechanicId }: UseS
   const [currentHistoryId, setCurrentHistoryId] = useState<string | null>(null);
   const [receivedAmount, setReceivedAmount] = useState<number>(0);
   const [lastSaveTimestamp, setLastSaveTimestamp] = useState<number>(0);
+  const [isInitialLoad, setIsInitialLoad] = useState<boolean>(true);
 
   // Carregar dados do localStorage quando o hook for montado
   useEffect(() => {
@@ -29,6 +30,8 @@ export const useServiceHistory = ({ selectedServices, selectedMechanicId }: UseS
     if (savedReceivedAmount) {
       setReceivedAmount(parseFloat(savedReceivedAmount));
     }
+    
+    setIsInitialLoad(false);
   }, []);
 
   // Salvar valor recebido no localStorage
@@ -44,8 +47,10 @@ export const useServiceHistory = ({ selectedServices, selectedMechanicId }: UseS
   useEffect(() => {
     if (currentHistoryId) {
       localStorage.setItem(STORAGE_KEY_HISTORY_ID, currentHistoryId);
+      console.log("Histórico ID salvo no localStorage:", currentHistoryId);
     } else {
       localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
+      console.log("Histórico ID removido do localStorage");
     }
   }, [currentHistoryId]);
 
@@ -54,8 +59,8 @@ export const useServiceHistory = ({ selectedServices, selectedMechanicId }: UseS
     const createInitialHistory = async () => {
       // Apenas criar um novo histórico se temos um mecânico selecionado, serviços 
       // e ainda não temos um ID de histórico atual
-      if (selectedMechanicId && selectedServices.length > 0 && !currentHistoryId) {
-        console.log("Nenhum histórico atual. Criando um novo...");
+      if (selectedMechanicId && selectedServices.length > 0 && !currentHistoryId && !isInitialLoad) {
+        console.log("Criando um novo histórico...");
         const formattedDate = format(new Date(), "dd/MM/yyyy HH:mm");
         const registrationNumber = Math.floor(10000 + Math.random() * 90000); // 5-digit number
         const autoTitle = `Registro #${registrationNumber} - ${formattedDate}`;
@@ -82,7 +87,7 @@ export const useServiceHistory = ({ selectedServices, selectedMechanicId }: UseS
     };
     
     createInitialHistory();
-  }, [selectedMechanicId, selectedServices.length, currentHistoryId, receivedAmount]);
+  }, [selectedMechanicId, selectedServices.length, currentHistoryId, receivedAmount, isInitialLoad]);
 
   // Auto save service history when conditions are met
   useEffect(() => {
@@ -121,6 +126,7 @@ export const useServiceHistory = ({ selectedServices, selectedMechanicId }: UseS
   }, [selectedServices, selectedMechanicId, receivedAmount, lastSaveTimestamp, currentHistoryId]);
 
   const clearHistory = () => {
+    console.log("Limpando histórico atual");
     setCurrentHistoryId(null);
     setReceivedAmount(0);
     localStorage.removeItem(STORAGE_KEY_HISTORY_ID);
