@@ -1,11 +1,12 @@
 
 import { useState, useEffect } from "react";
-import { ServiceHistory, getServiceHistory, deleteServiceHistory, updateServiceHistoryTitle } from "@/lib/storage";
+import { ServiceHistory, getServiceHistory, deleteServiceHistory, updateServiceHistoryTitle, updateFullServiceHistory } from "@/lib/storage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { HistoryItem } from "./history/HistoryItem";
 import { EmptyHistory } from "./history/EmptyHistory";
 import { EditHistoryDialog } from "./history/EditHistoryDialog";
+import { Service } from "@/lib/types";
 
 interface ServiceHistoryListProps {
   onSelect?: (history: ServiceHistory) => void;
@@ -51,9 +52,14 @@ const ServiceHistoryList = ({ onSelect }: ServiceHistoryListProps) => {
     setEditDialogOpen(true);
   };
 
-  const handleSaveEdit = async (id: string, title: string) => {
+  const handleSaveEdit = async (
+    id: string, 
+    title: string, 
+    serviceData: Service[], 
+    receivedAmount: number
+  ) => {
     try {
-      await updateServiceHistoryTitle(id, title);
+      await updateFullServiceHistory(id, title, serviceData, receivedAmount);
       toast.success("Histórico atualizado com sucesso");
       loadHistory();
     } catch (error) {

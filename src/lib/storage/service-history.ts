@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { Mechanic, Service } from "../types";
 
@@ -111,6 +112,39 @@ export async function updateServiceHistoryTitle(
   }
 
   console.log('Título do histórico atualizado com sucesso:', id);
+  return getServiceHistory();
+}
+
+export async function updateFullServiceHistory(
+  id: string, 
+  title: string,
+  serviceData: Service[],
+  receivedAmount: number
+): Promise<ServiceHistory[]> {
+  console.log('Atualizando histórico completo com ID:', id);
+  
+  // Garantir que service_data é compatível com JSONB
+  const jsonServiceData = JSON.parse(JSON.stringify(serviceData));
+  
+  // Calcular o valor total com base nos serviços
+  const totalAmount = serviceData.reduce((sum, service) => sum + service.price, 0);
+  
+  const { error } = await supabase
+    .from('service_history')
+    .update({
+      title: title,
+      service_data: jsonServiceData,
+      total_amount: totalAmount,
+      received_amount: receivedAmount
+    })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating full service history:', error);
+    throw new Error('Falha ao atualizar o histórico');
+  }
+
+  console.log('Histórico completo atualizado com sucesso:', id);
   return getServiceHistory();
 }
 
