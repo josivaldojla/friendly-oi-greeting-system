@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ServiceHistory } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardFooter } from "@/components/ui/card";
-import { Send, Trash2 } from "lucide-react";
+import { Send, Trash2, Edit } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { formatWhatsAppMessage } from "../WhatsAppMessage";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ interface HistoryItemProps {
   expandedItem: string | null;
   formatPrice: (price: number) => string;
   onDelete: (id: string) => void;
+  onEdit: (item: ServiceHistory) => void;
   onSelect?: (history: ServiceHistory) => void;
   toggleExpand: (id: string) => void;
 }
@@ -26,6 +27,7 @@ export const HistoryItem = ({
   expandedItem, 
   formatPrice, 
   onDelete, 
+  onEdit,
   onSelect, 
   toggleExpand 
 }: HistoryItemProps) => {
@@ -86,30 +88,44 @@ export const HistoryItem = ({
           </div>
           
           <CardFooter className="flex justify-between p-3 border-t">
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50 hover:text-red-600">
-                  <Trash2 className="h-4 w-4 mr-1" />
-                  Excluir
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Excluir histórico</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    Tem certeza que deseja excluir este histórico? Esta ação não pode ser desfeita.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                  <AlertDialogAction 
-                    className="bg-red-500 hover:bg-red-600" 
-                    onClick={() => onDelete(item.id)}>
+            <div className="flex space-x-2">
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50 hover:text-red-600">
+                    <Trash2 className="h-4 w-4 mr-1" />
                     Excluir
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Excluir histórico</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Tem certeza que deseja excluir este histórico? Esta ação não pode ser desfeita.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction 
+                      className="bg-red-500 hover:bg-red-600" 
+                      onClick={() => onDelete(item.id)}>
+                      Excluir
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onEdit(item);
+                }}
+              >
+                <Edit className="h-4 w-4 mr-1" />
+                Editar
+              </Button>
+            </div>
             
             <div className="flex space-x-2">
               {onSelect && (

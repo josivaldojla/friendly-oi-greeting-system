@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Mechanic, Service } from "../types";
 
@@ -90,6 +89,28 @@ export async function updateServiceHistory(
   }
 
   console.log('Histórico atualizado com ID:', id);
+  return getServiceHistory();
+}
+
+export async function updateServiceHistoryTitle(
+  id: string, 
+  title: string
+): Promise<ServiceHistory[]> {
+  console.log('Atualizando título do histórico com ID:', id);
+  
+  const { error } = await supabase
+    .from('service_history')
+    .update({
+      title: title
+    })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error updating service history title:', error);
+    return [];
+  }
+
+  console.log('Título do histórico atualizado com sucesso:', id);
   return getServiceHistory();
 }
 

@@ -1,10 +1,11 @@
 
 import { useState, useEffect } from "react";
-import { ServiceHistory, getServiceHistory, deleteServiceHistory } from "@/lib/storage";
+import { ServiceHistory, getServiceHistory, deleteServiceHistory, updateServiceHistoryTitle } from "@/lib/storage";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 import { HistoryItem } from "./history/HistoryItem";
 import { EmptyHistory } from "./history/EmptyHistory";
+import { EditHistoryDialog } from "./history/EditHistoryDialog";
 
 interface ServiceHistoryListProps {
   onSelect?: (history: ServiceHistory) => void;
@@ -14,6 +15,8 @@ const ServiceHistoryList = ({ onSelect }: ServiceHistoryListProps) => {
   const [history, setHistory] = useState<ServiceHistory[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [editingItem, setEditingItem] = useState<ServiceHistory | null>(null);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
 
   useEffect(() => {
     loadHistory();
@@ -40,6 +43,23 @@ const ServiceHistoryList = ({ onSelect }: ServiceHistoryListProps) => {
     } catch (error) {
       console.error("Erro ao excluir histórico:", error);
       toast.error("Não foi possível excluir o histórico");
+    }
+  };
+
+  const handleEdit = (item: ServiceHistory) => {
+    setEditingItem(item);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveEdit = async (id: string, title: string) => {
+    try {
+      await updateServiceHistoryTitle(id, title);
+      toast.success("Histórico atualizado com sucesso");
+      loadHistory();
+    } catch (error) {
+      console.error("Erro ao atualizar histórico:", error);
+      toast.error("Não foi possível atualizar o histórico");
+      throw error; // Propagar erro para manipulação no EditHistoryDialog
     }
   };
 
@@ -83,6 +103,7 @@ const ServiceHistoryList = ({ onSelect }: ServiceHistoryListProps) => {
                 expandedItem={expandedItem}
                 formatPrice={formatPrice}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
                 onSelect={onSelect}
                 toggleExpand={toggleExpand}
               />
@@ -90,6 +111,13 @@ const ServiceHistoryList = ({ onSelect }: ServiceHistoryListProps) => {
           </div>
         )}
       </CardContent>
+
+      <EditHistoryDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        historyItem={editingItem}
+        onSave={handleSaveEdit}
+      />
     </Card>
   );
 };
