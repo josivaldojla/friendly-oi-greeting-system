@@ -18,7 +18,7 @@ export const formatWhatsAppMessage = (
   message += "-------------------------------------------------------\n\n";
   
   services.forEach((service, index) => {
-    const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
+    const formattedPrice = service.price > 0 ? formatPrice(service.price).replace('R$', '').trim() : '0,00';
 
     // Coloca a descrição do serviço primeiro
     message += `*${index + 1}-* ${service.name}\n`;
@@ -42,17 +42,22 @@ export const formatWhatsAppMessage = (
       });
     }
     
-    // Adiciona o valor no final de cada serviço (após comentários)
-    message += `  • Valor..............................R$= ${formattedPrice}\n`;
+    // Adiciona o valor no final de cada serviço (após comentários), apenas se o preço for maior que zero
+    if (service.price > 0) {
+      message += `  • Valor..............................R$= ${formattedPrice}\n`;
+    }
     
     // Adicione uma linha em branco após cada serviço
     message += "\n";
   });
 
-  message += "-------------------------------------------------------\n";
-  message += `*Total...............R$* = ${formatPrice(total).replace('R$', '').trim()}\n`;
-  message += `*Adiantado.......R$* = ${formatPrice(received).replace('R$', '').trim()}\n`;
-  message += `*Total Geral......R$* = ${formatPrice(remaining).replace('R$', '').trim()}`;
+  // Adicionar totais apenas se pelo menos um dos valores for maior que zero
+  if (total > 0 || received > 0 || remaining > 0) {
+    message += "-------------------------------------------------------\n";
+    message += `*Total...............R$* = ${formatPrice(total).replace('R$', '').trim()}\n`;
+    message += `*Adiantado.......R$* = ${formatPrice(received).replace('R$', '').trim()}\n`;
+    message += `*Total Geral......R$* = ${formatPrice(remaining).replace('R$', '').trim()}`;
+  }
 
   return message;
 };
