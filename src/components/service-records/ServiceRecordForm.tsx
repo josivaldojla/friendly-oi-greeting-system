@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,7 +22,9 @@ import {
   getServicePhotos,
   deleteServicePhoto,
   updateServicePhoto,
-  deleteStoragePhoto 
+  deleteStoragePhoto,
+  getMotorcycleModelById,
+  getCustomerById 
 } from "@/lib/storage";
 import { CustomerSelect } from "../services/components/CustomerSelect";
 import { MotorcycleModelSelect } from "../services/components/MotorcycleModelSelect";
@@ -65,6 +66,63 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
   const [photos, setPhotos] = useState<ServicePhoto[]>([]);
   const [loadingPhotos, setLoadingPhotos] = useState(false);
   const [viewMode, setViewMode] = useState<PhotoViewMode>('grid');
+  
+  // New state for model and customer details
+  const [motorcycleModelName, setMotorcycleModelName] = useState<string>("");
+  const [customerName, setCustomerName] = useState<string>("");
+  
+  // Load photos if editing existing record
+  useEffect(() => {
+    if (isEditing && serviceRecord) {
+      loadPhotos(serviceRecord.id);
+      
+      // Load motorcycle model name
+      if (serviceRecord.motorcycle_model_id) {
+        loadModelDetails(serviceRecord.motorcycle_model_id);
+      }
+      
+      // Load customer name
+      if (serviceRecord.customer_id) {
+        loadCustomerDetails(serviceRecord.customer_id);
+      }
+    }
+    
+    // Load mechanics
+    const loadMechanics = async () => {
+      try {
+        const mechanicsData = await getMechanics();
+        setMechanics(mechanicsData);
+      } catch (error) {
+        console.error('Error loading mechanics:', error);
+      }
+    };
+    
+    loadMechanics();
+  }, [isEditing, serviceRecord]);
+  
+  // Load model details
+  const loadModelDetails = async (modelId: string) => {
+    try {
+      const modelData = await getMotorcycleModelById(modelId);
+      if (modelData) {
+        setMotorcycleModelName(modelData.name);
+      }
+    } catch (error) {
+      console.error('Error loading motorcycle model details:', error);
+    }
+  };
+  
+  // Load customer details
+  const loadCustomerDetails = async (customerId: string) => {
+    try {
+      const customerData = await getCustomerById(customerId);
+      if (customerData) {
+        setCustomerName(customerData.name);
+      }
+    } catch (error) {
+      console.error('Error loading customer details:', error);
+    }
+  };
   
   // Load photos if editing existing record
   useEffect(() => {
@@ -123,6 +181,15 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
         
         if (record) {
           toast.success('Registro de serviço atualizado com sucesso');
+          
+          // Update local state for model and customer
+          if (record.motorcycle_model_id && record.motorcycle_model_id !== serviceRecord.motorcycle_model_id) {
+            loadModelDetails(record.motorcycle_model_id);
+          }
+          
+          if (record.customer_id && record.customer_id !== serviceRecord.customer_id) {
+            loadCustomerDetails(record.customer_id);
+          }
         }
       } else {
         // Create new record
@@ -207,19 +274,20 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
     setPhotos(photos.map(p => p.id === updatedPhoto.id ? updatedPhoto : p));
   };
   
+  // Updated handleShareOnWhatsApp function 
   const handleShareOnWhatsApp = () => {
     if (!serviceRecord) return;
     
     // Create message with all details
-    let message = `*Registro de Serviço: ${title}*\n\n`;
+    let message = `*${title || "Registro de Serviço"}*\n\n`;
     
-    if (customerSelection.name) {
-      message += `*Cliente:* ${customerSelection.name}\n`;
+    if (customerName) {
+      message += `*Cliente:* ${customerName}\n`;
     }
     
-    // We'd need to fetch the actual model name here, for now just placeholder
-    if (selectedModel) {
-      message += `*Modelo da moto:* ${selectedModel}\n`;
+    // Use the actual model name instead of ID
+    if (motorcycleModelName) {
+      message += `*Modelo da moto:* ${motorcycleModelName}\n`;
     }
     
     if (notes) {
@@ -228,16 +296,18 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
     
     message += `*Fotos anexadas:* ${photos.length}\n`;
     
-    // Add photo details
+    // Add photo details - improved format
     photos.forEach((photo, index) => {
       message += `\n*Foto ${index + 1}:*\n`;
       if (photo.caption) {
-        message += `Legenda: ${photo.caption}\n`;
+        message += `${photo.caption}\n`;
       }
       if (photo.notes) {
-        message += `Observações: ${photo.notes}\n`;
+        message += `${photo.notes}\n`;
       }
-      message += `Link: ${photo.photo_url}\n`;
+      // Extract just the filename part of the URL for cleaner display
+      const filename = photo.photo_url.split('/').pop() || '';
+      message += `Link: [Imagem ${index + 1}]\n`;
     });
     
     // Create WhatsApp URL

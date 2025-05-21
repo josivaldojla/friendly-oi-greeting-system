@@ -1,4 +1,3 @@
-
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -24,6 +23,33 @@ export async function getMotorcycleModels(): Promise<MotorcycleModel[]> {
   } catch (error) {
     console.error('Erro ao acessar tabela de modelos:', error);
     return [];
+  }
+}
+
+// Nova função para buscar um modelo específico pelo ID
+export async function getMotorcycleModelById(id: string): Promise<MotorcycleModel | null> {
+  try {
+    const { data, error } = await supabase
+      .from('motorcycle_models')
+      .select('*')
+      .eq('id', id)
+      .maybeSingle();
+      
+    if (error) {
+      console.error('Erro ao buscar modelo por ID:', error);
+      return null;
+    }
+    
+    if (!data) return null;
+    
+    return {
+      id: data.id,
+      name: data.name,
+      brand: data.brand || ""
+    };
+  } catch (error) {
+    console.error('Erro ao acessar modelo específico:', error);
+    return null;
   }
 }
 
