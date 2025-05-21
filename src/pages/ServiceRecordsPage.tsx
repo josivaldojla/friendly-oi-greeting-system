@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Routes, Route, useNavigate } from 'react-router-dom';
+import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { ServiceRecordsList } from '@/components/service-records/ServiceRecordsList';
 import { ServiceRecordForm } from '@/components/service-records/ServiceRecordForm';
@@ -16,6 +16,7 @@ const ServiceRecordsPage = () => {
           <Route index element={<ServiceRecordsList />} />
           <Route path="new" element={<ServiceRecordForm />} />
           <Route path=":id" element={<ServiceRecordDetail />} />
+          <Route path="*" element={<Navigate to="/service-records" replace />} />
         </Routes>
       </div>
     </Layout>
