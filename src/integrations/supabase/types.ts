@@ -163,6 +163,102 @@ export type Database = {
           },
         ]
       }
+      service_photos: {
+        Row: {
+          caption: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          photo_url: string
+          sequence_number: number
+          service_record_id: string
+        }
+        Insert: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_url: string
+          sequence_number: number
+          service_record_id: string
+        }
+        Update: {
+          caption?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          photo_url?: string
+          sequence_number?: number
+          service_record_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_photos_service_record_id_fkey"
+            columns: ["service_record_id"]
+            isOneToOne: false
+            referencedRelation: "service_records"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      service_records: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          id: string
+          mechanic_id: string | null
+          motorcycle_model_id: string | null
+          notes: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          mechanic_id?: string | null
+          motorcycle_model_id?: string | null
+          notes?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          mechanic_id?: string | null
+          motorcycle_model_id?: string | null
+          notes?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_records_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_records_mechanic_id_fkey"
+            columns: ["mechanic_id"]
+            isOneToOne: false
+            referencedRelation: "mechanics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_records_motorcycle_model_id_fkey"
+            columns: ["motorcycle_model_id"]
+            isOneToOne: false
+            referencedRelation: "motorcycle_models"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       services: {
         Row: {
           created_at: string

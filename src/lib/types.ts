@@ -1,4 +1,3 @@
-
 export interface Mechanic {
   id: string;
   name: string;
@@ -59,3 +58,27 @@ export interface ServiceHistory {
   created_at: string;
   mechanic?: Mechanic; // Relação com o mecânico
 }
+
+export interface ServiceRecord {
+  id: string;
+  title: string;
+  customer_id: string | null;
+  motorcycle_model_id: string | null;
+  mechanic_id: string | null;
+  created_at: string;
+  updated_at: string;
+  notes: string | null;
+  status: string;
+}
+
+export interface ServicePhoto {
+  id: string;
+  service_record_id: string;
+  photo_url: string;
+  caption: string | null;
+  notes: string | null;
+  sequence_number: number;
+  created_at: string;
+}
+
+export type PhotoViewMode = 'grid' | 'list';

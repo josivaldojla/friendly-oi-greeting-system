@@ -12,6 +12,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import ReportsPage from "./pages/ReportsPage";
 import CustomersPage from "./pages/CustomersPage";
 import MotorcycleModelsPage from "./pages/MotorcycleModelsPage";
+import ServiceRecordsPage from "./pages/ServiceRecordsPage";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/customers" element={<CustomersPage />} />
             <Route path="/motorcycle-models" element={<MotorcycleModelsPage />} />
+            <Route path="/service-records/*" element={<ServiceRecordsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
