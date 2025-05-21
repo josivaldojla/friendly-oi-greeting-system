@@ -279,14 +279,15 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
             <div className="space-y-2">
               <Label htmlFor="mechanic">Mecânico Responsável</Label>
               <Select 
-                value={mechanicId || ""}
+                value={mechanicId || undefined}
                 onValueChange={setMechanicId}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um mecânico" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Nenhum</SelectItem>
+                  {/* Corrigido: Removido o item vazio e substituído por um com valor "none" */}
+                  <SelectItem value="none">Nenhum</SelectItem>
                   {mechanics.map((mechanic) => (
                     <SelectItem key={mechanic.id} value={mechanic.id}>
                       {mechanic.name}
