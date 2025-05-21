@@ -1,3 +1,4 @@
+
 export interface Mechanic {
   id: string;
   name: string;
@@ -69,6 +70,10 @@ export interface ServiceRecord {
   updated_at: string;
   notes: string | null;
   status: string;
+  // Add relations for better TypeScript support
+  customers?: Customer;
+  motorcycle_models?: MotorcycleModel;
+  mechanics?: Mechanic;
 }
 
 export interface ServicePhoto {

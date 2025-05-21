@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -49,7 +50,11 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
   
   // Form state
   const [title, setTitle] = useState(serviceRecord?.title || "");
-  const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ id: serviceRecord?.customer_id || "", name: "", isNew: false });
+  const [customerSelection, setCustomerSelection] = useState<CustomerSelection>({ 
+    id: serviceRecord?.customer_id || undefined, 
+    name: "", 
+    isNew: false 
+  });
   const [selectedModel, setSelectedModel] = useState(serviceRecord?.motorcycle_model_id || "");
   const [mechanicId, setMechanicId] = useState(serviceRecord?.mechanic_id || "");
   const [mechanics, setMechanics] = useState<Mechanic[]>([]);

@@ -1,6 +1,6 @@
 
-import React from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Routes, Route, useNavigate, Navigate, useLocation } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { ServiceRecordsList } from '@/components/service-records/ServiceRecordsList';
 import { ServiceRecordForm } from '@/components/service-records/ServiceRecordForm';
@@ -8,6 +8,12 @@ import { ServiceRecordDetail } from '@/components/service-records/ServiceRecordD
 
 const ServiceRecordsPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Debug log to trace routing issues
+  useEffect(() => {
+    console.log("Current path in ServiceRecordsPage:", location.pathname);
+  }, [location]);
   
   return (
     <Layout>
