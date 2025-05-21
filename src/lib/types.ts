@@ -40,14 +40,14 @@ export interface Customer {
   address?: string;
 }
 
-// Adicionando nova interface para indicar o tipo de cliente
+// Updated interface for customer selection
 export interface CustomerSelection {
-  id?: string;  // ID se for cliente existente
-  name: string; // Nome do cliente (existente ou novo)
-  isNew?: boolean; // Indica se é um novo cliente
+  id?: string;  // ID for existing customer
+  name: string; // Customer name
+  isNew?: boolean; // Flag for new customers
 }
 
-// Nova interface para histórico de serviços
+// Keep the rest of the types
 export interface ServiceHistory {
   id: string;
   title: string;
@@ -56,7 +56,7 @@ export interface ServiceHistory {
   total_amount: number;
   received_amount: number;
   created_at: string;
-  mechanic?: Mechanic; // Relação com o mecânico
+  mechanic?: Mechanic; // Relation to mechanic
 }
 
 export interface ServiceRecord {

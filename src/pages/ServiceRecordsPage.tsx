@@ -1,13 +1,13 @@
 
 import React from 'react';
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import Layout from '@/components/layout/Layout';
 import { ServiceRecordsList } from '@/components/service-records/ServiceRecordsList';
 import { ServiceRecordForm } from '@/components/service-records/ServiceRecordForm';
 import { ServiceRecordDetail } from '@/components/service-records/ServiceRecordDetail';
 
 const ServiceRecordsPage = () => {
-  const location = useLocation();
+  const navigate = useNavigate();
   
   return (
     <Layout>
