@@ -20,7 +20,7 @@ export const formatWhatsAppMessage = (
   services.forEach((service, index) => {
     const formattedPrice = formatPrice(service.price).replace('R$', '').trim();
 
-// Coloca a descrição do serviço primeiro
+    // Coloca a descrição do serviço primeiro
     message += `*${index + 1}-* ${service.name}\n`;
     
     // Verificar se há um comentário e formatá-lo corretamente
@@ -43,7 +43,7 @@ export const formatWhatsAppMessage = (
     }
     
     // Adiciona o valor no final de cada serviço (após comentários)
-message += `  • Valor..............................R$= ${formattedPrice}\n`;
+    message += `  • Valor..............................R$= ${formattedPrice}\n`;
     
     // Adicione uma linha em branco após cada serviço
     message += "\n";

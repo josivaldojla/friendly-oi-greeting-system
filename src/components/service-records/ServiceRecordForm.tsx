@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,7 +25,8 @@ import {
   updateServicePhoto,
   deleteStoragePhoto,
   getMotorcycleModelById,
-  getCustomerById 
+  getCustomerById,
+  getMechanics
 } from "@/lib/storage";
 import { CustomerSelect } from "../services/components/CustomerSelect";
 import { MotorcycleModelSelect } from "../services/components/MotorcycleModelSelect";
@@ -32,7 +34,6 @@ import { PhotoUploader } from "./PhotoUploader";
 import { PhotoGallery } from "./PhotoGallery";
 import { Share2 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { getMechanics } from "@/lib/storage";
 import { 
   Select, 
   SelectContent, 
@@ -70,6 +71,7 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
   // New state for model and customer details
   const [motorcycleModelName, setMotorcycleModelName] = useState<string>("");
   const [customerName, setCustomerName] = useState<string>("");
+  const [mechanicName, setMechanicName] = useState<string>("");
   
   // Load photos if editing existing record
   useEffect(() => {
@@ -92,6 +94,14 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
       try {
         const mechanicsData = await getMechanics();
         setMechanics(mechanicsData);
+        
+        // Se houver um mecânico selecionado, encontre o nome dele
+        if (serviceRecord?.mechanic_id) {
+          const mechanic = mechanicsData.find(m => m.id === serviceRecord.mechanic_id);
+          if (mechanic) {
+            setMechanicName(mechanic.name);
+          }
+        }
       } catch (error) {
         console.error('Error loading mechanics:', error);
       }
@@ -123,25 +133,6 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
       console.error('Error loading customer details:', error);
     }
   };
-  
-  // Load photos if editing existing record
-  useEffect(() => {
-    if (isEditing && serviceRecord) {
-      loadPhotos(serviceRecord.id);
-    }
-    
-    // Load mechanics
-    const loadMechanics = async () => {
-      try {
-        const mechanicsData = await getMechanics();
-        setMechanics(mechanicsData);
-      } catch (error) {
-        console.error('Error loading mechanics:', error);
-      }
-    };
-    
-    loadMechanics();
-  }, [isEditing, serviceRecord]);
   
   const loadPhotos = async (serviceId: string) => {
     setLoadingPhotos(true);
@@ -175,7 +166,7 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
           title,
           customer_id: customerSelection.id || null,
           motorcycle_model_id: selectedModel || null,
-          mechanic_id: mechanicId || null,
+          mechanic_id: mechanicId === "none" ? null : mechanicId || null,
           notes
         });
         
@@ -190,6 +181,16 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
           if (record.customer_id && record.customer_id !== serviceRecord.customer_id) {
             loadCustomerDetails(record.customer_id);
           }
+          
+          // Atualizar o nome do mecânico se necessário
+          if (record.mechanic_id !== serviceRecord.mechanic_id) {
+            const mechanic = mechanics.find(m => m.id === record.mechanic_id);
+            if (mechanic) {
+              setMechanicName(mechanic.name);
+            } else {
+              setMechanicName("");
+            }
+          }
         }
       } else {
         // Create new record
@@ -197,7 +198,7 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
           title,
           customer_id: customerSelection.id || null,
           motorcycle_model_id: selectedModel || null,
-          mechanic_id: mechanicId || null,
+          mechanic_id: mechanicId === "none" ? null : mechanicId || null,
           notes,
           status: 'active'
         });
@@ -274,7 +275,15 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
     setPhotos(photos.map(p => p.id === updatedPhoto.id ? updatedPhoto : p));
   };
   
-  // Updated handleShareOnWhatsApp function 
+  // Função para obter o nome do mecânico atual
+  const getCurrentMechanicName = (): string => {
+    if (!mechanicId || mechanicId === "none") return "Não definido";
+    
+    const mechanic = mechanics.find(m => m.id === mechanicId);
+    return mechanic ? mechanic.name : "Desconhecido";
+  };
+  
+  // Updated handleShareOnWhatsApp function to use actual names instead of IDs
   const handleShareOnWhatsApp = () => {
     if (!serviceRecord) return;
     
@@ -283,12 +292,17 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
     
     if (customerName) {
       message += `*Cliente:* ${customerName}\n`;
+    } else if (customerSelection.name) {
+      message += `*Cliente:* ${customerSelection.name}\n`;
     }
     
     // Use the actual model name instead of ID
     if (motorcycleModelName) {
       message += `*Modelo da moto:* ${motorcycleModelName}\n`;
     }
+    
+    // Adicionar nome do mecânico
+    message += `*Mecânico:* ${getCurrentMechanicName()}\n`;
     
     if (notes) {
       message += `\n*Observações:*\n${notes}\n\n`;
@@ -305,9 +319,6 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
       if (photo.notes) {
         message += `${photo.notes}\n`;
       }
-      // Extract just the filename part of the URL for cleaner display
-      const filename = photo.photo_url.split('/').pop() || '';
-      message += `Link: [Imagem ${index + 1}]\n`;
     });
     
     // Create WhatsApp URL
@@ -316,6 +327,21 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
     
     // Open in a new tab
     window.open(whatsappUrl, '_blank');
+  };
+  
+  // Handler for mechanic selection changes
+  const handleMechanicChange = (value: string) => {
+    setMechanicId(value);
+    
+    // Atualizar o nome do mecânico
+    if (value === "none") {
+      setMechanicName("");
+    } else {
+      const mechanic = mechanics.find(m => m.id === value);
+      if (mechanic) {
+        setMechanicName(mechanic.name);
+      }
+    }
   };
   
   return (
@@ -342,7 +368,15 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
               
               <MotorcycleModelSelect 
                 selectedModel={selectedModel}
-                setSelectedModel={setSelectedModel}
+                setSelectedModel={(modelId) => {
+                  setSelectedModel(modelId);
+                  // Atualizar nome do modelo quando mudar
+                  if (modelId) {
+                    loadModelDetails(modelId);
+                  } else {
+                    setMotorcycleModelName("");
+                  }
+                }}
               />
             </div>
             
@@ -350,13 +384,12 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
               <Label htmlFor="mechanic">Mecânico Responsável</Label>
               <Select 
                 value={mechanicId || undefined}
-                onValueChange={setMechanicId}
+                onValueChange={handleMechanicChange}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Selecione um mecânico" />
                 </SelectTrigger>
                 <SelectContent>
-                  {/* Corrigido: Removido o item vazio e substituído por um com valor "none" */}
                   <SelectItem value="none">Nenhum</SelectItem>
                   {mechanics.map((mechanic) => (
                     <SelectItem key={mechanic.id} value={mechanic.id}>
