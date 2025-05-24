@@ -24,7 +24,7 @@ export const formatWhatsAppMessage = (
     message += `*${index + 1}-* ${service.name}\n`;
     
     // Verificar se há um comentário e formatá-lo corretamente
-    if (service.comment) {
+    if (service.comment && service.comment.trim() !== '') {
       // Remove underscores e parênteses do comentário
       const cleanComment = service.comment
         .replace(/^_/, '') // Remove underscore no início
@@ -38,7 +38,7 @@ export const formatWhatsAppMessage = (
       
       lines.forEach(line => {
         // Usar espaçamento para alinhar com o texto após os números
-        message += `  • ${line}\n`;  // Bullet point para cada linha do comentário
+        message += `  • ${line.trim()}\n`;  // Bullet point para cada linha do comentário
       });
     }
     
