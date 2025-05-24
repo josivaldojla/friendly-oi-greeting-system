@@ -6,7 +6,6 @@ import { Share2 } from "lucide-react";
 import { PhotoUploader } from "../PhotoUploader";
 import { PhotoGallery } from "../PhotoGallery";
 import { ServicePhoto, PhotoViewMode } from "@/lib/types";
-import { formatWhatsAppMessage } from "@/components/checkout/WhatsAppMessage";
 import { 
   addServicePhoto, 
   deleteServicePhoto, 
@@ -106,11 +105,6 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
     setPhotos(photos.map(p => p.id === updatedPhoto.id ? updatedPhoto : p));
   };
   
-  // Function to format price (required by WhatsApp message)
-  const formatPrice = (price: number): string => {
-    return `R$ ${price.toFixed(2).replace('.', ',')}`;
-  };
-  
   const handleShareOnWhatsApp = async () => {
     try {
       let customerName = "Cliente não especificado";
@@ -132,40 +126,42 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         }
       }
 
-      // Formatar fotos como serviços para usar com a função de mensagem existente
-      const photoServices = photos.map((photo, index) => ({
-        name: `Foto ${index + 1}${photo.caption ? ': ' + photo.caption : ''}`,
-        price: 0,
-        comment: photo.notes || undefined
-      }));
-
       // Criar data formatada
-      const currentDate = format(new Date(), "dd/MM/yyyy HH:mm");
+      const currentDate = format(new Date(), "dd/MM");
       
-      // Criar mensagem para WhatsApp
-      let message = `*${title || "Registro de Serviço"}*\n\n`;
+      // Criar mensagem personalizada para fotos
+      let message = `*HELENO MOTOS*\n`;
+      message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
+      message += `*Data:* ${currentDate}\n`;
+      message += "-------------------------------------------------------\n\n";
+      
+      message += `*${title || "Registro de Serviço"}*\n\n`;
       message += `*Cliente:* ${customerName}\n`;
-      message += `*Modelo da moto:* ${motorcycleModelName}\n`;
-      message += `*Mecânico:* ${mechanicName || "Não definido"}\n\n`;
+      message += `*Modelo da moto:* ${motorcycleModelName}\n\n`;
       
       if (notes) {
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Adicionar informações das fotos usando o mesmo formato de mensagem do checkout
+      // Adicionar informações das fotos
       if (photos.length > 0) {
-        const formattedPhotosMessage = formatWhatsAppMessage(
-          currentDate,
-          mechanicName || "Não definido",
-          photoServices,
-          0,  // total
-          0,  // received
-          0,  // remaining
-          formatPrice
-        );
-        
-        // Adicionar a parte da mensagem formatada
-        message += formattedPhotosMessage;
+        photos.forEach((photo, index) => {
+          message += `*${index + 1}-* Foto ${index + 1}`;
+          if (photo.caption) {
+            message += `: ${photo.caption}`;
+          }
+          message += "\n";
+          
+          if (photo.notes) {
+            // Dividir o comentário por linhas para formatar cada uma corretamente
+            const lines = photo.notes.split('\n').filter(line => line.trim() !== '');
+            lines.forEach(line => {
+              message += `  • ${line}\n`;
+            });
+          }
+          
+          message += "\n";
+        });
       }
       
       // Create WhatsApp URL
