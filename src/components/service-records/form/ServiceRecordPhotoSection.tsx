@@ -129,13 +129,13 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
       // Criar data formatada
       const currentDate = format(new Date(), "dd/MM");
       
-      // Criar mensagem personalizada para fotos
+      // Criar mensagem no formato correto
       let message = `*HELENO MOTOS*\n`;
       message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
       message += `*Data:* ${currentDate}\n`;
       message += "-------------------------------------------------------\n\n";
       
-      message += `*${title || "Registro de Serviço"}*\n\n`;
+      message += `${title || "Registro de Serviço"}\n\n`;
       message += `*Cliente:* ${customerName}\n`;
       message += `*Modelo da moto:* ${motorcycleModelName}\n\n`;
       
@@ -143,7 +143,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Adicionar informações das fotos
+      // Adicionar informações das fotos no formato correto
       if (photos.length > 0) {
         photos.forEach((photo, index) => {
           message += `*${index + 1}-* Foto ${index + 1}`;
@@ -153,10 +153,18 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           message += "\n";
           
           if (photo.notes) {
+            // Limpar comentários de underscores e parênteses
+            const cleanComment = photo.notes
+              .replace(/^_/, '')
+              .replace(/_$/, '')
+              .replace(/\(_/, '')
+              .replace(/_\)$/, '')
+              .replace(/\(|\)/g, '');
+            
             // Dividir o comentário por linhas para formatar cada uma corretamente
-            const lines = photo.notes.split('\n').filter(line => line.trim() !== '');
+            const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
             lines.forEach(line => {
-              message += `  • ${line}\n`;
+              message += `  • ${line.trim()}\n`;
             });
           }
           
