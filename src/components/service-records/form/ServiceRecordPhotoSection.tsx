@@ -142,7 +142,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Se houver fotos, adicionar instruções e abrir URLs das fotos
+      // Se houver fotos, adicionar informações das fotos
       if (photos.length > 0) {
         message += `*Fotos do serviço (${photos.length}):*\n`;
         
@@ -173,30 +173,28 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           
           message += "\n";
         });
-        
-        // Adicionar instrução sobre as fotos
-        message += "\n*📸 As fotos serão enviadas separadamente*";
-        
-        // Abrir WhatsApp com a mensagem
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
-        
-        // Aguardar um pouco e depois abrir as fotos em novas abas para facilitar o compartilhamento
+      }
+      
+      // Primeiro, enviar a mensagem de texto
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
+      window.open(whatsappUrl, '_blank');
+      
+      // Se houver fotos, aguardar e então abrir cada foto no WhatsApp
+      if (photos.length > 0) {
         setTimeout(() => {
           photos.forEach((photo, index) => {
             setTimeout(() => {
-              window.open(photo.photo_url, '_blank');
-            }, index * 500); // Abrir uma foto a cada 500ms para não sobrecarregar
+              // Abrir cada foto diretamente no WhatsApp para compartilhamento
+              const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(photo.photo_url)}`;
+              window.open(photoWhatsappUrl, '_blank');
+            }, (index + 1) * 1000); // Abrir uma foto a cada 1 segundo
           });
-        }, 2000);
+        }, 3000); // Aguardar 3 segundos após enviar a mensagem
         
-        toast.success('Mensagem enviada! As fotos serão abertas em novas abas para você compartilhar manualmente no WhatsApp.');
+        toast.success('Mensagem enviada! As fotos serão enviadas automaticamente no WhatsApp em seguida.');
       } else {
-        // Se não houver fotos, apenas enviar a mensagem
-        const encodedMessage = encodeURIComponent(message);
-        const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
-        window.open(whatsappUrl, '_blank');
+        toast.success('Mensagem enviada para o WhatsApp!');
       }
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
@@ -239,7 +237,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
               Compartilhar Registro no WhatsApp
             </Button>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              As fotos serão abertas em novas abas para compartilhamento manual
+              As fotos serão enviadas automaticamente após a mensagem
             </p>
           </div>
         ) : (
