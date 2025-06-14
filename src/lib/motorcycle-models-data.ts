@@ -1,4 +1,5 @@
 
+
 import { MotorcycleModel } from "./types";
 import { addMotorcycleModel } from "./storage";
 
@@ -42,7 +43,24 @@ const defaultMotorcycleModels = [
   { name: "S 1000 RR", brand: "BMW" },
   { name: "Meteor 350", brand: "Royal Enfield" },
   { name: "Himalayan", brand: "Royal Enfield" },
-  { name: "Classic 350", brand: "Royal Enfield" }
+  { name: "Classic 350", brand: "Royal Enfield" },
+  // Modelos Shineray
+  { name: "Phoenix 50", brand: "Shineray" },
+  { name: "Phoenix 150", brand: "Shineray" },
+  { name: "Phoenix 250", brand: "Shineray" },
+  { name: "XY 150", brand: "Shineray" },
+  { name: "XY 200", brand: "Shineray" },
+  { name: "XY 250", brand: "Shineray" },
+  { name: "Super Smart 50", brand: "Shineray" },
+  { name: "Super Smart 125", brand: "Shineray" },
+  { name: "Naked 150", brand: "Shineray" },
+  { name: "Naked 250", brand: "Shineray" },
+  { name: "Retro 125", brand: "Shineray" },
+  { name: "Retro 150", brand: "Shineray" },
+  { name: "Adventure 250", brand: "Shineray" },
+  { name: "Street 150", brand: "Shineray" },
+  { name: "Sport 200", brand: "Shineray" },
+  { name: "Cruiser 250", brand: "Shineray" }
 ];
 
 // Função para preencher o banco de dados com os modelos de motos
@@ -61,3 +79,4 @@ export const populateMotorcycleModels = async () => {
     return false;
   }
 };
+
