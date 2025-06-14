@@ -1,3 +1,4 @@
+
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -142,10 +143,11 @@ export async function populateModelsIfEmpty(): Promise<boolean> {
       return false;
     }
     
-    // If there are already models, don't populate
+    // If there are already models, try to add Shineray models
     if (count && count > 0) {
-      console.log('Tabela já possui modelos, pulando importação');
-      return true;
+      console.log('Tabela já possui modelos, verificando se precisa adicionar modelos da Shineray');
+      const { addShinerayModels } = await import('../motorcycle-models-data');
+      return await addShinerayModels();
     }
     
     // Import from motorcycle-models-data.ts

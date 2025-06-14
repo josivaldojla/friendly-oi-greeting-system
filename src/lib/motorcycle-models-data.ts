@@ -1,7 +1,6 @@
 
-
 import { MotorcycleModel } from "./types";
-import { addMotorcycleModel } from "./storage";
+import { addMotorcycleModel, getMotorcycleModels } from "./storage";
 
 // Lista de modelos de motos comuns no Brasil
 const defaultMotorcycleModels = [
@@ -63,6 +62,26 @@ const defaultMotorcycleModels = [
   { name: "Cruiser 250", brand: "Shineray" }
 ];
 
+// Modelos da Shineray para adicionar
+const shinerayModels = [
+  { name: "Phoenix 50", brand: "Shineray" },
+  { name: "Phoenix 150", brand: "Shineray" },
+  { name: "Phoenix 250", brand: "Shineray" },
+  { name: "XY 150", brand: "Shineray" },
+  { name: "XY 200", brand: "Shineray" },
+  { name: "XY 250", brand: "Shineray" },
+  { name: "Super Smart 50", brand: "Shineray" },
+  { name: "Super Smart 125", brand: "Shineray" },
+  { name: "Naked 150", brand: "Shineray" },
+  { name: "Naked 250", brand: "Shineray" },
+  { name: "Retro 125", brand: "Shineray" },
+  { name: "Retro 150", brand: "Shineray" },
+  { name: "Adventure 250", brand: "Shineray" },
+  { name: "Street 150", brand: "Shineray" },
+  { name: "Sport 200", brand: "Shineray" },
+  { name: "Cruiser 250", brand: "Shineray" }
+];
+
 // Função para preencher o banco de dados com os modelos de motos
 export const populateMotorcycleModels = async () => {
   try {
@@ -80,3 +99,34 @@ export const populateMotorcycleModels = async () => {
   }
 };
 
+// Nova função para adicionar apenas os modelos da Shineray
+export const addShinerayModels = async () => {
+  try {
+    console.log("Iniciando a importação de modelos da Shineray");
+    
+    // Buscar modelos existentes
+    const existingModels = await getMotorcycleModels();
+    const existingNames = existingModels.map(model => 
+      `${model.name.toLowerCase()}-${model.brand?.toLowerCase() || ''}`
+    );
+    
+    // Filtrar apenas os modelos da Shineray que ainda não existem
+    const modelsToAdd = shinerayModels.filter(model => {
+      const modelKey = `${model.name.toLowerCase()}-${model.brand.toLowerCase()}`;
+      return !existingNames.includes(modelKey);
+    });
+    
+    console.log(`Encontrados ${modelsToAdd.length} modelos da Shineray para adicionar`);
+    
+    for (const model of modelsToAdd) {
+      await addMotorcycleModel(model);
+      console.log(`Adicionado: ${model.name} (${model.brand})`);
+    }
+    
+    console.log("Modelos da Shineray importados com sucesso");
+    return true;
+  } catch (error) {
+    console.error("Erro ao importar modelos da Shineray:", error);
+    return false;
+  }
+};
