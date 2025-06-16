@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsIfEmpty } from "@/lib/storage";
@@ -12,6 +11,7 @@ import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDia
 import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDialog";
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
+import { BackupActions } from "@/components/motorcycle-models/BackupActions";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -208,7 +208,10 @@ const MotorcycleModelsPage = () => {
       <div className="space-y-6">
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Modelos de Motos</h2>
-          <Button onClick={openAddDialog}>Adicionar Modelo</Button>
+          <div className="flex gap-3">
+            <BackupActions motorcycleModels={motorcycleModels} />
+            <Button onClick={openAddDialog}>Adicionar Modelo</Button>
+          </div>
         </div>
         
         {/* Filtro de Marcas */}
