@@ -129,6 +129,28 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   }
 }
 
+// Nova função para excluir todos os modelos de uma marca
+export async function deleteModelsByBrand(brand: string): Promise<MotorcycleModel[]> {
+  try {
+    console.log('Excluindo todos os modelos da marca:', brand);
+    
+    const { error } = await supabase
+      .from('motorcycle_models')
+      .delete()
+      .eq('brand', brand);
+
+    if (error) {
+      console.error('Erro ao excluir modelos da marca:', error);
+      throw error;
+    }
+
+    return getMotorcycleModels();
+  } catch (error) {
+    console.error('Erro em deleteModelsByBrand:', error);
+    throw error;
+  }
+}
+
 // Updated function to populate models - now always checks and adds missing models
 export async function populateModelsIfEmpty(): Promise<boolean> {
   try {

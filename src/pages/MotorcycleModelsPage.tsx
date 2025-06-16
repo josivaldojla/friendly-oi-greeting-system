@@ -1,7 +1,6 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, populateModelsIfEmpty } from "@/lib/storage";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsIfEmpty } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -9,6 +8,7 @@ import { toast } from "@/hooks/use-toast";
 import { MotorcycleModelForm } from "@/components/motorcycle-models/MotorcycleModelForm";
 import { MotorcycleModelsTable } from "@/components/motorcycle-models/MotorcycleModelsTable";
 import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDialog";
+import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDialog";
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 
@@ -16,7 +16,9 @@ const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isDeleteBrandDialogOpen, setIsDeleteBrandDialogOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
+  const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
   const [isInitialized, setIsInitialized] = useState(false);
   
@@ -105,6 +107,32 @@ const MotorcycleModelsPage = () => {
     }
   });
   
+  // Mutação para excluir marca
+  const deleteBrandMutation = useMutation({
+    mutationFn: deleteModelsByBrand,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
+      toast({
+        title: "Sucesso",
+        description: `Marca "${brandToDelete}" e todos os seus modelos foram excluídos`,
+      });
+      setIsDeleteBrandDialogOpen(false);
+      setBrandToDelete(null);
+      
+      // Se excluiu a marca filtrada, limpa o filtro
+      if (selectedBrand === brandToDelete) {
+        setSelectedBrand(null);
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Erro ao excluir marca: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Handlers
   const handleAddModel = (model: Omit<MotorcycleModel, "id">) => {
     addModelMutation.mutate(model);
@@ -138,6 +166,10 @@ const MotorcycleModelsPage = () => {
     setSelectedBrand(brand);
   };
 
+  const getModelCountForBrand = (brand: string) => {
+    return motorcycleModels.filter(model => model.brand?.toLowerCase() === brand.toLowerCase()).length;
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -151,7 +183,9 @@ const MotorcycleModelsPage = () => {
           <BrandFilterButtons 
             brands={uniqueBrands} 
             selectedBrand={selectedBrand} 
-            onSelectBrand={handleBrandFilter} 
+            onSelectBrand={handleBrandFilter}
+            onDeleteBrand={handleDeleteBrand}
+            motorcycleModels={motorcycleModels}
           />
         )}
         
@@ -196,6 +230,16 @@ const MotorcycleModelsPage = () => {
         onConfirm={handleDeleteModel}
         model={currentModel}
         isLoading={deleteModelMutation.isPending}
+      />
+      
+      {/* Diálogo para confirmar exclusão de marca */}
+      <DeleteBrandDialog
+        isOpen={isDeleteBrandDialogOpen}
+        onOpenChange={setIsDeleteBrandDialogOpen}
+        onConfirm={confirmDeleteBrand}
+        brand={brandToDelete}
+        modelCount={brandToDelete ? getModelCountForBrand(brandToDelete) : 0}
+        isLoading={deleteBrandMutation.isPending}
       />
     </Layout>
   );
