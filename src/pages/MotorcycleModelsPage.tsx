@@ -1,10 +1,11 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsIfEmpty } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/hooks/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { MotorcycleModelForm } from "@/components/motorcycle-models/MotorcycleModelForm";
 import { MotorcycleModelsTable } from "@/components/motorcycle-models/MotorcycleModelsTable";
 import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDialog";
@@ -23,6 +24,7 @@ const MotorcycleModelsPage = () => {
   const [isInitialized, setIsInitialized] = useState(false);
   
   const queryClient = useQueryClient();
+  const { toast } = useToast();
   
   // Consulta para buscar todos os modelos
   const { data: motorcycleModels = [], isLoading } = useQuery({
@@ -63,11 +65,18 @@ const MotorcycleModelsPage = () => {
     mutationFn: addMotorcycleModel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-      toast.success("Modelo adicionado com sucesso");
+      toast({
+        title: "Sucesso",
+        description: "Modelo adicionado com sucesso",
+      });
       setIsAddDialogOpen(false);
     },
     onError: (error) => {
-      toast.error(`Erro ao adicionar modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      toast({
+        title: "Erro",
+        description: `Erro ao adicionar modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
     }
   });
   
@@ -76,11 +85,18 @@ const MotorcycleModelsPage = () => {
     mutationFn: updateMotorcycleModel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-      toast.success("Modelo atualizado com sucesso");
+      toast({
+        title: "Sucesso",
+        description: "Modelo atualizado com sucesso",
+      });
       setIsEditDialogOpen(false);
     },
     onError: (error) => {
-      toast.error(`Erro ao atualizar modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      toast({
+        title: "Erro",
+        description: `Erro ao atualizar modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
     }
   });
   
@@ -89,7 +105,10 @@ const MotorcycleModelsPage = () => {
     mutationFn: deleteMotorcycleModel,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-      toast.success("Modelo excluído com sucesso");
+      toast({
+        title: "Sucesso",
+        description: "Modelo excluído com sucesso",
+      });
       setIsDeleteDialogOpen(false);
       
       // Se excluiu o último modelo da marca filtrada, limpa o filtro
@@ -103,7 +122,11 @@ const MotorcycleModelsPage = () => {
       }
     },
     onError: (error) => {
-      toast.error(`Erro ao excluir modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`);
+      toast({
+        title: "Erro",
+        description: `Erro ao excluir modelo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
     }
   });
   
@@ -164,6 +187,16 @@ const MotorcycleModelsPage = () => {
   
   const handleBrandFilter = (brand: string | null) => {
     setSelectedBrand(brand);
+  };
+
+  const handleDeleteBrand = (brand: string) => {
+    setBrandToDelete(brand);
+    setIsDeleteBrandDialogOpen(true);
+  };
+
+  const confirmDeleteBrand = () => {
+    if (!brandToDelete) return;
+    deleteBrandMutation.mutate(brandToDelete);
   };
 
   const getModelCountForBrand = (brand: string) => {
