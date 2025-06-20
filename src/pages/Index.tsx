@@ -2,8 +2,45 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import Layout from "@/components/layout/Layout";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
+  const { user, isAdmin } = useAuth();
+
+  if (!user) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Heleno Motos</h1>
+          <p className="text-gray-600 mb-8">Sistema de Gerenciamento de Oficina</p>
+          <Link to="/auth">
+            <Button size="lg">Fazer Login</Button>
+          </Link>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <Layout>
+        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
+          <div className="w-full max-w-xl">
+            <h1 className="text-3xl font-bold mb-4">Bem-vindo ao Heleno Motos</h1>
+            <div className="mb-8">
+              <h2 className="text-gray-600 text-lg">
+                Você está logado como usuário
+              </h2>
+              <p className="text-sm text-gray-500 mt-2">
+                Entre em contato com o administrador para obter acesso completo ao sistema.
+              </p>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
