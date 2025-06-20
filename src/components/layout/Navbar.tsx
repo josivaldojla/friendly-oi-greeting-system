@@ -4,10 +4,15 @@ import { Menu } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/contexts/AuthContext";
+import UserMenu from "./UserMenu";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const isMobile = useIsMobile();
+  const { user, isAdmin } = useAuth();
+
+  if (!user) return null;
 
   return (
     <nav className="bg-black text-white shadow-md relative h-16">
@@ -29,6 +34,11 @@ const Navbar = () => {
             <span className="sr-only">Ir para página inicial</span>
           </Link>
           
+          {/* User menu */}
+          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 z-10">
+            <UserMenu />
+          </div>
+          
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center relative z-10">
             <button 
@@ -42,15 +52,22 @@ const Navbar = () => {
             </button>
           </div>
           
-          {/* Desktop navigation */}
-          <div className="hidden md:flex md:items-center md:space-x-4 relative z-10 ml-auto">
-            <NavLinks />
-          </div>
+          {/* Desktop navigation - Only show for admins */}
+          {isAdmin && (
+            <div className="hidden md:flex md:items-center md:space-x-4 relative z-10 ml-auto mr-12">
+              <NavLinks />
+            </div>
+          )}
         </div>
         
-        {/* Mobile Navigation Menu - Improved for better touch targets */}
-        {isMenuOpen && (
+        {/* Mobile Navigation Menu - Only show for admins */}
+        {isMenuOpen && isAdmin && (
           <div className="md:hidden bg-black pt-2 pb-3 space-y-1 relative z-20 border-t border-gray-700">
+            <Link to="/admin" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
+              <div className="flex items-center">
+                <span className="text-base">Administração</span>
+              </div>
+            </Link>
             <Link to="/mechanics" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span className="text-base">Mecânicos</span>
@@ -76,6 +93,11 @@ const Navbar = () => {
                 <span className="text-base">Clientes</span>
               </div>
             </Link>
+            <Link to="/motorcycle-models" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
+              <div className="flex items-center">
+                <span className="text-base">Modelos de Motos</span>
+              </div>
+            </Link>
           </div>
         )}
       </div>
@@ -85,6 +107,11 @@ const Navbar = () => {
 
 const NavLinks = () => (
   <>
+    <Link to="/admin">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
+        Admin
+      </Button>
+    </Link>
     <Link to="/mechanics">
       <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Mecânicos
@@ -108,6 +135,11 @@ const NavLinks = () => (
     <Link to="/customers">
       <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Clientes
+      </Button>
+    </Link>
+    <Link to="/motorcycle-models">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
+        Modelos de Motos
       </Button>
     </Link>
   </>

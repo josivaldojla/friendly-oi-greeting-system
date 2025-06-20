@@ -129,26 +129,34 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   }
 }
 
-// New function to populate the database with motorcycle models
+// Nova função para excluir todos os modelos de uma marca
+export async function deleteModelsByBrand(brand: string): Promise<MotorcycleModel[]> {
+  try {
+    console.log('Excluindo todos os modelos da marca:', brand);
+    
+    const { error } = await supabase
+      .from('motorcycle_models')
+      .delete()
+      .eq('brand', brand);
+
+    if (error) {
+      console.error('Erro ao excluir modelos da marca:', error);
+      throw error;
+    }
+
+    return getMotorcycleModels();
+  } catch (error) {
+    console.error('Erro em deleteModelsByBrand:', error);
+    throw error;
+  }
+}
+
+// Updated function to populate models - now always checks and adds missing models
 export async function populateModelsIfEmpty(): Promise<boolean> {
   try {
-    // Check if the table has any entries
-    const { count, error } = await supabase
-      .from('motorcycle_models')
-      .select('*', { count: 'exact', head: true });
-      
-    if (error) {
-      console.error('Erro ao verificar modelos existentes:', error);
-      return false;
-    }
+    console.log('Verificando e adicionando modelos faltantes...');
     
-    // If there are already models, don't populate
-    if (count && count > 0) {
-      console.log('Tabela já possui modelos, pulando importação');
-      return true;
-    }
-    
-    // Import from motorcycle-models-data.ts
+    // Import and run the updated populate function
     const { populateMotorcycleModels } = await import('../motorcycle-models-data');
     return await populateMotorcycleModels();
   } catch (error) {
