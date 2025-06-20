@@ -84,7 +84,7 @@ const Index = () => {
             </Link>
             
             <Link to="/service-records" className="w-full">
-              <Button className="w-full h-16 text-lg bg-green-600 hover:bg-green-700 text-white">
+              <Button className="w-full h-16 text-lg bg-yellow-500 hover:bg-yellow-600 text-white">
                 Registro de Serviços
               </Button>
             </Link>
