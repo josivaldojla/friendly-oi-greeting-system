@@ -132,6 +132,8 @@ export const EditHistoryDialog = ({
   };
 
   const handleSelectRegisteredService = (index: number, serviceId: string) => {
+    if (serviceId === "no-service") return;
+    
     const selectedService = availableServices.find(s => s.id === serviceId);
     if (selectedService) {
       const updatedServices = [...services];
@@ -198,6 +200,7 @@ export const EditHistoryDialog = ({
                           <Search className="h-4 w-4" />
                         </SelectTrigger>
                         <SelectContent>
+                          <SelectItem value="no-service">Escolher serviço...</SelectItem>
                           {availableServices.map((s) => (
                             <SelectItem key={s.id} value={s.id}>
                               {s.name} - {formatPrice(s.price)}

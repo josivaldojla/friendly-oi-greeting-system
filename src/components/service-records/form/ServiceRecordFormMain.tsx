@@ -137,7 +137,7 @@ export const ServiceRecordFormMain: React.FC<ServiceRecordFormMainProps> = ({
     setMechanicId(value);
     
     // Atualizar o nome do mecânico
-    if (value === "none") {
+    if (value === "no-mechanic") {
       setMechanicName("");
     } else {
       const mechanic = mechanics.find(m => m.id === value);
@@ -186,14 +186,14 @@ export const ServiceRecordFormMain: React.FC<ServiceRecordFormMainProps> = ({
       <div className="space-y-2">
         <Label htmlFor="mechanic">Mecânico Responsável</Label>
         <Select 
-          value={mechanicId || undefined}
+          value={mechanicId || "no-mechanic"}
           onValueChange={handleMechanicChange}
         >
           <SelectTrigger>
             <SelectValue placeholder="Selecione um mecânico" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">Nenhum</SelectItem>
+            <SelectItem value="no-mechanic">Nenhum</SelectItem>
             {mechanics.map((mechanic) => (
               <SelectItem key={mechanic.id} value={mechanic.id}>
                 {mechanic.name}
