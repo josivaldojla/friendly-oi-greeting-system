@@ -13,6 +13,7 @@ export type Database = {
         Row: {
           completion_date: string
           created_at: string
+          created_by: string | null
           id: string
           mechanic_id: string | null
           received_amount: number
@@ -22,6 +23,7 @@ export type Database = {
         Insert: {
           completion_date?: string
           created_at?: string
+          created_by?: string | null
           id?: string
           mechanic_id?: string | null
           received_amount: number
@@ -31,6 +33,7 @@ export type Database = {
         Update: {
           completion_date?: string
           created_at?: string
+          created_by?: string | null
           id?: string
           mechanic_id?: string | null
           received_amount?: number
@@ -51,6 +54,7 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
+          created_by: string | null
           email: string | null
           id: string
           name: string
@@ -60,6 +64,7 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
+          created_by?: string | null
           email?: string | null
           id?: string
           name: string
@@ -69,6 +74,7 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
+          created_by?: string | null
           email?: string | null
           id?: string
           name?: string
@@ -80,6 +86,7 @@ export type Database = {
       mechanics: {
         Row: {
           created_at: string
+          created_by: string | null
           id: string
           name: string
           phone: string | null
@@ -88,6 +95,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           id?: string
           name: string
           phone?: string | null
@@ -96,6 +104,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           id?: string
           name?: string
           phone?: string | null
@@ -152,6 +161,7 @@ export type Database = {
       service_history: {
         Row: {
           created_at: string
+          created_by: string | null
           id: string
           mechanic_id: string | null
           received_amount: number
@@ -161,6 +171,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           id?: string
           mechanic_id?: string | null
           received_amount?: number
@@ -170,6 +181,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           id?: string
           mechanic_id?: string | null
           received_amount?: number
@@ -228,6 +240,7 @@ export type Database = {
       service_records: {
         Row: {
           created_at: string
+          created_by: string | null
           customer_id: string | null
           id: string
           mechanic_id: string | null
@@ -239,6 +252,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           customer_id?: string | null
           id?: string
           mechanic_id?: string | null
@@ -250,6 +264,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           customer_id?: string | null
           id?: string
           mechanic_id?: string | null
@@ -286,6 +301,7 @@ export type Database = {
       services: {
         Row: {
           created_at: string
+          created_by: string | null
           description: string | null
           id: string
           image_url: string | null
@@ -295,6 +311,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           image_url?: string | null
@@ -304,6 +321,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           description?: string | null
           id?: string
           image_url?: string | null

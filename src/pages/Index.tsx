@@ -21,26 +21,6 @@ const Index = () => {
     );
   }
 
-  if (!isAdmin) {
-    return (
-      <Layout>
-        <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
-          <div className="w-full max-w-xl">
-            <h1 className="text-3xl font-bold mb-4">Bem-vindo ao Heleno Motos</h1>
-            <div className="mb-8">
-              <h2 className="text-gray-600 text-lg">
-                Você está logado como usuário
-              </h2>
-              <p className="text-sm text-gray-500 mt-2">
-                Entre em contato com o administrador para obter acesso completo ao sistema.
-              </p>
-            </div>
-          </div>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
@@ -50,14 +30,21 @@ const Index = () => {
             <h2 className="text-gray-600 text-lg">
               Sistema completo para gerenciamento de serviços de oficina de motos
             </h2>
+            {!isAdmin && (
+              <p className="text-sm text-blue-600 mt-2">
+                Você está usando sua área pessoal. Todos os dados são privados e isolados.
+              </p>
+            )}
           </div>
           
           <div className="grid grid-cols-1 gap-4 w-full">
-            <Link to="/admin" className="w-full">
-              <Button className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white">
-                🛡️ Administração
-              </Button>
-            </Link>
+            {isAdmin && (
+              <Link to="/admin" className="w-full">
+                <Button className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white">
+                  🛡️ Administração
+                </Button>
+              </Link>
+            )}
             
             <Link to="/mechanics" className="w-full">
               <Button className="w-full h-16 text-lg" variant="outline">

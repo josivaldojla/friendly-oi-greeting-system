@@ -26,6 +26,8 @@ export async function getCompletedServices(): Promise<CompletedService[]> {
 }
 
 export async function addCompletedService(completedService: Omit<CompletedService, "id">): Promise<CompletedService[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { error } = await supabase
     .from('completed_services')
     .insert([{
@@ -34,7 +36,8 @@ export async function addCompletedService(completedService: Omit<CompletedServic
       total_amount: completedService.totalAmount,
       received_amount: completedService.receivedAmount,
       completion_date: completedService.completionDate,
-      created_at: completedService.createdAt
+      created_at: completedService.createdAt,
+      created_by: user?.id
     }]);
 
   if (error) {

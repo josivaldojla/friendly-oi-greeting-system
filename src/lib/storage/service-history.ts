@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { Mechanic, Service } from "../types";
 
@@ -43,6 +42,8 @@ export async function getServiceHistory(): Promise<ServiceHistory[]> {
 export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'created_at'>): Promise<ServiceHistory[]> {
   console.log('Criando novo histórico:', history.title);
   
+  const { data: { user } } = await supabase.auth.getUser();
+  
   // We need to ensure that service_data is JSONB compatible
   const serviceData = JSON.parse(JSON.stringify(history.service_data));
   
@@ -53,7 +54,8 @@ export async function saveServiceHistory(history: Omit<ServiceHistory, 'id' | 'c
       mechanic_id: history.mechanic_id,
       service_data: serviceData,
       total_amount: history.total_amount,
-      received_amount: history.received_amount
+      received_amount: history.received_amount,
+      created_by: user?.id
     })
     .select('id');
 

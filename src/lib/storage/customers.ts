@@ -60,9 +60,14 @@ export async function getCustomers(): Promise<Customer[]> {
 // Função para adicionar um novo cliente
 export async function addCustomer(customer: Omit<Customer, "id">): Promise<Customer | null> {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const { data, error } = await supabase
       .from('customers')
-      .insert([customer])
+      .insert([{
+        ...customer,
+        created_by: user?.id
+      }])
       .select()
       .maybeSingle();
       

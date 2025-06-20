@@ -23,9 +23,14 @@ export async function getMechanics(): Promise<Mechanic[]> {
 }
 
 export async function addMechanic(mechanic: Omit<Mechanic, "id">): Promise<Mechanic[]> {
+  const { data: { user } } = await supabase.auth.getUser();
+
   const { error } = await supabase
     .from('mechanics')
-    .insert([mechanic]);
+    .insert([{
+      ...mechanic,
+      created_by: user?.id
+    }]);
 
   if (error) {
     console.error('Error adding mechanic:', error);

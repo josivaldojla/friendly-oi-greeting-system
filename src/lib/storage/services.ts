@@ -28,11 +28,14 @@ export async function getServices(): Promise<Service[]> {
 export async function addService(service: Omit<Service, "id">): Promise<Service[]> {
   console.log('Adding service to Supabase:', service);
   
+  const { data: { user } } = await supabase.auth.getUser();
+  
   const serviceData = {
     name: service.name,
     price: service.price,
     description: service.description,
-    image_url: service.imageUrl
+    image_url: service.imageUrl,
+    created_by: user?.id
   };
   
   console.log('Formatted service data for Supabase:', serviceData);
