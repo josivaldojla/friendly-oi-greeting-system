@@ -16,6 +16,12 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 gap-4 w-full">
+            <Link to="/login" className="w-full">
+              <Button className="w-full h-16 text-lg bg-blue-600 hover:bg-blue-700 text-white">
+                Fazer Login
+              </Button>
+            </Link>
+            
             <Link to="/mechanics" className="w-full">
               <Button className="w-full h-16 text-lg" variant="outline">
                 Mecânicos

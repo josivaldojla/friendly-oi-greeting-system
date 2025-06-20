@@ -13,6 +13,8 @@ import ReportsPage from "./pages/ReportsPage";
 import CustomersPage from "./pages/CustomersPage";
 import MotorcycleModelsPage from "./pages/MotorcycleModelsPage";
 import ServiceRecordsPage from "./pages/ServiceRecordsPage";
+import LoginPage from "./pages/LoginPage";
+import AdminPage from "./pages/AdminPage";
 import NotFound from "./pages/NotFound";
 
 // Create a new QueryClient instance
@@ -34,6 +36,8 @@ const App = () => (
           <Sonner />
           <Routes>
             <Route path="/" element={<Index />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/admin" element={<AdminPage />} />
             <Route path="/mechanics" element={<MechanicsPage />} />
             <Route path="/services" element={<ServicesPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
