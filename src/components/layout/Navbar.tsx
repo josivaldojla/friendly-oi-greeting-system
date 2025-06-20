@@ -63,6 +63,11 @@ const Navbar = () => {
         {/* Mobile Navigation Menu - Only show for admins */}
         {isMenuOpen && isAdmin && (
           <div className="md:hidden bg-black pt-2 pb-3 space-y-1 relative z-20 border-t border-gray-700">
+            <Link to="/admin" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
+              <div className="flex items-center">
+                <span className="text-base">Administração</span>
+              </div>
+            </Link>
             <Link to="/mechanics" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span className="text-base">Mecânicos</span>
@@ -102,6 +107,11 @@ const Navbar = () => {
 
 const NavLinks = () => (
   <>
+    <Link to="/admin">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
+        Admin
+      </Button>
+    </Link>
     <Link to="/mechanics">
       <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Mecânicos

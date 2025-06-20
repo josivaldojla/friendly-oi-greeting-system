@@ -53,6 +53,12 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 gap-4 w-full">
+            <Link to="/admin" className="w-full">
+              <Button className="w-full h-16 text-lg bg-red-600 hover:bg-red-700 text-white">
+                🛡️ Administração
+              </Button>
+            </Link>
+            
             <Link to="/mechanics" className="w-full">
               <Button className="w-full h-16 text-lg" variant="outline">
                 Mecânicos
