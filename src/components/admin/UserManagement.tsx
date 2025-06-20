@@ -25,34 +25,58 @@ const UserManagement = () => {
 
   const fetchUsers = async () => {
     try {
-      const { data, error } = await supabase
+      console.log('Fetching users...');
+
+      // First, get all profiles
+      const { data: profiles, error: profileError } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          email,
-          full_name,
-          created_at,
-          user_roles!inner (
-            role
-          )
-        `);
+        .select('id, email, full_name, created_at');
 
-      if (error) throw error;
+      if (profileError) {
+        console.error('Error fetching profiles:', profileError);
+        throw profileError;
+      }
 
-      const formattedUsers = data.map((user: any) => ({
-        id: user.id,
-        email: user.email,
-        full_name: user.full_name,
-        role: user.user_roles[0]?.role || 'user',
-        created_at: user.created_at
-      }));
+      console.log('Profiles fetched:', profiles);
+
+      // Then, get all user roles
+      const { data: roles, error: roleError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (roleError) {
+        console.error('Error fetching roles:', roleError);
+        throw roleError;
+      }
+
+      console.log('Roles fetched:', roles);
+
+      // Combine profiles with roles
+      const formattedUsers: UserWithRole[] = profiles.map((profile) => {
+        const userRole = roles.find(role => role.user_id === profile.id);
+        return {
+          id: profile.id,
+          email: profile.email,
+          full_name: profile.full_name,
+          role: userRole?.role || 'user',
+          created_at: profile.created_at
+        };
+      });
+
+      console.log('Formatted users:', formattedUsers);
 
       setUsers(formattedUsers);
-      setHasAdmin(formattedUsers.some(user => user.role === 'admin'));
+      
+      // Check if there are any admins
+      const adminExists = formattedUsers.some(user => user.role === 'admin');
+      setHasAdmin(adminExists);
+      console.log('Has admin:', adminExists);
+
     } catch (error: any) {
+      console.error('Error in fetchUsers:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível carregar os usuários.",
+        description: `Não foi possível carregar os usuários: ${error.message}`,
         variant: "destructive",
       });
     } finally {
@@ -61,26 +85,58 @@ const UserManagement = () => {
   };
 
   const promoteCurrentUserToAdmin = async () => {
-    if (!currentUser) return;
+    if (!currentUser) {
+      toast({
+        title: "Erro",
+        description: "Usuário não encontrado.",
+        variant: "destructive",
+      });
+      return;
+    }
 
     try {
-      const { error } = await supabase
-        .from('user_roles')
-        .update({ role: 'admin' })
-        .eq('user_id', currentUser.id);
+      console.log('Promoting current user to admin:', currentUser.id);
 
-      if (error) throw error;
+      // Check if user already has a role
+      const { data: existingRole, error: checkError } = await supabase
+        .from('user_roles')
+        .select('*')
+        .eq('user_id', currentUser.id)
+        .single();
+
+      if (checkError && checkError.code !== 'PGRST116') {
+        console.error('Error checking existing role:', checkError);
+        throw checkError;
+      }
+
+      if (existingRole) {
+        // Update existing role
+        const { error } = await supabase
+          .from('user_roles')
+          .update({ role: 'admin' })
+          .eq('user_id', currentUser.id);
+
+        if (error) throw error;
+      } else {
+        // Insert new role
+        const { error } = await supabase
+          .from('user_roles')
+          .insert({ user_id: currentUser.id, role: 'admin' });
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Sucesso",
-        description: "Você foi promovido a administrador! Faça logout e login novamente.",
+        description: "Você foi promovido a administrador! Faça logout e login novamente para que as mudanças tenham efeito.",
       });
 
       fetchUsers(); // Recarregar lista
     } catch (error: any) {
+      console.error('Error promoting user to admin:', error);
       toast({
         title: "Erro",
-        description: "Não foi possível criar o administrador.",
+        description: `Não foi possível criar o administrador: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -104,7 +160,7 @@ const UserManagement = () => {
     } catch (error: any) {
       toast({
         title: "Erro",
-        description: "Não foi possível promover o usuário.",
+        description: `Não foi possível promover o usuário: ${error.message}`,
         variant: "destructive",
       });
     }
@@ -128,7 +184,7 @@ const UserManagement = () => {
     } catch (error: any) {
       toast({
         title: "Erro",
-        description: "Não foi possível rebaixar o usuário.",
+        description: `Não foi possível rebaixar o usuário: ${error.message}`,
         variant: "destructive",
       });
     }
