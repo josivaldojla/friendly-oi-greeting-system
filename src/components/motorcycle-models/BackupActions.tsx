@@ -1,56 +1,58 @@
 
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Download, Upload } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
-import { MotorcycleModel } from "@/lib/types";
-import { addMotorcycleModel } from "@/lib/storage";
-import { useQueryClient } from "@tanstack/react-query";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Download, Upload, AlertTriangle } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
-interface BackupActionsProps {
-  motorcycleModels: MotorcycleModel[];
-}
+export const BackupActions = () => {
+  const [isExporting, setIsExporting] = useState(false);
+  const [isImporting, setIsImporting] = useState(false);
 
-export const BackupActions = ({ motorcycleModels }: BackupActionsProps) => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const handleExportBackup = () => {
+  const handleExportData = async () => {
+    setIsExporting(true);
     try {
-      const backupData = {
+      const { data, error } = await supabase
+        .from('motorcycle_models')
+        .select('*')
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching data for export:', error);
+        toast.error('Erro ao exportar dados');
+        return;
+      }
+
+      const exportData = {
         exportDate: new Date().toISOString(),
-        version: "1.0",
-        motorcycleModels: motorcycleModels.map(model => ({
-          name: model.name,
-          brand: model.brand
-        }))
+        totalRecords: data.length,
+        data: data
       };
 
-      const dataStr = JSON.stringify(backupData, null, 2);
-      const dataBlob = new Blob([dataStr], { type: 'application/json' });
-      const url = URL.createObjectURL(dataBlob);
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+        type: 'application/json'
+      });
       
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `modelos-motos-backup-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `motorcycle-models-backup-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
       URL.revokeObjectURL(url);
 
-      toast({
-        title: "Sucesso",
-        description: `Backup exportado com ${motorcycleModels.length} modelos`,
-      });
+      toast.success(`Backup exportado com sucesso! ${data.length} registros salvos.`);
     } catch (error) {
-      toast({
-        title: "Erro",
-        description: "Erro ao exportar backup",
-        variant: "destructive",
-      });
+      console.error('Export error:', error);
+      toast.error('Erro ao exportar dados');
+    } finally {
+      setIsExporting(false);
     }
   };
 
-  const handleImportBackup = () => {
+  const handleImportData = () => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = '.json';
@@ -59,54 +61,42 @@ export const BackupActions = ({ motorcycleModels }: BackupActionsProps) => {
       const file = (event.target as HTMLInputElement).files?.[0];
       if (!file) return;
 
+      setIsImporting(true);
       try {
         const text = await file.text();
-        const backupData = JSON.parse(text);
+        const importData = JSON.parse(text);
+
+        if (!importData.data || !Array.isArray(importData.data)) {
+          toast.error('Formato de arquivo inválido');
+          return;
+        }
+
+        // Prepare data for import (remove id and created_at to let Supabase generate new ones)
+        const dataToImport = importData.data.map((item: any) => ({
+          name: item.name,
+          brand: item.brand || null
+        }));
+
+        const { data, error } = await supabase
+          .from('motorcycle_models')
+          .insert(dataToImport)
+          .select();
+
+        if (error) {
+          console.error('Import error:', error);
+          toast.error('Erro ao importar dados: ' + error.message);
+          return;
+        }
+
+        toast.success(`Dados importados com sucesso! ${data.length} registros adicionados.`);
         
-        if (!backupData.motorcycleModels || !Array.isArray(backupData.motorcycleModels)) {
-          throw new Error("Formato de backup inválido");
-        }
-
-        let importedCount = 0;
-        let skippedCount = 0;
-
-        for (const model of backupData.motorcycleModels) {
-          if (!model.name) continue;
-          
-          // Verifica se o modelo já existe
-          const exists = motorcycleModels.some(
-            existing => existing.name.toLowerCase() === model.name.toLowerCase() && 
-                       existing.brand?.toLowerCase() === model.brand?.toLowerCase()
-          );
-
-          if (!exists) {
-            try {
-              await addMotorcycleModel({
-                name: model.name,
-                brand: model.brand || ""
-              });
-              importedCount++;
-            } catch (error) {
-              console.error('Erro ao importar modelo:', model.name, error);
-            }
-          } else {
-            skippedCount++;
-          }
-        }
-
-        queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-
-        toast({
-          title: "Importação Concluída",
-          description: `${importedCount} modelos importados, ${skippedCount} já existiam`,
-        });
-
+        // Reload the page to show the imported data
+        window.location.reload();
       } catch (error) {
-        toast({
-          title: "Erro",
-          description: "Erro ao importar backup. Verifique o formato do arquivo.",
-          variant: "destructive",
-        });
+        console.error('Import error:', error);
+        toast.error('Erro ao processar arquivo de importação');
+      } finally {
+        setIsImporting(false);
       }
     };
 
@@ -114,25 +104,41 @@ export const BackupActions = ({ motorcycleModels }: BackupActionsProps) => {
   };
 
   return (
-    <div className="flex gap-2">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleExportBackup}
-        className="flex items-center gap-2"
-      >
-        <Download className="h-4 w-4" />
-        Exportar Backup
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={handleImportBackup}
-        className="flex items-center gap-2"
-      >
-        <Upload className="h-4 w-4" />
-        Importar Backup
-      </Button>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <AlertTriangle className="h-5 w-5 text-orange-500" />
+          Backup dos Dados
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button
+            onClick={handleExportData}
+            disabled={isExporting}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Download className="h-4 w-4" />
+            {isExporting ? 'Exportando...' : 'Exportar Dados'}
+          </Button>
+          
+          <Button
+            onClick={handleImportData}
+            disabled={isImporting}
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <Upload className="h-4 w-4" />
+            {isImporting ? 'Importando...' : 'Importar Dados'}
+          </Button>
+        </div>
+        
+        <p className="text-sm text-muted-foreground">
+          Use essas funções para fazer backup e restaurar seus dados de modelos de motocicleta.
+          O arquivo de exportação será salvo em formato JSON.
+        </p>
+      </CardContent>
+    </Card>
   );
 };

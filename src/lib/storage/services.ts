@@ -24,9 +24,14 @@ export async function getServices(): Promise<Service[]> {
     .select('*')
     .order('created_at', { ascending: true });
 
-  // If not admin, only show non-deleted services
-  if (!isAdmin) {
-    query = query.or('deleted_at.is.null,deleted_by.neq.' + user.id);
+  if (isAdmin) {
+    // Admin sees all services (including soft deleted ones)
+    // No additional filters needed
+  } else {
+    // Regular users only see services that:
+    // 1. Were created by them, OR
+    // 2. Were created by admin and not soft-deleted by this user
+    query = query.or(`and(created_by.eq.${user.id}),and(created_by.is.null,or(deleted_at.is.null,deleted_by.neq.${user.id}))`);
   }
 
   const { data, error } = await query;
@@ -44,7 +49,9 @@ export async function getServices(): Promise<Service[]> {
     name: item.name,
     price: Number(item.price),
     description: item.description || "",
-    imageUrl: item.image_url || undefined
+    imageUrl: item.image_url || undefined,
+    deleted_at: item.deleted_at || undefined,
+    deleted_by: item.deleted_by || undefined
   }));
 }
 
