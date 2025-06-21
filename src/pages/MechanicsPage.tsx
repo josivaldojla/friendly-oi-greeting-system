@@ -27,7 +27,7 @@ const MechanicsPage = () => {
     }
   };
 
-  const handleAddMechanic = async (mechanic: Mechanic) => {
+  const handleAddMechanic = async (mechanic: Omit<Mechanic, "id">) => {
     try {
       const updatedMechanics = await addMechanic(mechanic);
       setMechanics(updatedMechanics);

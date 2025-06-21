@@ -28,7 +28,7 @@ const ServicesPage = () => {
     }
   };
 
-  const handleAddService = async (service: Service) => {
+  const handleAddService = async (service: Omit<Service, "id">) => {
     try {
       const updatedServices = await addService(service);
       setServices(updatedServices);

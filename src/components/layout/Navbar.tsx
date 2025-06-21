@@ -52,22 +52,22 @@ const Navbar = () => {
             </button>
           </div>
           
-          {/* Desktop navigation - Only show for admins */}
-          {isAdmin && (
-            <div className="hidden md:flex md:items-center md:space-x-4 relative z-10 ml-auto mr-12">
-              <NavLinks />
-            </div>
-          )}
+          {/* Desktop navigation - Show for all authenticated users */}
+          <div className="hidden md:flex md:items-center md:space-x-4 relative z-10 ml-auto mr-12">
+            <NavLinks isAdmin={isAdmin} />
+          </div>
         </div>
         
-        {/* Mobile Navigation Menu - Only show for admins */}
-        {isMenuOpen && isAdmin && (
+        {/* Mobile Navigation Menu - Show for all authenticated users */}
+        {isMenuOpen && (
           <div className="md:hidden bg-black pt-2 pb-3 space-y-1 relative z-20 border-t border-gray-700">
-            <Link to="/admin" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
-              <div className="flex items-center">
-                <span className="text-base">Administração</span>
-              </div>
-            </Link>
+            {isAdmin && (
+              <Link to="/admin" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
+                <div className="flex items-center">
+                  <span className="text-base">Administração</span>
+                </div>
+              </Link>
+            )}
             <Link to="/mechanics" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span className="text-base">Mecânicos</span>
@@ -81,6 +81,11 @@ const Navbar = () => {
             <Link to="/checkout" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
               <div className="flex items-center">
                 <span className="text-base">Caixa</span>
+              </div>
+            </Link>
+            <Link to="/service-records" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
+              <div className="flex items-center">
+                <span className="text-base">Registro de Serviços</span>
               </div>
             </Link>
             <Link to="/reports" className="block px-4 py-3 rounded-md text-white hover:bg-gray-800">
@@ -105,13 +110,15 @@ const Navbar = () => {
   );
 };
 
-const NavLinks = () => (
+const NavLinks = ({ isAdmin }: { isAdmin: boolean }) => (
   <>
-    <Link to="/admin">
-      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
-        Admin
-      </Button>
-    </Link>
+    {isAdmin && (
+      <Link to="/admin">
+        <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
+          Admin
+        </Button>
+      </Link>
+    )}
     <Link to="/mechanics">
       <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Mecânicos
@@ -125,6 +132,11 @@ const NavLinks = () => (
     <Link to="/checkout">
       <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
         Caixa
+      </Button>
+    </Link>
+    <Link to="/service-records">
+      <Button variant="ghost" className="text-white hover:bg-black hover:text-gray-300">
+        Registros
       </Button>
     </Link>
     <Link to="/reports">

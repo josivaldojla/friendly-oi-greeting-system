@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -42,7 +43,7 @@ const App = () => (
             <Route
               path="/mechanics"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <MechanicsPage />
                 </ProtectedRoute>
               }
@@ -50,7 +51,7 @@ const App = () => (
             <Route
               path="/services"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <ServicesPage />
                 </ProtectedRoute>
               }
@@ -58,7 +59,7 @@ const App = () => (
             <Route
               path="/checkout"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <CheckoutPage />
                 </ProtectedRoute>
               }
@@ -66,7 +67,7 @@ const App = () => (
             <Route
               path="/reports"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <ReportsPage />
                 </ProtectedRoute>
               }
@@ -74,7 +75,7 @@ const App = () => (
             <Route
               path="/customers"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <CustomersPage />
                 </ProtectedRoute>
               }
@@ -82,7 +83,7 @@ const App = () => (
             <Route
               path="/motorcycle-models"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <MotorcycleModelsPage />
                 </ProtectedRoute>
               }
@@ -90,7 +91,7 @@ const App = () => (
             <Route
               path="/service-records"
               element={
-                <ProtectedRoute requireAdmin>
+                <ProtectedRoute>
                   <ServiceRecordsPage />
                 </ProtectedRoute>
               }
@@ -104,4 +105,3 @@ const App = () => (
 );
 
 export default App;
-
