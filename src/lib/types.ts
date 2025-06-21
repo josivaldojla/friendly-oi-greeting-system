@@ -1,4 +1,3 @@
-
 export interface Mechanic {
   id: string;
   name: string;
@@ -13,6 +12,8 @@ export interface Service {
   description: string;
   imageUrl?: string;
   comment?: string;
+  deleted_at?: string;
+  deleted_by?: string;
 }
 
 export interface CompletedService {
