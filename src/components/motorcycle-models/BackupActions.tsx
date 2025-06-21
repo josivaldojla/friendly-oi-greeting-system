@@ -71,11 +71,39 @@ export const BackupActions = () => {
           return;
         }
 
-        // Prepare data for import (remove id and created_at to let Supabase generate new ones)
-        const dataToImport = importData.data.map((item: any) => ({
+        console.log('Importing data:', importData.data);
+
+        // Primeiro, vamos buscar os modelos já existentes para evitar duplicatas
+        const { data: existingModels, error: fetchError } = await supabase
+          .from('motorcycle_models')
+          .select('name, brand');
+
+        if (fetchError) {
+          console.error('Error fetching existing models:', fetchError);
+        }
+
+        const existingModelKeys = new Set(
+          (existingModels || []).map(model => `${model.name}|${model.brand || ''}`)
+        );
+
+        // Filtrar apenas modelos que não existem ainda
+        const newModels = importData.data.filter((item: any) => {
+          const key = `${item.name}|${item.brand || ''}`;
+          return !existingModelKeys.has(key);
+        });
+
+        if (newModels.length === 0) {
+          toast.success('Todos os modelos do backup já existem no sistema.');
+          return;
+        }
+
+        // Preparar dados para importação (remover id e timestamps para deixar o Supabase gerar novos)
+        const dataToImport = newModels.map((item: any) => ({
           name: item.name,
           brand: item.brand || null
         }));
+
+        console.log('Data to import after filtering:', dataToImport);
 
         const { data, error } = await supabase
           .from('motorcycle_models')
@@ -88,9 +116,21 @@ export const BackupActions = () => {
           return;
         }
 
-        toast.success(`Dados importados com sucesso! ${data.length} registros adicionados.`);
+        console.log('Successfully imported data:', data);
+
+        const totalOriginal = importData.data.length;
+        const imported = data?.length || 0;
+        const skipped = totalOriginal - imported;
+
+        if (skipped > 0) {
+          toast.success(
+            `Importação concluída! ${imported} novos modelos adicionados, ${skipped} já existiam.`
+          );
+        } else {
+          toast.success(`Dados importados com sucesso! ${imported} modelos adicionados.`);
+        }
         
-        // Reload the page to show the imported data
+        // Recarregar a página para mostrar os dados importados
         window.location.reload();
       } catch (error) {
         console.error('Import error:', error);
@@ -136,7 +176,7 @@ export const BackupActions = () => {
         
         <p className="text-sm text-muted-foreground">
           Use essas funções para fazer backup e restaurar seus dados de modelos de motocicleta.
-          O arquivo de exportação será salvo em formato JSON.
+          O arquivo de exportação será salvo em formato JSON. Os dados podem ser importados por qualquer usuário.
         </p>
       </CardContent>
     </Card>
