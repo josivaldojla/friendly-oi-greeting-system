@@ -111,7 +111,6 @@ const MotorcycleModelsPage = () => {
       });
       setIsDeleteDialogOpen(false);
       
-      // Se excluiu o último modelo da marca filtrada, limpa o filtro
       if (selectedBrand && 
         !motorcycleModels.some(model => 
           model.brand?.toLowerCase() === selectedBrand.toLowerCase() && 
@@ -142,7 +141,6 @@ const MotorcycleModelsPage = () => {
       setIsDeleteBrandDialogOpen(false);
       setBrandToDelete(null);
       
-      // Se excluiu a marca filtrada, limpa o filtro
       if (selectedBrand === brandToDelete) {
         setSelectedBrand(null);
       }
@@ -209,12 +207,11 @@ const MotorcycleModelsPage = () => {
         <div className="flex justify-between items-center">
           <h2 className="text-2xl font-bold">Modelos de Motos</h2>
           <div className="flex gap-3">
-            <BackupActions motorcycleModels={motorcycleModels} />
+            <BackupActions />
             <Button onClick={openAddDialog}>Adicionar Modelo</Button>
           </div>
         </div>
         
-        {/* Filtro de Marcas */}
         {!isLoading && motorcycleModels.length > 0 && (
           <BrandFilterButtons 
             brands={uniqueBrands} 
@@ -240,7 +237,6 @@ const MotorcycleModelsPage = () => {
         )}
       </div>
       
-      {/* Formulário para adicionar modelo */}
       <MotorcycleModelForm
         isOpen={isAddDialogOpen}
         onOpenChange={setIsAddDialogOpen}
@@ -249,7 +245,6 @@ const MotorcycleModelsPage = () => {
         mode="add"
       />
       
-      {/* Formulário para editar modelo */}
       <MotorcycleModelForm
         isOpen={isEditDialogOpen}
         onOpenChange={setIsEditDialogOpen}
@@ -259,7 +254,6 @@ const MotorcycleModelsPage = () => {
         mode="edit"
       />
       
-      {/* Diálogo para confirmar exclusão */}
       <DeleteModelDialog
         isOpen={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
@@ -268,7 +262,6 @@ const MotorcycleModelsPage = () => {
         isLoading={deleteModelMutation.isPending}
       />
       
-      {/* Diálogo para confirmar exclusão de marca */}
       <DeleteBrandDialog
         isOpen={isDeleteBrandDialogOpen}
         onOpenChange={setIsDeleteBrandDialogOpen}
