@@ -117,18 +117,21 @@ export type Database = {
         Row: {
           brand: string | null
           created_at: string
+          created_by: string | null
           id: string
           name: string
         }
         Insert: {
           brand?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           name: string
         }
         Update: {
           brand?: string | null
           created_at?: string
+          created_by?: string | null
           id?: string
           name?: string
         }

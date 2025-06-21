@@ -63,6 +63,13 @@ export const BackupActions = () => {
 
       setIsImporting(true);
       try {
+        // Get current user ID
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error('Usuário não autenticado');
+          return;
+        }
+
         const text = await file.text();
         const importData = JSON.parse(text);
 
@@ -73,7 +80,7 @@ export const BackupActions = () => {
 
         console.log('Importing data:', importData.data);
 
-        // Primeiro, vamos buscar os modelos já existentes para evitar duplicatas
+        // Primeiro, vamos buscar os modelos já existentes do usuário atual para evitar duplicatas
         const { data: existingModels, error: fetchError } = await supabase
           .from('motorcycle_models')
           .select('name, brand');
@@ -86,21 +93,22 @@ export const BackupActions = () => {
           (existingModels || []).map(model => `${model.name}|${model.brand || ''}`)
         );
 
-        // Filtrar apenas modelos que não existem ainda
+        // Filtrar apenas modelos que não existem ainda para o usuário atual
         const newModels = importData.data.filter((item: any) => {
           const key = `${item.name}|${item.brand || ''}`;
           return !existingModelKeys.has(key);
         });
 
         if (newModels.length === 0) {
-          toast.success('Todos os modelos do backup já existem no sistema.');
+          toast.success('Todos os modelos do backup já existem no seu sistema.');
           return;
         }
 
-        // Preparar dados para importação (remover id e timestamps para deixar o Supabase gerar novos)
+        // Preparar dados para importação (definir created_by como o usuário atual)
         const dataToImport = newModels.map((item: any) => ({
           name: item.name,
-          brand: item.brand || null
+          brand: item.brand || null,
+          created_by: user.id
         }));
 
         console.log('Data to import after filtering:', dataToImport);
@@ -176,7 +184,7 @@ export const BackupActions = () => {
         
         <p className="text-sm text-muted-foreground">
           Use essas funções para fazer backup e restaurar seus dados de modelos de motocicleta.
-          O arquivo de exportação será salvo em formato JSON. Os dados podem ser importados por qualquer usuário.
+          O arquivo de exportação será salvo em formato JSON. Os dados importados serão associados à sua conta.
         </p>
       </CardContent>
     </Card>

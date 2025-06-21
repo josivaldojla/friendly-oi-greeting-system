@@ -1,3 +1,4 @@
+
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -61,11 +62,18 @@ export async function addMotorcycleModel(model: Omit<MotorcycleModel, "id">): Pr
   try {
     console.log('Adicionando modelo:', model);
     
+    // Get current user ID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error("Usuário não autenticado");
+    }
+    
     const { error } = await supabase
       .from('motorcycle_models')
       .insert([{
         name: model.name,
-        brand: model.brand || ""
+        brand: model.brand || "",
+        created_by: user.id
       }]);
 
     if (error) {
@@ -151,10 +159,24 @@ export async function deleteModelsByBrand(brand: string): Promise<MotorcycleMode
   }
 }
 
-// Updated function to populate models - now always checks and adds missing models
+// Updated function to populate models - now always checks and adds missing models for the current user
 export async function populateModelsIfEmpty(): Promise<boolean> {
   try {
-    console.log('Verificando e adicionando modelos faltantes...');
+    console.log('Verificando e adicionando modelos faltantes para o usuário atual...');
+    
+    // Get current user ID
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      console.log('Usuário não autenticado, não é possível popular modelos');
+      return false;
+    }
+    
+    // Check if user already has models
+    const existingModels = await getMotorcycleModels();
+    if (existingModels.length > 0) {
+      console.log('Usuário já possui modelos, não é necessário popular');
+      return true;
+    }
     
     // Import and run the updated populate function
     const { populateMotorcycleModels } = await import('../motorcycle-models-data');
