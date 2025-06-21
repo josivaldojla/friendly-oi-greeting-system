@@ -10,31 +10,14 @@ export async function getServices(): Promise<Service[]> {
     return [];
   }
 
-  // Check if user is admin
-  const { data: roleData } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single();
-
-  const isAdmin = roleData?.role === 'admin';
-
-  let query = supabase
+  // Buscar apenas serviços criados pelo usuário atual
+  // Não incluir serviços soft-deleted por este usuário
+  const { data, error } = await supabase
     .from('services')
     .select('*')
+    .eq('created_by', user.id)
+    .or('deleted_at.is.null,deleted_by.neq.' + user.id)
     .order('created_at', { ascending: true });
-
-  if (isAdmin) {
-    // Admin sees all services (including soft deleted ones)
-    // No additional filters needed
-  } else {
-    // Regular users only see services that:
-    // 1. Were created by them, OR
-    // 2. Were created by admin and not soft-deleted by this user
-    query = query.or(`and(created_by.eq.${user.id}),and(created_by.is.null,or(deleted_at.is.null,deleted_by.neq.${user.id}))`);
-  }
-
-  const { data, error } = await query;
 
   if (error) {
     console.error('Error fetching services:', error);
@@ -116,45 +99,20 @@ export async function deleteService(id: string): Promise<Service[]> {
     return [];
   }
 
-  // Check if user is admin
-  const { data: roleData } = await supabase
-    .from('user_roles')
-    .select('role')
-    .eq('user_id', user.id)
-    .single();
+  // Soft delete: marcar como deletado por este usuário
+  const { error } = await supabase
+    .from('services')
+    .update({
+      deleted_at: new Date().toISOString(),
+      deleted_by: user.id
+    })
+    .eq('id', id);
 
-  const isAdmin = roleData?.role === 'admin';
-
-  if (isAdmin) {
-    // Admin can permanently delete
-    const { error } = await supabase
-      .from('services')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      console.error('Error permanently deleting service:', error);
-      return [];
-    }
-
-    console.log('Service permanently deleted successfully');
-  } else {
-    // Regular user: soft delete (mark as deleted for this user)
-    const { error } = await supabase
-      .from('services')
-      .update({
-        deleted_at: new Date().toISOString(),
-        deleted_by: user.id
-      })
-      .eq('id', id);
-
-    if (error) {
-      console.error('Error soft deleting service:', error);
-      return [];
-    }
-
-    console.log('Service soft deleted successfully');
+  if (error) {
+    console.error('Error soft deleting service:', error);
+    return [];
   }
 
+  console.log('Service soft deleted successfully');
   return getServices();
 }
