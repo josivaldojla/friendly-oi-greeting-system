@@ -26,35 +26,36 @@ const MotorcycleModelsPage = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   
-  // Consulta para buscar todos os modelos
+  // Query to fetch all models
   const { data: motorcycleModels = [], isLoading } = useQuery({
     queryKey: ['motorcycleModels'],
     queryFn: getMotorcycleModels
   });
   
-  // Filtra os modelos pela marca selecionada (se houver)
+  // Filter models by selected brand (if any)
   const filteredModels = selectedBrand
     ? motorcycleModels.filter(model => 
-        model.brand && model.brand.toLowerCase().trim() === selectedBrand.toLowerCase().trim()
+        model.brand && model.brand.trim().toLowerCase() === selectedBrand.trim().toLowerCase()
       )
     : motorcycleModels;
   
-  // Extrai as marcas únicas para os botões de filtro - versão melhorada
+  // Extract unique brands - improved logic
   const uniqueBrands = Array.from(
     new Set(
       motorcycleModels
-        .map(model => model.brand)
-        .filter(brand => brand && brand.trim() !== '')
-        .map(brand => brand.trim())
+        .filter(model => model.brand && typeof model.brand === 'string' && model.brand.trim() !== '')
+        .map(model => model.brand.trim())
+        .filter(brand => brand.length > 0)
     )
-  );
+  ).sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
   
-  console.log('Total motorcycle models:', motorcycleModels.length);
-  console.log('Unique brands found:', uniqueBrands);
-  console.log('Currently selected brand:', selectedBrand);
-  console.log('Filtered models count:', filteredModels.length);
+  console.log('MotorcycleModelsPage - Total models:', motorcycleModels.length);
+  console.log('MotorcycleModelsPage - Models data:', motorcycleModels);
+  console.log('MotorcycleModelsPage - Unique brands found:', uniqueBrands);
+  console.log('MotorcycleModelsPage - Currently selected brand:', selectedBrand);
+  console.log('MotorcycleModelsPage - Filtered models count:', filteredModels.length);
   
-  // Mutação para adicionar um modelo
+  // Mutations
   const addModelMutation = useMutation({
     mutationFn: addMotorcycleModel,
     onSuccess: () => {
@@ -74,7 +75,6 @@ const MotorcycleModelsPage = () => {
     }
   });
   
-  // Mutação para atualizar um modelo
   const updateModelMutation = useMutation({
     mutationFn: updateMotorcycleModel,
     onSuccess: () => {
@@ -94,7 +94,6 @@ const MotorcycleModelsPage = () => {
     }
   });
   
-  // Mutação para excluir um modelo
   const deleteModelMutation = useMutation({
     mutationFn: deleteMotorcycleModel,
     onSuccess: () => {
@@ -123,7 +122,6 @@ const MotorcycleModelsPage = () => {
     }
   });
   
-  // Mutação para excluir marca
   const deleteBrandMutation = useMutation({
     mutationFn: deleteModelsByBrand,
     onSuccess: () => {
@@ -148,7 +146,6 @@ const MotorcycleModelsPage = () => {
     }
   });
 
-  // Mutação para popular modelos manualmente
   const populateModelsMutation = useMutation({
     mutationFn: populateModelsManually,
     onSuccess: (success) => {
