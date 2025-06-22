@@ -39,18 +39,51 @@ const MotorcycleModelsPage = () => {
       )
     : motorcycleModels;
   
-  // Extract unique brands - improved logic
-  const uniqueBrands = Array.from(
-    new Set(
-      motorcycleModels
-        .filter(model => model.brand && typeof model.brand === 'string' && model.brand.trim() !== '')
-        .map(model => model.brand.trim())
-        .filter(brand => brand.length > 0)
-    )
-  ).sort((a, b) => a.localeCompare(b, 'pt-BR', { sensitivity: 'base' }));
+  // Extract unique brands - IMPROVED LOGIC
+  const uniqueBrands = (() => {
+    console.log('=== MotorcycleModelsPage - Extracting unique brands ===');
+    console.log('Total models:', motorcycleModels.length);
+    console.log('All models data:', JSON.stringify(motorcycleModels, null, 2));
+    
+    const brandsSet = new Set<string>();
+    
+    motorcycleModels.forEach((model, index) => {
+      console.log(`Model ${index}:`, {
+        id: model.id,
+        name: model.name,
+        brand: model.brand,
+        brand_type: typeof model.brand,
+        brand_valid: model.brand && typeof model.brand === 'string' && model.brand.trim() !== ''
+      });
+      
+      if (model.brand && 
+          typeof model.brand === 'string' && 
+          model.brand.trim() !== '' &&
+          model.brand.trim() !== 'undefined' &&
+          model.brand.trim() !== 'null') {
+        const cleanBrand = model.brand.trim();
+        brandsSet.add(cleanBrand);
+        console.log('✓ Brand added to set:', cleanBrand);
+      } else {
+        console.log('✗ Brand skipped (invalid):', model.brand);
+      }
+    });
+    
+    const brandsArray = Array.from(brandsSet);
+    console.log('Unique brands array:', brandsArray);
+    
+    const sortedBrands = brandsArray.sort((a, b) => 
+      a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
+    );
+    
+    console.log('Final sorted unique brands:', sortedBrands);
+    console.log('Total unique brands count:', sortedBrands.length);
+    console.log('=== End MotorcycleModelsPage - Extracting unique brands ===');
+    
+    return sortedBrands;
+  })();
   
   console.log('MotorcycleModelsPage - Total models:', motorcycleModels.length);
-  console.log('MotorcycleModelsPage - Models data:', motorcycleModels);
   console.log('MotorcycleModelsPage - Unique brands found:', uniqueBrands);
   console.log('MotorcycleModelsPage - Currently selected brand:', selectedBrand);
   console.log('MotorcycleModelsPage - Filtered models count:', filteredModels.length);

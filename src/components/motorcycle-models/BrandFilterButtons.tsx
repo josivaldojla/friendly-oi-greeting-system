@@ -24,25 +24,39 @@ export const BrandFilterButtons = ({
   
   // Extract and sort all unique brands from motorcycle models
   useEffect(() => {
+    console.log('=== BrandFilterButtons useEffect ===');
     console.log('All motorcycle models received:', motorcycleModels.length);
-    console.log('Raw motorcycle models data:', motorcycleModels);
+    console.log('Raw motorcycle models data:', JSON.stringify(motorcycleModels, null, 2));
     
-    // Extract all unique brands more carefully
+    // Extract all unique brands more carefully with better validation
     const allBrandsSet = new Set<string>();
     
-    motorcycleModels.forEach(model => {
-      console.log('Processing model:', model);
-      if (model.brand && typeof model.brand === 'string') {
+    motorcycleModels.forEach((model, index) => {
+      console.log(`Processing model ${index}:`, {
+        id: model.id,
+        name: model.name,
+        brand: model.brand,
+        brand_type: typeof model.brand,
+        brand_length: model.brand ? model.brand.length : 0
+      });
+      
+      // More robust brand validation
+      if (model.brand && 
+          typeof model.brand === 'string' && 
+          model.brand.trim() !== '' &&
+          model.brand.trim() !== 'undefined' &&
+          model.brand.trim() !== 'null') {
         const cleanBrand = model.brand.trim();
-        if (cleanBrand.length > 0) {
-          allBrandsSet.add(cleanBrand);
-          console.log('Added brand:', cleanBrand);
-        }
+        allBrandsSet.add(cleanBrand);
+        console.log('✓ Added brand:', cleanBrand);
+      } else {
+        console.log('✗ Skipped invalid brand:', model.brand);
       }
     });
     
     const uniqueBrandsArray = Array.from(allBrandsSet);
-    console.log('Unique brands found:', uniqueBrandsArray);
+    console.log('All unique brands found:', uniqueBrandsArray);
+    console.log('Total unique brands count:', uniqueBrandsArray.length);
     
     // Sort brands alphabetically (Portuguese locale)
     const sorted = uniqueBrandsArray.sort((a, b) => 
@@ -50,12 +64,14 @@ export const BrandFilterButtons = ({
     );
     
     console.log('Final sorted brands:', sorted);
+    console.log('=== End BrandFilterButtons useEffect ===');
     setSortedBrands(sorted);
   }, [motorcycleModels]);
   
   const getModelCountForBrand = (brand: string) => {
     const count = motorcycleModels.filter(model => 
       model.brand && 
+      typeof model.brand === 'string' &&
       model.brand.trim().toLowerCase() === brand.trim().toLowerCase()
     ).length;
     console.log(`Models for brand ${brand}:`, count);
