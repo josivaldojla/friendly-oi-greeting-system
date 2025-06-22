@@ -34,13 +34,25 @@ const MotorcycleModelsPage = () => {
   
   // Filtra os modelos pela marca selecionada (se houver)
   const filteredModels = selectedBrand
-    ? motorcycleModels.filter(model => model.brand?.toLowerCase() === selectedBrand.toLowerCase())
+    ? motorcycleModels.filter(model => 
+        model.brand && model.brand.toLowerCase().trim() === selectedBrand.toLowerCase().trim()
+      )
     : motorcycleModels;
   
-  // Extrai as marcas únicas para os botões de filtro
+  // Extrai as marcas únicas para os botões de filtro - versão melhorada
   const uniqueBrands = Array.from(
-    new Set(motorcycleModels.map(model => model.brand).filter(Boolean) as string[])
+    new Set(
+      motorcycleModels
+        .map(model => model.brand)
+        .filter(brand => brand && brand.trim() !== '')
+        .map(brand => brand.trim())
+    )
   );
+  
+  console.log('Total motorcycle models:', motorcycleModels.length);
+  console.log('Unique brands found:', uniqueBrands);
+  console.log('Currently selected brand:', selectedBrand);
+  console.log('Filtered models count:', filteredModels.length);
   
   // Mutação para adicionar um modelo
   const addModelMutation = useMutation({
@@ -237,7 +249,7 @@ const MotorcycleModelsPage = () => {
         </div>
         
         {/* Brand Filter Section */}
-        {!isLoading && motorcycleModels.length > 0 && (
+        {!isLoading && motorcycleModels.length > 0 && uniqueBrands.length > 0 && (
           <BrandFilterButtons 
             brands={uniqueBrands} 
             selectedBrand={selectedBrand} 

@@ -21,18 +21,34 @@ export const BrandFilterButtons = ({
   motorcycleModels
 }: BrandFilterButtonsProps) => {
   const [sortedBrands, setSortedBrands] = useState<string[]>([]);
-  const [isScrollable, setIsScrollable] = useState(false);
   
-  // Sort brands alphabetically
+  // Sort brands alphabetically and ensure all brands are included
   useEffect(() => {
-    setSortedBrands([...brands].sort());
+    console.log('All available brands:', brands);
+    console.log('All motorcycle models:', motorcycleModels);
     
-    // Check if we need scrolling based on number of brands
-    setIsScrollable(brands.length > 8);
-  }, [brands]);
+    // Extract all unique brands from motorcycle models
+    const allBrands = Array.from(
+      new Set(
+        motorcycleModels
+          .map(model => model.brand)
+          .filter(brand => brand && brand.trim() !== '')
+          .map(brand => brand.trim())
+      )
+    );
+    
+    console.log('Extracted unique brands:', allBrands);
+    
+    const sorted = [...allBrands].sort((a, b) => a.localeCompare(b, 'pt-BR'));
+    setSortedBrands(sorted);
+    
+    console.log('Sorted brands to display:', sorted);
+  }, [brands, motorcycleModels]);
   
   const getModelCountForBrand = (brand: string) => {
-    return motorcycleModels.filter(model => model.brand?.toLowerCase() === brand.toLowerCase()).length;
+    return motorcycleModels.filter(model => 
+      model.brand && model.brand.toLowerCase().trim() === brand.toLowerCase().trim()
+    ).length;
   };
   
   if (sortedBrands.length === 0) {
@@ -46,7 +62,7 @@ export const BrandFilterButtons = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Filtrar por marca</h3>
+        <h3 className="text-sm font-medium">Filtrar por marca ({sortedBrands.length} marcas)</h3>
         {selectedBrand && (
           <Badge 
             variant="outline" 
@@ -59,24 +75,25 @@ export const BrandFilterButtons = ({
         )}
       </div>
       
-      {isScrollable ? (
-        <ScrollArea className="w-full" style={{ height: 'auto', maxHeight: '120px' }}>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 pb-2">
+      <div className="w-full">
+        <ScrollArea className="w-full max-h-32">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 pr-4">
             {sortedBrands.map(brand => (
-              <div key={brand} className="flex items-center gap-1">
+              <div key={brand} className="flex items-center gap-1 min-w-0">
                 <Button
                   size="sm"
                   variant={selectedBrand === brand ? "default" : "outline"}
                   onClick={() => onSelectBrand(brand)}
-                  className="flex-1 justify-center text-center"
+                  className="flex-1 justify-center text-center min-w-0 truncate"
+                  title={`${brand} (${getModelCountForBrand(brand)} modelos)`}
                 >
-                  {brand}
+                  <span className="truncate">{brand}</span>
                 </Button>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => onDeleteBrand(brand)}
-                  className="p-1 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
+                  className="p-1 h-8 w-8 flex-shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                   title={`Excluir marca ${brand} (${getModelCountForBrand(brand)} modelos)`}
                 >
                   <Trash2 className="h-3 w-3" />
@@ -85,31 +102,7 @@ export const BrandFilterButtons = ({
             ))}
           </div>
         </ScrollArea>
-      ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
-          {sortedBrands.map(brand => (
-            <div key={brand} className="flex items-center gap-1">
-              <Button
-                size="sm"
-                variant={selectedBrand === brand ? "default" : "outline"}
-                onClick={() => onSelectBrand(brand)}
-                className="flex-1 justify-center text-center"
-              >
-                {brand}
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onDeleteBrand(brand)}
-                className="p-1 h-8 w-8 text-red-500 hover:text-red-700 hover:bg-red-50"
-                title={`Excluir marca ${brand} (${getModelCountForBrand(brand)} modelos)`}
-              >
-                <Trash2 className="h-3 w-3" />
-              </Button>
-            </div>
-          ))}
-        </div>
-      )}
+      </div>
     </div>
   );
 };
