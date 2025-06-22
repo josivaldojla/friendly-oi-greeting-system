@@ -20,52 +20,58 @@ export const BrandFilterButtons = ({
   onDeleteBrand,
   motorcycleModels
 }: BrandFilterButtonsProps) => {
-  const [sortedBrands, setSortedBrands] = useState<string[]>([]);
+  const [allBrands, setAllBrands] = useState<string[]>([]);
   
-  // Extract and sort all unique brands from motorcycle models
+  // Extract ALL unique brands directly from motorcycle models
   useEffect(() => {
-    console.log('=== BrandFilterButtons useEffect ===');
-    console.log('All motorcycle models received:', motorcycleModels.length);
-    console.log('Raw motorcycle models data:', JSON.stringify(motorcycleModels, null, 2));
+    console.log('=== BrandFilterButtons: Extracting brands ===');
+    console.log('Motorcycle models received:', motorcycleModels.length);
     
-    // Extract all unique brands more carefully with better validation
-    const allBrandsSet = new Set<string>();
+    if (!motorcycleModels || motorcycleModels.length === 0) {
+      console.log('No motorcycle models found');
+      setAllBrands([]);
+      return;
+    }
     
+    // Create a Set to store unique brands
+    const uniqueBrandsSet = new Set<string>();
+    
+    // Process each model to extract valid brands
     motorcycleModels.forEach((model, index) => {
-      console.log(`Processing model ${index}:`, {
+      console.log(`Processing model ${index + 1}:`, {
         id: model.id,
         name: model.name,
         brand: model.brand,
-        brand_type: typeof model.brand,
-        brand_length: model.brand ? model.brand.length : 0
+        brandType: typeof model.brand,
+        brandValid: Boolean(model.brand && typeof model.brand === 'string' && model.brand.trim())
       });
       
-      // More robust brand validation
+      // Validate and add brand
       if (model.brand && 
           typeof model.brand === 'string' && 
           model.brand.trim() !== '' &&
-          model.brand.trim() !== 'undefined' &&
-          model.brand.trim() !== 'null') {
+          model.brand.trim().toLowerCase() !== 'null' &&
+          model.brand.trim().toLowerCase() !== 'undefined') {
+        
         const cleanBrand = model.brand.trim();
-        allBrandsSet.add(cleanBrand);
-        console.log('✓ Added brand:', cleanBrand);
+        uniqueBrandsSet.add(cleanBrand);
+        console.log(`✓ Brand added: "${cleanBrand}"`);
       } else {
-        console.log('✗ Skipped invalid brand:', model.brand);
+        console.log(`✗ Brand skipped (invalid): "${model.brand}"`);
       }
     });
     
-    const uniqueBrandsArray = Array.from(allBrandsSet);
-    console.log('All unique brands found:', uniqueBrandsArray);
-    console.log('Total unique brands count:', uniqueBrandsArray.length);
-    
-    // Sort brands alphabetically (Portuguese locale)
-    const sorted = uniqueBrandsArray.sort((a, b) => 
+    // Convert Set to Array and sort
+    const brandsArray = Array.from(uniqueBrandsSet);
+    const sortedBrands = brandsArray.sort((a, b) => 
       a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
     );
     
-    console.log('Final sorted brands:', sorted);
-    console.log('=== End BrandFilterButtons useEffect ===');
-    setSortedBrands(sorted);
+    console.log('Final unique brands extracted:', sortedBrands);
+    console.log('Total unique brands count:', sortedBrands.length);
+    console.log('=== End BrandFilterButtons: Extracting brands ===');
+    
+    setAllBrands(sortedBrands);
   }, [motorcycleModels]);
   
   const getModelCountForBrand = (brand: string) => {
@@ -74,11 +80,10 @@ export const BrandFilterButtons = ({
       typeof model.brand === 'string' &&
       model.brand.trim().toLowerCase() === brand.trim().toLowerCase()
     ).length;
-    console.log(`Models for brand ${brand}:`, count);
     return count;
   };
   
-  if (sortedBrands.length === 0) {
+  if (!allBrands || allBrands.length === 0) {
     return (
       <div className="p-4 text-center text-gray-500 border rounded-md">
         Nenhuma marca encontrada. Adicione modelos com marcas para filtrar.
@@ -89,7 +94,7 @@ export const BrandFilterButtons = ({
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">Filtrar por marca ({sortedBrands.length} marcas)</h3>
+        <h3 className="text-sm font-medium">Filtrar por marca ({allBrands.length} marcas)</h3>
         {selectedBrand && (
           <Badge 
             variant="outline" 
@@ -103,17 +108,19 @@ export const BrandFilterButtons = ({
       </div>
       
       <div className="w-full">
-        <ScrollArea className="w-full max-h-32">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 pr-4">
-            {sortedBrands.map(brand => {
+        <ScrollArea className="w-full max-h-40">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 pr-4">
+            {allBrands.map((brand, index) => {
               const modelCount = getModelCountForBrand(brand);
+              console.log(`Rendering brand ${index + 1}: ${brand} (${modelCount} models)`);
+              
               return (
-                <div key={brand} className="flex items-center gap-1 min-w-0">
+                <div key={`${brand}-${index}`} className="flex items-center gap-1 min-w-0">
                   <Button
                     size="sm"
                     variant={selectedBrand === brand ? "default" : "outline"}
                     onClick={() => onSelectBrand(brand)}
-                    className="flex-1 justify-center text-center min-w-0 truncate"
+                    className="flex-1 justify-center text-center min-w-0 truncate text-xs px-2 py-1"
                     title={`${brand} (${modelCount} modelos)`}
                   >
                     <span className="truncate">{brand}</span>
@@ -122,7 +129,7 @@ export const BrandFilterButtons = ({
                     size="sm"
                     variant="ghost"
                     onClick={() => onDeleteBrand(brand)}
-                    className="p-1 h-8 w-8 flex-shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="p-1 h-7 w-7 flex-shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                     title={`Excluir marca ${brand} (${modelCount} modelos)`}
                   >
                     <Trash2 className="h-3 w-3" />

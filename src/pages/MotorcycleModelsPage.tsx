@@ -32,61 +32,24 @@ const MotorcycleModelsPage = () => {
     queryFn: getMotorcycleModels
   });
   
+  console.log('=== MotorcycleModelsPage: Data Analysis ===');
+  console.log('Total models loaded:', motorcycleModels.length);
+  console.log('Models data:', JSON.stringify(motorcycleModels, null, 2));
+  
   // Filter models by selected brand (if any)
   const filteredModels = selectedBrand
-    ? motorcycleModels.filter(model => 
-        model.brand && model.brand.trim().toLowerCase() === selectedBrand.trim().toLowerCase()
-      )
+    ? motorcycleModels.filter(model => {
+        const modelBrand = model.brand?.trim();
+        const filterBrand = selectedBrand.trim();
+        const matches = modelBrand && modelBrand.toLowerCase() === filterBrand.toLowerCase();
+        console.log(`Filtering model "${model.name}": brand="${modelBrand}" vs filter="${filterBrand}" = ${matches}`);
+        return matches;
+      })
     : motorcycleModels;
   
-  // Extract unique brands - IMPROVED LOGIC
-  const uniqueBrands = (() => {
-    console.log('=== MotorcycleModelsPage - Extracting unique brands ===');
-    console.log('Total models:', motorcycleModels.length);
-    console.log('All models data:', JSON.stringify(motorcycleModels, null, 2));
-    
-    const brandsSet = new Set<string>();
-    
-    motorcycleModels.forEach((model, index) => {
-      console.log(`Model ${index}:`, {
-        id: model.id,
-        name: model.name,
-        brand: model.brand,
-        brand_type: typeof model.brand,
-        brand_valid: model.brand && typeof model.brand === 'string' && model.brand.trim() !== ''
-      });
-      
-      if (model.brand && 
-          typeof model.brand === 'string' && 
-          model.brand.trim() !== '' &&
-          model.brand.trim() !== 'undefined' &&
-          model.brand.trim() !== 'null') {
-        const cleanBrand = model.brand.trim();
-        brandsSet.add(cleanBrand);
-        console.log('✓ Brand added to set:', cleanBrand);
-      } else {
-        console.log('✗ Brand skipped (invalid):', model.brand);
-      }
-    });
-    
-    const brandsArray = Array.from(brandsSet);
-    console.log('Unique brands array:', brandsArray);
-    
-    const sortedBrands = brandsArray.sort((a, b) => 
-      a.localeCompare(b, 'pt-BR', { sensitivity: 'base' })
-    );
-    
-    console.log('Final sorted unique brands:', sortedBrands);
-    console.log('Total unique brands count:', sortedBrands.length);
-    console.log('=== End MotorcycleModelsPage - Extracting unique brands ===');
-    
-    return sortedBrands;
-  })();
-  
-  console.log('MotorcycleModelsPage - Total models:', motorcycleModels.length);
-  console.log('MotorcycleModelsPage - Unique brands found:', uniqueBrands);
-  console.log('MotorcycleModelsPage - Currently selected brand:', selectedBrand);
-  console.log('MotorcycleModelsPage - Filtered models count:', filteredModels.length);
+  console.log('Selected brand for filtering:', selectedBrand);
+  console.log('Filtered models count:', filteredModels.length);
+  console.log('=== End MotorcycleModelsPage: Data Analysis ===');
   
   // Mutations
   const addModelMutation = useMutation({
@@ -235,6 +198,7 @@ const MotorcycleModelsPage = () => {
   };
   
   const handleBrandFilter = (brand: string | null) => {
+    console.log('Brand filter changed to:', brand);
     setSelectedBrand(brand);
   };
 
@@ -278,10 +242,10 @@ const MotorcycleModelsPage = () => {
           </div>
         </div>
         
-        {/* Brand Filter Section */}
-        {!isLoading && motorcycleModels.length > 0 && uniqueBrands.length > 0 && (
+        {/* Brand Filter Section - Always show if we have models */}
+        {!isLoading && motorcycleModels.length > 0 && (
           <BrandFilterButtons 
-            brands={uniqueBrands} 
+            brands={[]} // We don't use this prop anymore, brands are extracted inside the component
             selectedBrand={selectedBrand} 
             onSelectBrand={handleBrandFilter}
             onDeleteBrand={handleDeleteBrand}
