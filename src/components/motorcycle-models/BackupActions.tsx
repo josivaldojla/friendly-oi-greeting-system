@@ -152,40 +152,41 @@ export const BackupActions = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-orange-500" />
-          Backup dos Dados
+    <Card className="w-full">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+          <AlertTriangle className="h-4 w-4 sm:h-5 sm:w-5 text-orange-500 flex-shrink-0" />
+          <span className="truncate">Backup dos Dados</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="flex flex-col sm:flex-row gap-4">
+      <CardContent className="pt-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Button
             onClick={handleExportData}
             disabled={isExporting}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 h-10 text-sm"
+            size="sm"
           >
-            <Download className="h-4 w-4" />
-            {isExporting ? 'Exportando...' : 'Exportar Dados'}
+            <Download className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">
+              {isExporting ? 'Exportando...' : 'Exportar Dados'}
+            </span>
           </Button>
           
           <Button
             onClick={handleImportData}
             disabled={isImporting}
             variant="outline"
-            className="flex items-center gap-2"
+            className="flex items-center justify-center gap-2 h-10 text-sm"
+            size="sm"
           >
-            <Upload className="h-4 w-4" />
-            {isImporting ? 'Importando...' : 'Importar Dados'}
+            <Upload className="h-4 w-4 flex-shrink-0" />
+            <span className="truncate">
+              {isImporting ? 'Importando...' : 'Importar Dados'}
+            </span>
           </Button>
         </div>
-        
-        <p className="text-sm text-muted-foreground">
-          Use essas funções para fazer backup e restaurar seus dados de modelos de motocicleta.
-          O arquivo de exportação será salvo em formato JSON. Os dados importados serão associados à sua conta.
-        </p>
       </CardContent>
     </Card>
   );
