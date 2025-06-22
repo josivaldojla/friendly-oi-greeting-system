@@ -46,12 +46,13 @@ export const BrandFilterButtons = ({
         brandValid: Boolean(model.brand && typeof model.brand === 'string' && model.brand.trim())
       });
       
-      // Validate and add brand
+      // Validate and add brand - more strict validation
       if (model.brand && 
           typeof model.brand === 'string' && 
           model.brand.trim() !== '' &&
           model.brand.trim().toLowerCase() !== 'null' &&
-          model.brand.trim().toLowerCase() !== 'undefined') {
+          model.brand.trim().toLowerCase() !== 'undefined' &&
+          model.brand.trim().length > 0) {
         
         const cleanBrand = model.brand.trim();
         uniqueBrandsSet.add(cleanBrand);
@@ -69,6 +70,17 @@ export const BrandFilterButtons = ({
     
     console.log('Final unique brands extracted:', sortedBrands);
     console.log('Total unique brands count:', sortedBrands.length);
+    
+    // Detailed brand analysis
+    sortedBrands.forEach((brand, index) => {
+      const modelsForBrand = motorcycleModels.filter(model => 
+        model.brand && 
+        typeof model.brand === 'string' &&
+        model.brand.trim().toLowerCase() === brand.trim().toLowerCase()
+      );
+      console.log(`Brand ${index + 1}: "${brand}" has ${modelsForBrand.length} models`);
+    });
+    
     console.log('=== End BrandFilterButtons: Extracting brands ===');
     
     setAllBrands(sortedBrands);
