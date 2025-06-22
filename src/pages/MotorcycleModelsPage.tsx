@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsIfEmpty } from "@/lib/storage";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,6 +13,7 @@ import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDia
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 import { BackupActions } from "@/components/motorcycle-models/BackupActions";
+import { Package } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -21,7 +23,6 @@ const MotorcycleModelsPage = () => {
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -31,24 +32,6 @@ const MotorcycleModelsPage = () => {
     queryKey: ['motorcycleModels'],
     queryFn: getMotorcycleModels
   });
-  
-  // Inicializa o banco de dados com modelos padrão, se necessário
-  useEffect(() => {
-    const initializeModels = async () => {
-      if (isInitialized) return;
-      
-      try {
-        await populateModelsIfEmpty();
-        queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-      } catch (error) {
-        console.error("Erro ao inicializar modelos:", error);
-      } finally {
-        setIsInitialized(true);
-      }
-    };
-    
-    initializeModels();
-  }, [queryClient, isInitialized]);
   
   // Filtra os modelos pela marca selecionada (se houver)
   const filteredModels = selectedBrand
@@ -153,6 +136,33 @@ const MotorcycleModelsPage = () => {
       });
     }
   });
+
+  // Mutação para popular modelos manualmente
+  const populateModelsMutation = useMutation({
+    mutationFn: populateModelsManually,
+    onSuccess: (success) => {
+      if (success) {
+        queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
+        toast({
+          title: "Sucesso",
+          description: "Modelos padrão adicionados com sucesso",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Erro ao adicionar modelos padrão",
+          variant: "destructive",
+        });
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Erro ao adicionar modelos padrão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    }
+  });
   
   // Handlers
   const handleAddModel = (model: Omit<MotorcycleModel, "id">) => {
@@ -201,6 +211,10 @@ const MotorcycleModelsPage = () => {
     return motorcycleModels.filter(model => model.brand?.toLowerCase() === brand.toLowerCase()).length;
   };
 
+  const handlePopulateModels = () => {
+    populateModelsMutation.mutate();
+  };
+
   return (
     <Layout>
       <div className="space-y-6">
@@ -227,7 +241,22 @@ const MotorcycleModelsPage = () => {
             <div className="text-lg">Carregando...</div>
           </div>
         ) : filteredModels.length === 0 ? (
-          <EmptyModelsPlaceholder onAddClick={openAddDialog} />
+          <div className="space-y-4">
+            <EmptyModelsPlaceholder onAddClick={openAddDialog} />
+            {motorcycleModels.length === 0 && (
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handlePopulateModels}
+                  disabled={populateModelsMutation.isPending}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                >
+                  <Package className="h-4 w-4" />
+                  {populateModelsMutation.isPending ? 'Adicionando...' : 'Adicionar Modelos Padrão'}
+                </Button>
+              </div>
+            )}
+          </div>
         ) : (
           <MotorcycleModelsTable 
             models={filteredModels}

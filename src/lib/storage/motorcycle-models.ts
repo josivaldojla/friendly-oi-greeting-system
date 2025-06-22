@@ -159,10 +159,10 @@ export async function deleteModelsByBrand(brand: string): Promise<MotorcycleMode
   }
 }
 
-// Updated function to populate models - now always checks and adds missing models for the current user
-export async function populateModelsIfEmpty(): Promise<boolean> {
+// Function to manually populate models - only when explicitly requested
+export async function populateModelsManually(): Promise<boolean> {
   try {
-    console.log('Verificando e adicionando modelos faltantes para o usuário atual...');
+    console.log('Populando modelos manualmente...');
     
     // Get current user ID
     const { data: { user } } = await supabase.auth.getUser();
@@ -171,18 +171,13 @@ export async function populateModelsIfEmpty(): Promise<boolean> {
       return false;
     }
     
-    // Check if user already has models
-    const existingModels = await getMotorcycleModels();
-    if (existingModels.length > 0) {
-      console.log('Usuário já possui modelos, não é necessário popular');
-      return true;
-    }
-    
-    // Import and run the updated populate function
+    // Import and run the populate function
     const { populateMotorcycleModels } = await import('../motorcycle-models-data');
     return await populateMotorcycleModels();
   } catch (error) {
-    console.error('Erro ao verificar e importar modelos:', error);
+    console.error('Erro ao popular modelos manualmente:', error);
     return false;
   }
 }
+
+// Removed the automatic population function - models will only be added when explicitly requested
