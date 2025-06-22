@@ -5,9 +5,24 @@ import Layout from "@/components/layout/Layout";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Index = () => {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, loading } = useAuth();
+
+  console.log("Index page rendering - User:", user, "Loading:", loading, "IsAdmin:", isAdmin);
+
+  if (loading) {
+    console.log("Index: Showing loading state");
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">Heleno Motos</h1>
+          <p className="text-gray-600 mb-8">Carregando...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!user) {
+    console.log("Index: No user, showing login screen");
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
         <div className="text-center">
@@ -21,6 +36,7 @@ const Index = () => {
     );
   }
 
+  console.log("Index: User authenticated, showing main app");
   return (
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-[80vh] text-center p-4">
