@@ -16,44 +16,52 @@ export const MotorcycleModelsTable = ({
   onDelete 
 }: MotorcycleModelsTableProps) => {
   return (
-    <div className="border rounded-md">
-      <Table>
-        <TableHeader>
-          <TableRow>
-            <TableHead>Modelo</TableHead>
-            <TableHead>Marca</TableHead>
-            <TableHead className="w-[100px]">Ações</TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {models.map((model) => (
-            <TableRow key={model.id}>
-              <TableCell className="font-medium">{model.name}</TableCell>
-              <TableCell>{model.brand || "-"}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => onEdit(model)}
-                    title="Editar modelo"
-                  >
-                    <Edit className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="icon" 
-                    onClick={() => onDelete(model)}
-                    title="Excluir modelo"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                </div>
-              </TableCell>
+    <div className="w-full border rounded-md overflow-hidden">
+      <div className="overflow-x-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="min-w-[120px]">Modelo</TableHead>
+              <TableHead className="min-w-[100px]">Marca</TableHead>
+              <TableHead className="w-[80px] text-center">Ações</TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {models.map((model) => (
+              <TableRow key={model.id}>
+                <TableCell className="font-medium break-words">
+                  {model.name}
+                </TableCell>
+                <TableCell className="break-words">
+                  {model.brand || "-"}
+                </TableCell>
+                <TableCell>
+                  <div className="flex space-x-1 justify-center">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => onEdit(model)}
+                      title="Editar modelo"
+                      className="h-8 w-8"
+                    >
+                      <Edit className="h-3 w-3" />
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => onDelete(model)}
+                      title="Excluir modelo"
+                      className="h-8 w-8"
+                    >
+                      <Trash className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
     </div>
   );
 };

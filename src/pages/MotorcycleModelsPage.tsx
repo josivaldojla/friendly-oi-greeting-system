@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually } from "@/lib/storage";
@@ -217,15 +216,27 @@ const MotorcycleModelsPage = () => {
 
   return (
     <Layout>
-      <div className="space-y-6">
-        <div className="flex justify-between items-center">
-          <h2 className="text-2xl font-bold">Modelos de Motos</h2>
-          <div className="flex gap-3">
+      <div className="space-y-4 p-4 sm:p-6">
+        {/* Header Section */}
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <h2 className="text-xl sm:text-2xl font-bold">Modelos de Motos</h2>
+            <Button 
+              onClick={openAddDialog}
+              className="w-full sm:w-auto"
+              size="sm"
+            >
+              Adicionar Modelo
+            </Button>
+          </div>
+          
+          {/* Backup Actions */}
+          <div className="w-full">
             <BackupActions />
-            <Button onClick={openAddDialog}>Adicionar Modelo</Button>
           </div>
         </div>
         
+        {/* Brand Filter Section */}
         {!isLoading && motorcycleModels.length > 0 && (
           <BrandFilterButtons 
             brands={uniqueBrands} 
@@ -236,6 +247,7 @@ const MotorcycleModelsPage = () => {
           />
         )}
         
+        {/* Content Section */}
         {isLoading ? (
           <div className="flex justify-center p-8">
             <div className="text-lg">Carregando...</div>
@@ -250,6 +262,7 @@ const MotorcycleModelsPage = () => {
                   disabled={populateModelsMutation.isPending}
                   variant="outline"
                   className="flex items-center gap-2"
+                  size="sm"
                 >
                   <Package className="h-4 w-4" />
                   {populateModelsMutation.isPending ? 'Adicionando...' : 'Adicionar Modelos Padrão'}
@@ -258,11 +271,13 @@ const MotorcycleModelsPage = () => {
             )}
           </div>
         ) : (
-          <MotorcycleModelsTable 
-            models={filteredModels}
-            onEdit={openEditDialog}
-            onDelete={openDeleteDialog}
-          />
+          <div className="w-full overflow-hidden">
+            <MotorcycleModelsTable 
+              models={filteredModels}
+              onEdit={openEditDialog}
+              onDelete={openDeleteDialog}
+            />
+          </div>
         )}
       </div>
       
