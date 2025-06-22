@@ -120,7 +120,7 @@ export const BrandFilterButtons = ({
       </div>
       
       <div className="w-full">
-        <ScrollArea className="w-full max-h-40">
+        <ScrollArea className="w-full max-h-60">
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 pr-4">
             {allBrands.map((brand, index) => {
               const modelCount = getModelCountForBrand(brand);
@@ -132,16 +132,16 @@ export const BrandFilterButtons = ({
                     size="sm"
                     variant={selectedBrand === brand ? "default" : "outline"}
                     onClick={() => onSelectBrand(brand)}
-                    className="flex-1 justify-center text-center min-w-0 truncate text-xs px-2 py-1"
+                    className="flex-1 justify-center text-center min-w-0 truncate text-xs px-2 py-1 h-8"
                     title={`${brand} (${modelCount} modelos)`}
                   >
-                    <span className="truncate">{brand}</span>
+                    <span className="truncate max-w-full">{brand}</span>
                   </Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => onDeleteBrand(brand)}
-                    className="p-1 h-7 w-7 flex-shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
+                    className="p-1 h-8 w-8 flex-shrink-0 text-red-500 hover:text-red-700 hover:bg-red-50"
                     title={`Excluir marca ${brand} (${modelCount} modelos)`}
                   >
                     <Trash2 className="h-3 w-3" />
