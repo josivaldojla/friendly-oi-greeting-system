@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 // Função para buscar um cliente pelo ID
 export async function getCustomerById(id: string): Promise<Customer | null> {
   try {
+    // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
     const { data, error } = await supabase
       .from('customers')
       .select('*')
@@ -34,6 +35,7 @@ export async function getCustomerById(id: string): Promise<Customer | null> {
 // Função para buscar todos os clientes
 export async function getCustomers(): Promise<Customer[]> {
   try {
+    // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
     const { data, error } = await supabase
       .from('customers')
       .select('*')
@@ -60,14 +62,10 @@ export async function getCustomers(): Promise<Customer[]> {
 // Função para adicionar um novo cliente
 export async function addCustomer(customer: Omit<Customer, "id">): Promise<Customer | null> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    // created_by será definido automaticamente pelo trigger
     const { data, error } = await supabase
       .from('customers')
-      .insert([{
-        ...customer,
-        created_by: user?.id
-      }])
+      .insert([customer])
       .select()
       .maybeSingle();
       

@@ -3,6 +3,7 @@ import { Mechanic } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function getMechanics(): Promise<Mechanic[]> {
+  // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
   const { data, error } = await supabase
     .from('mechanics')
     .select('*')
@@ -23,14 +24,10 @@ export async function getMechanics(): Promise<Mechanic[]> {
 }
 
 export async function addMechanic(mechanic: Omit<Mechanic, "id">): Promise<Mechanic[]> {
-  const { data: { user } } = await supabase.auth.getUser();
-
+  // created_by será definido automaticamente pelo trigger
   const { error } = await supabase
     .from('mechanics')
-    .insert([{
-      ...mechanic,
-      created_by: user?.id
-    }]);
+    .insert([mechanic]);
 
   if (error) {
     console.error('Error adding mechanic:', error);
