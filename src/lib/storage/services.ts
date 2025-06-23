@@ -3,7 +3,6 @@ import { Service } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function getServices(): Promise<Service[]> {
-  // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
   const { data, error } = await supabase
     .from('services')
     .select('*')
@@ -32,12 +31,21 @@ export async function getServices(): Promise<Service[]> {
 export async function addService(service: Omit<Service, "id">): Promise<Service[]> {
   console.log('Adding service to Supabase:', service);
   
-  // created_by será definido automaticamente pelo trigger
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return [];
+  }
+  
+  // created_by será definido automaticamente aqui
   const serviceData = {
     name: service.name,
     price: service.price,
     description: service.description,
-    image_url: service.imageUrl
+    image_url: service.imageUrl,
+    created_by: user.id
   };
   
   console.log('Formatted service data for Supabase:', serviceData);
