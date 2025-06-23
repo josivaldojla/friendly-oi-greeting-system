@@ -5,7 +5,6 @@ export async function getDailyEarnings(): Promise<number> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
-  // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
   const { data, error } = await supabase
     .from('completed_services')
     .select('total_amount')
@@ -25,7 +24,6 @@ export async function getWeeklyEarnings(): Promise<number> {
   startOfWeek.setDate(today.getDate() - today.getDay());
   startOfWeek.setHours(0, 0, 0, 0);
   
-  // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
   const { data, error } = await supabase
     .from('completed_services')
     .select('total_amount')
@@ -43,7 +41,6 @@ export async function getMonthlyEarnings(): Promise<number> {
   const today = new Date();
   const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
   
-  // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
   const { data, error } = await supabase
     .from('completed_services')
     .select('total_amount')

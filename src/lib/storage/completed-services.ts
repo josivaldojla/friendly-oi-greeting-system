@@ -13,7 +13,7 @@ export async function getCompletedServices(): Promise<CompletedService[]> {
     return [];
   }
   
-  // Mapping to the correct format - data já vem filtrado pelo RLS
+  // Mapping to the correct format - dados filtrados pelo RLS automaticamente
   return data.map(item => ({
     id: item.id,
     mechanicId: item.mechanic_id || "",
@@ -26,7 +26,14 @@ export async function getCompletedServices(): Promise<CompletedService[]> {
 }
 
 export async function addCompletedService(completedService: Omit<CompletedService, "id">): Promise<CompletedService[]> {
-  // created_by será definido automaticamente pelo trigger
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return [];
+  }
+
   const { error } = await supabase
     .from('completed_services')
     .insert([{
@@ -35,7 +42,8 @@ export async function addCompletedService(completedService: Omit<CompletedServic
       total_amount: completedService.totalAmount,
       received_amount: completedService.receivedAmount,
       completion_date: completedService.completionDate,
-      created_at: completedService.createdAt
+      created_at: completedService.createdAt,
+      created_by: user.id
     }]);
 
   if (error) {

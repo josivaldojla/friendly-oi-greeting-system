@@ -1,11 +1,9 @@
-
 import { Customer } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
 // Função para buscar um cliente pelo ID
 export async function getCustomerById(id: string): Promise<Customer | null> {
   try {
-    // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
     const { data, error } = await supabase
       .from('customers')
       .select('*')
@@ -35,7 +33,6 @@ export async function getCustomerById(id: string): Promise<Customer | null> {
 // Função para buscar todos os clientes
 export async function getCustomers(): Promise<Customer[]> {
   try {
-    // Os dados já vêm filtrados pelo RLS - usuários comuns só veem seus dados
     const { data, error } = await supabase
       .from('customers')
       .select('*')
