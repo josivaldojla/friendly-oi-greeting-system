@@ -3,10 +3,20 @@ import { Service } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function getServices(): Promise<Service[]> {
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return [];
+  }
+
+  // Buscar apenas serviços criados pelo usuário atual que não foram deletados
   const { data, error } = await supabase
     .from('services')
     .select('*')
-    .or('deleted_at.is.null,deleted_by.is.null')
+    .eq('created_by', user.id)
+    .is('deleted_at', null)
     .order('created_at', { ascending: true });
 
   if (error) {
