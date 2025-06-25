@@ -1,112 +1,152 @@
 
 import { Service } from "@/lib/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Edit, Trash2, PlusCircle } from "lucide-react";
-import { ImagePlaceholder } from "@/components/ui/image-placeholder";
-import { useIsMobile } from "@/hooks/use-mobile";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Plus, Edit2 } from "lucide-react";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 
 interface ServiceCardProps {
   service: Service;
-  selectable?: boolean;
-  onEdit: (service: Service, e: React.MouseEvent) => void;
-  onDelete: (id: string, e: React.MouseEvent) => void;
-  onClick?: (service: Service) => void;
-  formatPrice: (price: number) => string;
-  onAddToSelection?: (service: Service) => void;
-  showAddButton?: boolean;
+  onAddToSelection: (service: Service, comment?: string) => void;
+  onEdit?: (service: Service) => void;
+  showEditButton?: boolean;
 }
 
-export const ServiceCard = ({
-  service,
-  selectable,
-  onEdit,
-  onDelete,
-  onClick,
-  formatPrice,
-  onAddToSelection,
-  showAddButton = false
-}: ServiceCardProps) => {
-  const isMobile = useIsMobile();
-  
+const ServiceCard = ({ service, onAddToSelection, onEdit, showEditButton = false }: ServiceCardProps) => {
+  const [isEditingPrice, setIsEditingPrice] = useState(false);
+  const [tempPrice, setTempPrice] = useState(service.price);
+
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  };
+
+  const handlePriceClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Impede que o evento de clique do card seja acionado
+    setIsEditingPrice(true);
+    setTempPrice(service.price);
+  };
+
+  const handleSavePrice = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const serviceWithNewPrice = { ...service, price: tempPrice };
+    onAddToSelection(serviceWithNewPrice);
+    setIsEditingPrice(false);
+  };
+
+  const handleCancelEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTempPrice(service.price);
+    setIsEditingPrice(false);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      e.stopPropagation();
+      const serviceWithNewPrice = { ...service, price: tempPrice };
+      onAddToSelection(serviceWithNewPrice);
+      setIsEditingPrice(false);
+    } else if (e.key === 'Escape') {
+      e.stopPropagation();
+      setTempPrice(service.price);
+      setIsEditingPrice(false);
+    }
+  };
+
   const handleCardClick = () => {
-    if (selectable && showAddButton && onAddToSelection) {
+    if (!isEditingPrice) {
       onAddToSelection(service);
-    } else if (selectable && onClick) {
-      onClick(service);
     }
   };
 
   return (
-    <Card 
-      className={selectable ? "cursor-pointer hover:shadow-md transition-shadow" : ""}
-      onClick={handleCardClick}
-    >
-      <div className="relative h-40">
-        {service.imageUrl ? (
-          <img 
-            src={service.imageUrl} 
-            alt={service.name} 
-            className="w-full h-full object-cover rounded-t-lg" 
-          />
-        ) : (
-          <div className="w-full h-full bg-muted flex items-center justify-center rounded-t-lg">
-            <ImagePlaceholder size={48} />
-          </div>
-        )}
-      </div>
-      <CardContent className="p-4">
-        <div className="flex flex-col">
-          <h3 className="font-medium text-lg mb-2 break-words whitespace-normal text-left">
-            {service.name}
-          </h3>
-          {service.description && (
-            <p className="text-muted-foreground text-sm mb-2 line-clamp-2 text-left">
-              {service.description}
-            </p>
-          )}
-          <div>
-            <div className="flex justify-between items-center w-full mt-auto">
-              <span className="font-bold text-moto-blue">{formatPrice(service.price)}</span>
-              <div onClick={(e) => e.stopPropagation()} className="flex ml-auto">
-                {showAddButton && onAddToSelection && !isMobile && (
-                  <Button
-                    variant="outline"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onAddToSelection(service);
-                    }}
-                    className="bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:text-green-700"
-                  >
-                    <PlusCircle className="h-4 w-4 mr-1" />
-                    Adicionar
-                  </Button>
-                )}
-                {!showAddButton && (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => onEdit(service, e)}
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={(e) => onDelete(service.id, e)}
-                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </>
-                )}
-              </div>
+    <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleCardClick}>
+      <CardHeader>
+        <CardTitle className="text-lg">{service.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
+        <div className="flex items-center justify-between">
+          <span className="text-lg font-bold">Preço:</span>
+          {isEditingPrice ? (
+            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+              <Input
+                type="number"
+                value={tempPrice}
+                onChange={(e) => setTempPrice(Number(e.target.value))}
+                onKeyDown={handleKeyPress}
+                className="w-24 h-8 text-sm"
+                step="0.01"
+                min="0"
+                autoFocus
+              />
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 px-2 text-green-600 hover:bg-green-50"
+                onClick={handleSavePrice}
+              >
+                ✓
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-8 px-2 text-red-600 hover:bg-red-50"
+                onClick={handleCancelEdit}
+              >
+                ✕
+              </Button>
             </div>
-            <div className="w-full border-b border-gray-100 mt-1"></div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-1">
+              <span 
+                className="text-lg font-bold cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
+                onClick={handlePriceClick}
+                title="Clique para editar o preço para esta venda"
+              >
+                {formatPrice(service.price)}
+              </span>
+              <Edit2 
+                className="h-4 w-4 text-gray-400 cursor-pointer" 
+                onClick={handlePriceClick}
+              />
+            </div>
+          )}
         </div>
       </CardContent>
+      <CardFooter className="flex justify-between">
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={(e) => {
+            e.stopPropagation();
+            if (!isEditingPrice) {
+              onAddToSelection(service);
+            }
+          }}
+        >
+          <Plus className="mr-2 h-4 w-4" />
+          Adicionar
+        </Button>
+        {showEditButton && onEdit && (
+          <Button 
+            variant="ghost" 
+            size="sm" 
+            onClick={(e) => {
+              e.stopPropagation();
+              onEdit(service);
+            }}
+          >
+            <Edit2 className="mr-2 h-4 w-4" />
+            Editar
+          </Button>
+        )}
+      </CardFooter>
     </Card>
   );
 };
+
+export default ServiceCard;
