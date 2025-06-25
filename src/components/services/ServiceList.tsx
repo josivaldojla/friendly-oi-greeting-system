@@ -1,9 +1,10 @@
+
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "./ServiceCard";
-import ServiceListItem from "./ServiceListItem";
+import { ServiceListItem } from "./ServiceListItem";
 import { ViewModeToggle } from "./components/ViewModeToggle";
 import { EmptyServices } from "./components/EmptyServices";
 import ServiceForm from "./ServiceForm";
@@ -79,7 +80,6 @@ const ServiceList = ({
       {isAddingService && (
         <ServiceForm
           onSubmit={handleAddService}
-          onCancel={() => setIsAddingService(false)}
         />
       )}
 
@@ -87,7 +87,6 @@ const ServiceList = ({
         <ServiceForm
           service={editingService}
           onSubmit={handleUpdateService}
-          onCancel={() => setEditingService(null)}
         />
       )}
 
