@@ -54,6 +54,13 @@ const ServiceList = ({
   const handleEditService = (service: Service) => {
     setEditingService(service);
   };
+
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  };
   
   return (
     <div className="space-y-4">
@@ -77,14 +84,16 @@ const ServiceList = ({
         </div>
       )}
 
-      {isAddingService && (
-        <ServiceForm
-          onSubmit={handleAddService}
-        />
-      )}
+      <ServiceForm
+        open={isAddingService}
+        onOpenChange={setIsAddingService}
+        onSubmit={handleAddService}
+      />
 
       {editingService && (
         <ServiceForm
+          open={!!editingService}
+          onOpenChange={(open) => !open && setEditingService(null)}
           service={editingService}
           onSubmit={handleUpdateService}
         />
@@ -107,10 +116,18 @@ const ServiceList = ({
               <ServiceListItem
                 key={service.id}
                 service={service}
-                onEdit={selectable ? undefined : handleEditService}
-                onDelete={selectable ? undefined : handleDeleteService}
+                onEdit={selectable ? undefined : (service: Service, e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleEditService(service);
+                }}
+                onDelete={selectable ? undefined : (id: string, e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  handleDeleteService(id);
+                }}
                 onAddToSelection={onAddToSelection}
                 selectable={selectable}
+                formatPrice={formatPrice}
+                showAddButton={selectable}
               />
             )
           ))}
