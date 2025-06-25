@@ -25,6 +25,7 @@ interface SelectedServicesListProps {
   receivedAmount: number;
   onReceivedAmountChange: (amount: number) => void;
   autoSave?: boolean;
+  onServicePriceChange?: (serviceId: string, newPrice: number) => void;
 }
 
 const SelectedServicesList = ({ 
@@ -36,7 +37,8 @@ const SelectedServicesList = ({
   onMechanicChange,
   receivedAmount,
   onReceivedAmountChange,
-  autoSave = false
+  autoSave = false,
+  onServicePriceChange
 }: SelectedServicesListProps) => {
   const [totalAmount, setTotalAmount] = useState<number>(0);
   const [remainingAmount, setRemainingAmount] = useState<number>(0);
@@ -127,6 +129,7 @@ const SelectedServicesList = ({
                 service={service}
                 formatPrice={formatPrice}
                 onRemove={onRemoveService}
+                onPriceChange={onServicePriceChange}
               />
             ))}
           </ul>

@@ -39,6 +39,16 @@ export const useServiceSelection = () => {
     setSelectedServices(selectedServices.filter(service => service.id !== id));
   };
 
+  const updateServicePrice = (serviceId: string, newPrice: number) => {
+    setSelectedServices(prevServices => 
+      prevServices.map(service => 
+        service.id === serviceId 
+          ? { ...service, price: newPrice }
+          : service
+      )
+    );
+  };
+
   const clearServices = () => {
     setSelectedServices([]);
   };
@@ -48,6 +58,7 @@ export const useServiceSelection = () => {
     setSelectedServices,
     addService,
     removeService,
+    updateServicePrice,
     clearServices
   };
 };
