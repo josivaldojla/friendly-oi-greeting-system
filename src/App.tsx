@@ -29,92 +29,104 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  console.log("App component is rendering");
+  console.log("App: Component iniciando renderização");
   
-  return (
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <div className="min-h-screen">
-              <Routes>
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<Index />} />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <AdminPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/mechanics"
-                  element={
-                    <ProtectedRoute>
-                      <MechanicsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/services"
-                  element={
-                    <ProtectedRoute>
-                      <ServicesPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/checkout"
-                  element={
-                    <ProtectedRoute>
-                      <CheckoutPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/reports"
-                  element={
-                    <ProtectedRoute>
-                      <ReportsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/customers"
-                  element={
-                    <ProtectedRoute>
-                      <CustomersPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/motorcycle-models"
-                  element={
-                    <ProtectedRoute>
-                      <MotorcycleModelsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/service-records/*"
-                  element={
-                    <ProtectedRoute>
-                      <ServiceRecordsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-    </QueryClientProvider>
-  );
+  try {
+    return (
+      <QueryClientProvider client={queryClient}>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <div className="min-h-screen">
+                <Routes>
+                  <Route path="/auth" element={<AuthPage />} />
+                  <Route path="/login" element={<LoginPage />} />
+                  <Route path="/" element={<Index />} />
+                  <Route
+                    path="/admin"
+                    element={
+                      <ProtectedRoute requireAdmin>
+                        <AdminPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/mechanics"
+                    element={
+                      <ProtectedRoute>
+                        <MechanicsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/services"
+                    element={
+                      <ProtectedRoute>
+                        <ServicesPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/checkout"
+                    element={
+                      <ProtectedRoute>
+                        <CheckoutPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/reports"
+                    element={
+                      <ProtectedRoute>
+                        <ReportsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/customers"
+                    element={
+                      <ProtectedRoute>
+                        <CustomersPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/motorcycle-models"
+                    element={
+                      <ProtectedRoute>
+                        <MotorcycleModelsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/service-records/*"
+                    element={
+                      <ProtectedRoute>
+                        <ServiceRecordsPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          </TooltipProvider>
+        </AuthProvider>
+      </QueryClientProvider>
+    );
+  } catch (error) {
+    console.error("App: Erro durante renderização:", error);
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-red-50">
+        <div className="text-center p-8">
+          <h1 className="text-2xl font-bold text-red-600 mb-4">Erro na Aplicação</h1>
+          <p className="text-red-700">Verifique o console para mais detalhes</p>
+        </div>
+      </div>
+    );
+  }
 };
 
 export default App;
