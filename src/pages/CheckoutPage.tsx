@@ -19,7 +19,7 @@ const CheckoutPage = () => {
   const [activeTab, setActiveTab] = useState<string>("services");
   
   // Custom hooks
-  const { selectedServices, addService, removeService, updateServicePrice, clearServices, setSelectedServices } = useServiceSelection();
+  const { selectedServices, addService, removeService, clearServices, setSelectedServices } = useServiceSelection();
   const { selectedMechanicId, setSelectedMechanicId } = useMechanicSelection();
   const { receivedAmount, setReceivedAmount, clearHistory, setCurrentHistoryId } = useServiceHistory({
     selectedServices,
@@ -52,11 +52,6 @@ const CheckoutPage = () => {
       ? `${service.name} adicionado à seleção com comentário`
       : `${service.name} adicionado à seleção`;
     toast.success(msg);
-  };
-
-  const handleServicePriceChange = (serviceId: string, newPrice: number) => {
-    updateServicePrice(serviceId, newPrice);
-    toast.success("Preço atualizado para esta venda");
   };
 
   const handleCompleteCheckout = () => {
@@ -123,7 +118,6 @@ const CheckoutPage = () => {
                 receivedAmount={receivedAmount}
                 onReceivedAmountChange={setReceivedAmount}
                 autoSave={true}
-                onServicePriceChange={handleServicePriceChange}
               />
             </div>
           </div>

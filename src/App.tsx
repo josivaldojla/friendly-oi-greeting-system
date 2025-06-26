@@ -38,78 +38,76 @@ const App = () => {
           <Toaster />
           <Sonner />
           <BrowserRouter>
-            <div className="min-h-screen">
-              <Routes>
-                <Route path="/auth" element={<AuthPage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<Index />} />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute requireAdmin>
-                      <AdminPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/mechanics"
-                  element={
-                    <ProtectedRoute>
-                      <MechanicsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/services"
-                  element={
-                    <ProtectedRoute>
-                      <ServicesPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/checkout"
-                  element={
-                    <ProtectedRoute>
-                      <CheckoutPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/reports"
-                  element={
-                    <ProtectedRoute>
-                      <ReportsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/customers"
-                  element={
-                    <ProtectedRoute>
-                      <CustomersPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/motorcycle-models"
-                  element={
-                    <ProtectedRoute>
-                      <MotorcycleModelsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/service-records/*"
-                  element={
-                    <ProtectedRoute>
-                      <ServiceRecordsPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
+            <Routes>
+              <Route path="/auth" element={<AuthPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/" element={<Index />} />
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/mechanics"
+                element={
+                  <ProtectedRoute>
+                    <MechanicsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/services"
+                element={
+                  <ProtectedRoute>
+                    <ServicesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/checkout"
+                element={
+                  <ProtectedRoute>
+                    <CheckoutPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <ReportsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/customers"
+                element={
+                  <ProtectedRoute>
+                    <CustomersPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/motorcycle-models"
+                element={
+                  <ProtectedRoute>
+                    <MotorcycleModelsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/service-records/*"
+                element={
+                  <ProtectedRoute>
+                    <ServiceRecordsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
