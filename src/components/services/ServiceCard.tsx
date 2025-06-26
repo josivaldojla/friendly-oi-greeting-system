@@ -24,109 +24,100 @@ const ServiceCard = ({ service, onAddToSelection, onEdit, showEditButton = false
     });
   };
 
-  const handlePriceClick = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Impede que o evento de clique do card seja acionado
+  const handlePriceEdit = (e: React.MouseEvent) => {
+    e.stopPropagation();
     setIsEditingPrice(true);
     setTempPrice(service.price);
   };
 
-  const handleSavePrice = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleSavePrice = () => {
     const serviceWithNewPrice = { ...service, price: tempPrice };
     onAddToSelection(serviceWithNewPrice);
     setIsEditingPrice(false);
   };
 
-  const handleCancelEdit = (e: React.MouseEvent) => {
-    e.stopPropagation();
+  const handleCancelEdit = () => {
     setTempPrice(service.price);
     setIsEditingPrice(false);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      e.stopPropagation();
-      const serviceWithNewPrice = { ...service, price: tempPrice };
-      onAddToSelection(serviceWithNewPrice);
-      setIsEditingPrice(false);
+      handleSavePrice();
     } else if (e.key === 'Escape') {
-      e.stopPropagation();
-      setTempPrice(service.price);
-      setIsEditingPrice(false);
+      handleCancelEdit();
     }
   };
 
-  const handleCardClick = () => {
-    if (!isEditingPrice) {
-      onAddToSelection(service);
-    }
+  const handleAddWithCurrentPrice = () => {
+    onAddToSelection(service);
   };
 
   return (
-    <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={handleCardClick}>
+    <Card className="h-full">
       <CardHeader>
         <CardTitle className="text-lg">{service.name}</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1">
         <p className="text-sm text-muted-foreground mb-4">{service.description}</p>
-        <div className="flex items-center justify-between">
-          <span className="text-lg font-bold">Preço:</span>
+        <div className="space-y-3">
+          <div className="flex justify-between items-center">
+            <span className="text-lg font-bold">Preço:</span>
+          </div>
+          
           {isEditingPrice ? (
-            <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+            <div className="space-y-3 p-3 bg-gray-50 rounded-lg">
               <Input
                 type="number"
                 value={tempPrice}
                 onChange={(e) => setTempPrice(Number(e.target.value))}
                 onKeyDown={handleKeyPress}
-                className="w-24 h-8 text-sm"
+                className="text-center text-lg font-semibold"
                 step="0.01"
                 min="0"
                 autoFocus
+                placeholder="Digite o valor"
               />
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 px-2 text-green-600 hover:bg-green-50"
-                onClick={handleSavePrice}
-              >
-                ✓
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-8 px-2 text-red-600 hover:bg-red-50"
-                onClick={handleCancelEdit}
-              >
-                ✕
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  size="sm"
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={handleSavePrice}
+                >
+                  ✓ Confirmar e Adicionar
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={handleCancelEdit}
+                >
+                  ✕ Cancelar
+                </Button>
+              </div>
             </div>
           ) : (
-            <div className="flex items-center gap-1">
-              <span 
-                className="text-lg font-bold cursor-pointer hover:bg-gray-100 px-2 py-1 rounded transition-colors"
-                onClick={handlePriceClick}
-                title="Clique para editar o preço para esta venda"
+            <div className="space-y-2">
+              <div 
+                className="bg-blue-50 hover:bg-blue-100 border-2 border-blue-200 rounded-lg p-3 cursor-pointer transition-colors text-center"
+                onClick={handlePriceEdit}
               >
-                {formatPrice(service.price)}
-              </span>
-              <Edit2 
-                className="h-4 w-4 text-gray-400 cursor-pointer" 
-                onClick={handlePriceClick}
-              />
+                <div className="text-xs text-blue-600 mb-1">Toque para editar preço</div>
+                <div className="text-xl font-bold text-blue-800">
+                  {formatPrice(service.price)}
+                </div>
+              </div>
             </div>
           )}
         </div>
       </CardContent>
-      <CardFooter className="flex justify-between">
+      <CardFooter className="flex justify-between gap-2">
         <Button 
           variant="outline" 
           size="sm" 
-          onClick={(e) => {
-            e.stopPropagation();
-            if (!isEditingPrice) {
-              onAddToSelection(service);
-            }
-          }}
+          className="flex-1"
+          onClick={handleAddWithCurrentPrice}
+          disabled={isEditingPrice}
         >
           <Plus className="mr-2 h-4 w-4" />
           Adicionar
@@ -135,10 +126,8 @@ const ServiceCard = ({ service, onAddToSelection, onEdit, showEditButton = false
           <Button 
             variant="ghost" 
             size="sm" 
-            onClick={(e) => {
-              e.stopPropagation();
-              onEdit(service);
-            }}
+            onClick={() => onEdit(service)}
+            disabled={isEditingPrice}
           >
             <Edit2 className="mr-2 h-4 w-4" />
             Editar
