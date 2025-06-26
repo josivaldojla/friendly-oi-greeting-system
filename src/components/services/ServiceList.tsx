@@ -1,10 +1,9 @@
-
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ServiceCard from "./ServiceCard";
-import { ServiceListItem } from "./ServiceListItem";
+import ServiceListItem from "./ServiceListItem";
 import { ViewModeToggle } from "./components/ViewModeToggle";
 import { EmptyServices } from "./components/EmptyServices";
 import ServiceForm from "./ServiceForm";
@@ -54,13 +53,6 @@ const ServiceList = ({
   const handleEditService = (service: Service) => {
     setEditingService(service);
   };
-
-  const formatPrice = (price: number) => {
-    return price.toLocaleString('pt-BR', {
-      style: 'currency',
-      currency: 'BRL'
-    });
-  };
   
   return (
     <div className="space-y-4">
@@ -84,18 +76,18 @@ const ServiceList = ({
         </div>
       )}
 
-      <ServiceForm
-        open={isAddingService}
-        onOpenChange={setIsAddingService}
-        onSubmit={handleAddService}
-      />
+      {isAddingService && (
+        <ServiceForm
+          onSubmit={handleAddService}
+          onCancel={() => setIsAddingService(false)}
+        />
+      )}
 
       {editingService && (
         <ServiceForm
-          open={!!editingService}
-          onOpenChange={(open) => !open && setEditingService(null)}
           service={editingService}
           onSubmit={handleUpdateService}
+          onCancel={() => setEditingService(null)}
         />
       )}
 
@@ -116,18 +108,10 @@ const ServiceList = ({
               <ServiceListItem
                 key={service.id}
                 service={service}
-                onEdit={selectable ? undefined : (service: Service, e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  handleEditService(service);
-                }}
-                onDelete={selectable ? undefined : (id: string, e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  handleDeleteService(id);
-                }}
+                onEdit={selectable ? undefined : handleEditService}
+                onDelete={selectable ? undefined : handleDeleteService}
                 onAddToSelection={onAddToSelection}
                 selectable={selectable}
-                formatPrice={formatPrice}
-                showAddButton={selectable}
               />
             )
           ))}
