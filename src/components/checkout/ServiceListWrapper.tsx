@@ -24,6 +24,9 @@ export const ServiceListWrapper = ({
         services={services}
         viewMode={viewMode}
         onAddToSelection={onAddToSelection}
+        selectable={true}
+        showAddButton={true}
+        hideHeading={true}
       />
     </div>
   );

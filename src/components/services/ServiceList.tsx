@@ -10,9 +10,29 @@ interface ServiceListProps {
   services: Service[];
   onAddToSelection: (service: Service, comment?: string) => void;
   viewMode: 'list' | 'grid';
+  // Props opcionais para quando usado na página de serviços
+  onAddService?: (service: Omit<Service, "id">) => Promise<void>;
+  onUpdateService?: (service: Service) => Promise<void>;
+  onDeleteService?: (id: string) => Promise<void>;
+  onViewModeChange?: (mode: 'list' | 'grid') => void;
+  // Props para controlar comportamento no checkout
+  showAddButton?: boolean;
+  hideHeading?: boolean;
+  selectable?: boolean;
 }
 
-const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps) => {
+const ServiceList = ({ 
+  services, 
+  onAddToSelection, 
+  viewMode,
+  onAddService,
+  onUpdateService,
+  onDeleteService,
+  onViewModeChange,
+  showAddButton = false,
+  hideHeading = false,
+  selectable = false
+}: ServiceListProps) => {
   const [showForm, setShowForm] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
 
@@ -24,12 +44,16 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
   };
 
   const handleAddService = async (newService: Service) => {
-    // Logic to add service would go here
+    if (onAddService) {
+      await onAddService(newService);
+    }
     setShowForm(false);
   };
 
   const handleUpdateService = async (updatedService: Service) => {
-    // Logic to update service would go here
+    if (onUpdateService) {
+      await onUpdateService(updatedService);
+    }
     setEditingService(null);
   };
 
@@ -38,7 +62,9 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
   };
 
   const handleDelete = (id: string) => {
-    // Logic to delete service would go here
+    if (onDeleteService) {
+      onDeleteService(id);
+    }
   };
 
   if (showForm) {
@@ -64,12 +90,16 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <h3 className="text-lg font-semibold">Serviços Disponíveis</h3>
-        <Button onClick={() => setShowForm(true)}>
-          Adicionar Serviço
-        </Button>
-      </div>
+      {!hideHeading && (
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Serviços Disponíveis</h3>
+          {onAddService && (
+            <Button onClick={() => setShowForm(true)}>
+              Adicionar Serviço
+            </Button>
+          )}
+        </div>
+      )}
 
       {viewMode === 'grid' ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -77,10 +107,12 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
             <ServiceCard
               key={service.id}
               service={service}
+              selectable={selectable}
               onAddToSelection={onAddToSelection}
               onEdit={handleEdit}
               onDelete={handleDelete}
               formatPrice={formatPrice}
+              showAddButton={showAddButton}
             />
           ))}
         </div>
@@ -90,10 +122,12 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
             <ServiceListItem
               key={service.id}
               service={service}
+              selectable={selectable}
               onAddToSelection={onAddToSelection}
               onEdit={handleEdit}
               onDelete={handleDelete}
               formatPrice={formatPrice}
+              showAddButton={showAddButton}
             />
           ))}
         </div>
