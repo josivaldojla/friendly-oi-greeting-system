@@ -16,6 +16,13 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
   const [showForm, setShowForm] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
 
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  };
+
   const handleAddService = async (newService: Service) => {
     // Logic to add service would go here
     setShowForm(false);
@@ -26,9 +33,19 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
     setEditingService(null);
   };
 
+  const handleEdit = (service: Service) => {
+    setEditingService(service);
+  };
+
+  const handleDelete = (id: string) => {
+    // Logic to delete service would go here
+  };
+
   if (showForm) {
     return (
       <ServiceForm
+        open={showForm}
+        onOpenChange={setShowForm}
         onSubmit={handleAddService}
       />
     );
@@ -37,6 +54,8 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
   if (editingService) {
     return (
       <ServiceForm
+        open={!!editingService}
+        onOpenChange={(open) => !open && setEditingService(null)}
         service={editingService}
         onSubmit={handleUpdateService}
       />
@@ -59,6 +78,9 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
               key={service.id}
               service={service}
               onAddToSelection={onAddToSelection}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              formatPrice={formatPrice}
             />
           ))}
         </div>
@@ -69,6 +91,9 @@ const ServiceList = ({ services, onAddToSelection, viewMode }: ServiceListProps)
               key={service.id}
               service={service}
               onAddToSelection={onAddToSelection}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              formatPrice={formatPrice}
             />
           ))}
         </div>
