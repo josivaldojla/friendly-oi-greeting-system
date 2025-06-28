@@ -2,7 +2,8 @@
 import React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Droplets, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Droplets, Info, Edit } from "lucide-react";
 import { MotorcycleModel } from "@/lib/types";
 import { getSuspensionOilData, findSuspensionOilByPartialMatch, SuspensionOilData } from "@/lib/suspension-oil-data";
 
@@ -10,9 +11,15 @@ interface SuspensionOilDialogProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   model: MotorcycleModel | null;
+  onEditOilData?: (model: MotorcycleModel) => void;
 }
 
-export const SuspensionOilDialog = ({ isOpen, onOpenChange, model }: SuspensionOilDialogProps) => {
+export const SuspensionOilDialog = ({ 
+  isOpen, 
+  onOpenChange, 
+  model,
+  onEditOilData 
+}: SuspensionOilDialogProps) => {
   if (!model) return null;
 
   // Buscar dados exatos primeiro
@@ -23,9 +30,22 @@ export const SuspensionOilDialog = ({ isOpen, onOpenChange, model }: SuspensionO
 
   const renderOilData = (oilData: SuspensionOilData) => (
     <div key={`${oilData.brand}-${oilData.model}`} className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-      <div className="flex items-center gap-2 mb-2">
-        <Droplets className="h-5 w-5 text-blue-600" />
-        <span className="font-medium text-blue-900">{oilData.model}</span>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <Droplets className="h-5 w-5 text-blue-600" />
+          <span className="font-medium text-blue-900">{oilData.model}</span>
+        </div>
+        {onEditOilData && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onEditOilData(model)}
+            className="h-8 px-2 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+          >
+            <Edit className="h-3 w-3 mr-1" />
+            Editar
+          </Button>
+        )}
       </div>
       <div className="text-lg font-bold text-blue-700">
         {oilData.oilQuantityML} ML
@@ -86,6 +106,17 @@ export const SuspensionOilDialog = ({ isOpen, onOpenChange, model }: SuspensionO
               <div className="text-xs mt-2 text-gray-400">
                 Os dados são baseados nas tabelas da Total Moto Peças
               </div>
+              {onEditOilData && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEditOilData(model)}
+                  className="mt-3 text-purple-600 hover:text-purple-700 border-purple-200 hover:bg-purple-50"
+                >
+                  <Edit className="h-3 w-3 mr-1" />
+                  Adicionar Dados
+                </Button>
+              )}
             </div>
           )}
         </div>

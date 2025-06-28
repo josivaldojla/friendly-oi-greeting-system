@@ -109,6 +109,10 @@ export const MotorcycleModelsDialogs = ({
         isOpen={isOilDialogOpen}
         onOpenChange={onOilDialogChange}
         model={currentModel}
+        onEditOilData={(model) => {
+          onOilDialogChange(false);
+          onEditOilDialogChange(true);
+        }}
       />
       
       <EditOilDataDialog
