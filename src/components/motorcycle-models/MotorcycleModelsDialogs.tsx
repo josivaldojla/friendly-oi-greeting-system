@@ -1,9 +1,9 @@
-
 import { MotorcycleModel } from "@/lib/types";
 import { MotorcycleModelForm } from "@/components/motorcycle-models/MotorcycleModelForm";
 import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDialog";
 import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDialog";
 import { SuspensionOilDialog } from "@/components/motorcycle-models/SuspensionOilDialog";
+import { EditOilDataDialog } from "@/components/motorcycle-models/EditOilDataDialog";
 
 interface MotorcycleModelsDialogsProps {
   // Add dialog states
@@ -12,6 +12,7 @@ interface MotorcycleModelsDialogsProps {
   isDeleteDialogOpen: boolean;
   isDeleteBrandDialogOpen: boolean;
   isOilDialogOpen: boolean;
+  isEditOilDialogOpen: boolean;
   
   // Models and data
   currentModel: MotorcycleModel | null;
@@ -22,6 +23,7 @@ interface MotorcycleModelsDialogsProps {
   updateLoading: boolean;
   deleteLoading: boolean;
   deleteBrandLoading: boolean;
+  editOilLoading: boolean;
   
   // Handlers
   onAddDialogChange: (open: boolean) => void;
@@ -29,11 +31,13 @@ interface MotorcycleModelsDialogsProps {
   onDeleteDialogChange: (open: boolean) => void;
   onDeleteBrandDialogChange: (open: boolean) => void;
   onOilDialogChange: (open: boolean) => void;
+  onEditOilDialogChange: (open: boolean) => void;
   
   onAddModel: (model: Omit<MotorcycleModel, "id">) => void;
   onUpdateModel: (model: MotorcycleModel) => void;
   onDeleteModel: () => void;
   onConfirmDeleteBrand: () => void;
+  onSaveOilData: (model: MotorcycleModel, oilQuantity: number) => void;
   
   getModelCountForBrand: (brand: string) => number;
 }
@@ -44,21 +48,25 @@ export const MotorcycleModelsDialogs = ({
   isDeleteDialogOpen,
   isDeleteBrandDialogOpen,
   isOilDialogOpen,
+  isEditOilDialogOpen,
   currentModel,
   brandToDelete,
   addLoading,
   updateLoading,
   deleteLoading,
   deleteBrandLoading,
+  editOilLoading,
   onAddDialogChange,
   onEditDialogChange,
   onDeleteDialogChange,
   onDeleteBrandDialogChange,
   onOilDialogChange,
+  onEditOilDialogChange,
   onAddModel,
   onUpdateModel,
   onDeleteModel,
   onConfirmDeleteBrand,
+  onSaveOilData,
   getModelCountForBrand
 }: MotorcycleModelsDialogsProps) => {
   return (
@@ -101,6 +109,14 @@ export const MotorcycleModelsDialogs = ({
         isOpen={isOilDialogOpen}
         onOpenChange={onOilDialogChange}
         model={currentModel}
+      />
+      
+      <EditOilDataDialog
+        isOpen={isEditOilDialogOpen}
+        onOpenChange={onEditOilDialogChange}
+        model={currentModel}
+        onSave={onSaveOilData}
+        isLoading={editOilLoading}
       />
     </>
   );

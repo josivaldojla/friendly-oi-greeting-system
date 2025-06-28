@@ -10,6 +10,7 @@ interface MotorcycleModelsContentProps {
   onEdit: (model: MotorcycleModel) => void;
   onDelete: (model: MotorcycleModel) => void;
   onViewOilData: (model: MotorcycleModel) => void;
+  onEditOilData?: (model: MotorcycleModel) => void;
   onAddClick: () => void;
 }
 
@@ -20,6 +21,7 @@ export const MotorcycleModelsContent = ({
   onEdit,
   onDelete,
   onViewOilData,
+  onEditOilData,
   onAddClick
 }: MotorcycleModelsContentProps) => {
   if (isLoading) {
@@ -42,6 +44,7 @@ export const MotorcycleModelsContent = ({
           onEdit={onEdit}
           onDelete={onDelete}
           onViewOilData={onViewOilData}
+          onEditOilData={onEditOilData}
         />
       </div>
     );

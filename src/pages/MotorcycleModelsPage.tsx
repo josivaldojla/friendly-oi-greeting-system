@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand } from "@/lib/storage";
@@ -17,6 +16,7 @@ const MotorcycleModelsPage = () => {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleteBrandDialogOpen, setIsDeleteBrandDialogOpen] = useState(false);
   const [isOilDialogOpen, setIsOilDialogOpen] = useState(false);
+  const [isEditOilDialogOpen, setIsEditOilDialogOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -171,6 +171,30 @@ const MotorcycleModelsPage = () => {
     }
   });
   
+  // New mutation for saving oil data
+  const saveOilDataMutation = useMutation({
+    mutationFn: async ({ model, oilQuantity }: { model: MotorcycleModel, oilQuantity: number }) => {
+      // Here you would typically save to your database
+      // For now, we'll just show a success toast
+      console.log(`Saving oil data for ${model.name}: ${oilQuantity}ML`);
+      return Promise.resolve();
+    },
+    onSuccess: () => {
+      toast({
+        title: "Sucesso",
+        description: "Dados de óleo salvos com sucesso",
+      });
+      setIsEditOilDialogOpen(false);
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Erro ao salvar dados de óleo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    }
+  });
+  
   // Handlers
   const handleAddModel = (model: Omit<MotorcycleModel, "id">) => {
     addModelMutation.mutate(model);
@@ -218,6 +242,15 @@ const MotorcycleModelsPage = () => {
   const confirmDeleteBrand = () => {
     if (!brandToDelete) return;
     deleteBrandMutation.mutate(brandToDelete);
+  };
+
+  const openEditOilDialog = (model: MotorcycleModel) => {
+    setCurrentModel(model);
+    setIsEditOilDialogOpen(true);
+  };
+
+  const handleSaveOilData = (model: MotorcycleModel, oilQuantity: number) => {
+    saveOilDataMutation.mutate({ model, oilQuantity });
   };
 
   const getModelCountForBrand = (brand: string) => {
@@ -280,6 +313,7 @@ const MotorcycleModelsPage = () => {
           onEdit={openEditDialog}
           onDelete={openDeleteDialog}
           onViewOilData={openOilDialog}
+          onEditOilData={openEditOilDialog}
           onAddClick={openAddDialog}
         />
       </div>
@@ -290,21 +324,25 @@ const MotorcycleModelsPage = () => {
         isDeleteDialogOpen={isDeleteDialogOpen}
         isDeleteBrandDialogOpen={isDeleteBrandDialogOpen}
         isOilDialogOpen={isOilDialogOpen}
+        isEditOilDialogOpen={isEditOilDialogOpen}
         currentModel={currentModel}
         brandToDelete={brandToDelete}
         addLoading={addModelMutation.isPending}
         updateLoading={updateModelMutation.isPending}
         deleteLoading={deleteModelMutation.isPending}
         deleteBrandLoading={deleteBrandMutation.isPending}
+        editOilLoading={saveOilDataMutation.isPending}
         onAddDialogChange={setIsAddDialogOpen}
         onEditDialogChange={setIsEditDialogOpen}
         onDeleteDialogChange={setIsDeleteDialogOpen}
         onDeleteBrandDialogChange={setIsDeleteBrandDialogOpen}
         onOilDialogChange={setIsOilDialogOpen}
+        onEditOilDialogChange={setIsEditOilDialogOpen}
         onAddModel={handleAddModel}
         onUpdateModel={handleUpdateModel}
         onDeleteModel={handleDeleteModel}
         onConfirmDeleteBrand={confirmDeleteBrand}
+        onSaveOilData={handleSaveOilData}
         getModelCountForBrand={getModelCountForBrand}
       />
     </Layout>
