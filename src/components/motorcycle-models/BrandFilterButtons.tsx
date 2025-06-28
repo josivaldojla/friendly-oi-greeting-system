@@ -49,14 +49,14 @@ export const BrandFilterButtons = ({
         </Button>
       </div>
       
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2">
         {brands.map((brand) => (
           <div key={brand} className="flex items-center gap-1">
             <Button
               variant={selectedBrand === brand ? "default" : "outline"}
               size="sm"
               onClick={() => onSelectBrand(selectedBrand === brand ? null : brand)}
-              className="text-xs"
+              className="text-xs flex-1 justify-start"
             >
               {brand} ({getModelCountForBrand(brand)})
             </Button>
@@ -64,7 +64,7 @@ export const BrandFilterButtons = ({
               variant="ghost"
               size="sm"
               onClick={() => onDeleteBrand(brand)}
-              className="h-8 w-8 p-0 text-destructive hover:text-destructive"
+              className="h-8 w-8 p-0 text-destructive hover:text-destructive flex-shrink-0"
               title={`Excluir marca ${brand}`}
             >
               <Trash2 className="h-3 w-3" />
