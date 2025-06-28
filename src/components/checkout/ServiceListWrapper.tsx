@@ -10,23 +10,37 @@ interface ServiceListWrapperProps {
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   onAddToSelection: (service: Service, comment?: string) => void;
+  onAddService?: (service: Omit<Service, "id">) => Promise<void>;
+  onUpdateServices?: () => void;
 }
 
 export const ServiceListWrapper = ({
   services,
   viewMode,
   setViewMode,
-  onAddToSelection
+  onAddToSelection,
+  onAddService,
+  onUpdateServices
 }: ServiceListWrapperProps) => {
+  const handleAddService = async (service: Omit<Service, "id">) => {
+    if (onAddService) {
+      await onAddService(service);
+      if (onUpdateServices) {
+        onUpdateServices();
+      }
+    }
+  };
+
   return (
     <div className="space-y-6">
       <ServiceList
         services={services}
         viewMode={viewMode}
         onAddToSelection={onAddToSelection}
+        onAddService={handleAddService}
         selectable={true}
         showAddButton={true}
-        hideHeading={true}
+        hideHeading={false}
       />
     </div>
   );
