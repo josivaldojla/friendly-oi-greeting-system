@@ -2,7 +2,7 @@
 import { MotorcycleModel } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Trash } from "lucide-react";
 
 interface MotorcycleModelsTableProps {
   models: MotorcycleModel[];
@@ -37,15 +37,6 @@ export const MotorcycleModelsTable = ({
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-1 justify-center">
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      onClick={() => onEdit(model)}
-                      title="Editar modelo"
-                      className="h-8 w-8"
-                    >
-                      <Edit className="h-3 w-3" />
-                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
