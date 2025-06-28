@@ -10,41 +10,24 @@ interface ServiceListWrapperProps {
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   onAddToSelection: (service: Service, comment?: string) => void;
+  onAddService?: (service: Omit<Service, "id">) => Promise<void>;
+  onUpdateServices?: () => void;
 }
 
 export const ServiceListWrapper = ({
   services,
   viewMode,
   setViewMode,
-  onAddToSelection
+  onAddToSelection,
+  onAddService,
+  onUpdateServices
 }: ServiceListWrapperProps) => {
-  const handleAddService = async (service: Service) => {
-    try {
-      await getServices();
-      toast.success("Serviço adicionado com sucesso");
-    } catch (error) {
-      console.error('Error adding service:', error);
-      toast.error("Erro ao adicionar serviço");
-    }
-  };
-
-  const handleUpdateService = async (service: Service) => {
-    try {
-      await getServices();
-      toast.success("Serviço atualizado com sucesso");
-    } catch (error) {
-      console.error('Error updating service:', error);
-      toast.error("Erro ao atualizar serviço");
-    }
-  };
-
-  const handleDeleteService = async (id: string) => {
-    try {
-      await getServices();
-      toast.success("Serviço removido com sucesso");
-    } catch (error) {
-      console.error('Error deleting service:', error);
-      toast.error("Erro ao remover serviço");
+  const handleAddService = async (service: Omit<Service, "id">) => {
+    if (onAddService) {
+      await onAddService(service);
+      if (onUpdateServices) {
+        onUpdateServices();
+      }
     }
   };
 
@@ -52,15 +35,12 @@ export const ServiceListWrapper = ({
     <div className="space-y-6">
       <ServiceList
         services={services}
-        onAddService={handleAddService}
-        onUpdateService={handleUpdateService}
-        onDeleteService={handleDeleteService}
-        selectable={true}
         viewMode={viewMode}
-        onViewModeChange={setViewMode}
         onAddToSelection={onAddToSelection}
+        onAddService={handleAddService}
+        selectable={true}
         showAddButton={true}
-        hideHeading={true}
+        hideHeading={false}
       />
     </div>
   );

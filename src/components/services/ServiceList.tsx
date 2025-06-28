@@ -1,119 +1,133 @@
-import { useState } from "react";
-import { Service, ViewMode } from "@/lib/types";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import ServiceCard from "./ServiceCard";
-import ServiceListItem from "./ServiceListItem";
-import { ViewModeToggle } from "./components/ViewModeToggle";
-import { EmptyServices } from "./components/EmptyServices";
-import ServiceForm from "./ServiceForm";
+import React, { useState } from 'react';
+import { Service } from '@/lib/types';
+import { ServiceCard } from '@/components/services/ServiceCard';
+import { Button } from '@/components/ui/button';
+import ServiceForm from '@/components/services/ServiceForm';
+import { ServiceListItem } from '@/components/services/ServiceListItem';
 
 interface ServiceListProps {
   services: Service[];
-  onAddService: (service: Service) => void;
-  onUpdateService: (service: Service) => void;
-  onDeleteService: (id: string) => void;
-  selectable?: boolean;
-  viewMode?: ViewMode;
-  onViewModeChange?: (mode: ViewMode) => void;
   onAddToSelection?: (service: Service, comment?: string) => void;
+  viewMode: 'list' | 'grid';
+  // Props opcionais para quando usado na página de serviços
+  onAddService?: (service: Omit<Service, "id">) => Promise<void>;
+  onUpdateService?: (service: Service) => Promise<void>;
+  onDeleteService?: (id: string) => Promise<void>;
+  onViewModeChange?: (mode: 'list' | 'grid') => void;
+  // Props para controlar comportamento no checkout
   showAddButton?: boolean;
   hideHeading?: boolean;
+  selectable?: boolean;
 }
 
-const ServiceList = ({
-  services,
+const ServiceList = ({ 
+  services, 
+  onAddToSelection = () => {}, 
+  viewMode,
   onAddService,
   onUpdateService,
   onDeleteService,
-  selectable = false,
-  viewMode = 'list',
   onViewModeChange,
-  onAddToSelection,
-  showAddButton = true,
-  hideHeading = false
+  showAddButton = false,
+  hideHeading = false,
+  selectable = false
 }: ServiceListProps) => {
-  const [isAddingService, setIsAddingService] = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [editingService, setEditingService] = useState<Service | null>(null);
 
+  const formatPrice = (price: number) => {
+    return price.toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    });
+  };
+
   const handleAddService = async (newService: Service) => {
-    await onAddService(newService);
-    setIsAddingService(false);
+    if (onAddService) {
+      await onAddService(newService);
+    }
+    setShowForm(false);
   };
 
   const handleUpdateService = async (updatedService: Service) => {
-    await onUpdateService(updatedService);
+    if (onUpdateService) {
+      await onUpdateService(updatedService);
+    }
     setEditingService(null);
   };
 
-  const handleDeleteService = async (id: string) => {
-    await onDeleteService(id);
-  };
-
-  const handleEditService = (service: Service) => {
+  const handleEdit = (service: Service) => {
     setEditingService(service);
   };
-  
+
+  const handleDelete = (id: string) => {
+    if (onDeleteService) {
+      onDeleteService(id);
+    }
+  };
+
+  if (showForm) {
+    return (
+      <ServiceForm
+        open={showForm}
+        onOpenChange={setShowForm}
+        onSubmit={handleAddService}
+      />
+    );
+  }
+
+  if (editingService) {
+    return (
+      <ServiceForm
+        open={!!editingService}
+        onOpenChange={(open) => !open && setEditingService(null)}
+        service={editingService}
+        onSubmit={handleUpdateService}
+      />
+    );
+  }
+
   return (
     <div className="space-y-4">
       {!hideHeading && (
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
-          <h2 className="text-2xl font-bold">Serviços</h2>
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-            {onViewModeChange && (
-              <ViewModeToggle 
-                viewMode={viewMode} 
-                onViewModeChange={onViewModeChange} 
-              />
-            )}
-            {showAddButton && (
-              <Button onClick={() => setIsAddingService(true)} className="whitespace-nowrap">
-                <Plus className="mr-2 h-4 w-4" />
-                Novo Serviço
-              </Button>
-            )}
-          </div>
+        <div className="flex justify-between items-center">
+          <h3 className="text-lg font-semibold">Serviços Disponíveis</h3>
+          {onAddService && (
+            <Button onClick={() => setShowForm(true)}>
+              Adicionar Serviço
+            </Button>
+          )}
         </div>
       )}
 
-      {isAddingService && (
-        <ServiceForm
-          onSubmit={handleAddService}
-          onCancel={() => setIsAddingService(false)}
-        />
-      )}
-
-      {editingService && (
-        <ServiceForm
-          service={editingService}
-          onSubmit={handleUpdateService}
-          onCancel={() => setEditingService(null)}
-        />
-      )}
-
-      {services.length === 0 ? (
-        <EmptyServices onAddClick={() => setIsAddingService(true)} />
-      ) : (
-        <div className={viewMode === 'grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" : "space-y-4"}>
+      {viewMode === 'grid' ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {services.map((service) => (
-            viewMode === 'grid' ? (
-              <ServiceCard
-                key={service.id}
-                service={service}
-                onAddToSelection={onAddToSelection || (() => {})}
-                onEdit={selectable ? undefined : handleEditService}
-                showEditButton={!selectable}
-              />
-            ) : (
-              <ServiceListItem
-                key={service.id}
-                service={service}
-                onEdit={selectable ? undefined : handleEditService}
-                onDelete={selectable ? undefined : handleDeleteService}
-                onAddToSelection={onAddToSelection}
-                selectable={selectable}
-              />
-            )
+            <ServiceCard
+              key={service.id}
+              service={service}
+              selectable={selectable}
+              onAddToSelection={onAddToSelection}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              formatPrice={formatPrice}
+              showAddButton={showAddButton}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="space-y-2">
+          {services.map((service) => (
+            <ServiceListItem
+              key={service.id}
+              service={service}
+              selectable={selectable}
+              onAddToSelection={onAddToSelection}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              formatPrice={formatPrice}
+              showAddButton={showAddButton}
+            />
           ))}
         </div>
       )}
