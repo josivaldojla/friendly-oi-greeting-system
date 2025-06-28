@@ -159,6 +159,63 @@ export async function deleteModelsByBrand(brand: string): Promise<MotorcycleMode
   }
 }
 
+// Nova função para remover modelos duplicados
+export async function removeDuplicateModels(): Promise<MotorcycleModel[]> {
+  try {
+    console.log('Removendo modelos duplicados...');
+    
+    // Buscar todos os modelos
+    const allModels = await getMotorcycleModels();
+    
+    // Agrupar por nome e marca (case insensitive)
+    const modelGroups = new Map<string, MotorcycleModel[]>();
+    
+    allModels.forEach(model => {
+      const key = `${model.name.toLowerCase().trim()}-${(model.brand || '').toLowerCase().trim()}`;
+      if (!modelGroups.has(key)) {
+        modelGroups.set(key, []);
+      }
+      modelGroups.get(key)!.push(model);
+    });
+    
+    // Identificar duplicatas e manter apenas o primeiro de cada grupo
+    const duplicatesToDelete: string[] = [];
+    
+    modelGroups.forEach((models, key) => {
+      if (models.length > 1) {
+        // Ordenar por data de criação (id mais antigo primeiro) e manter o primeiro
+        models.sort((a, b) => a.id.localeCompare(b.id));
+        // Adicionar os demais à lista de exclusão
+        duplicatesToDelete.push(...models.slice(1).map(m => m.id));
+      }
+    });
+    
+    if (duplicatesToDelete.length === 0) {
+      console.log('Nenhum modelo duplicado encontrado');
+      return allModels;
+    }
+    
+    console.log(`Encontrados ${duplicatesToDelete.length} modelos duplicados para excluir`);
+    
+    // Excluir os duplicados
+    const { error } = await supabase
+      .from('motorcycle_models')
+      .delete()
+      .in('id', duplicatesToDelete);
+
+    if (error) {
+      console.error('Erro ao excluir modelos duplicados:', error);
+      throw error;
+    }
+
+    console.log(`${duplicatesToDelete.length} modelos duplicados removidos com sucesso`);
+    return getMotorcycleModels();
+  } catch (error) {
+    console.error('Erro em removeDuplicateModels:', error);
+    throw error;
+  }
+}
+
 // Function to manually populate models - only when explicitly requested
 export async function populateModelsManually(): Promise<boolean> {
   try {

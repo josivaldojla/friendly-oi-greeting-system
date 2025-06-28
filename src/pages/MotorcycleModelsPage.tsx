@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually } from "@/lib/storage";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually, removeDuplicateModels } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDia
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 import { BackupActions } from "@/components/motorcycle-models/BackupActions";
-import { Package } from "lucide-react";
+import { Package, Trash2 } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -167,6 +168,24 @@ const MotorcycleModelsPage = () => {
       });
     }
   });
+
+  const removeDuplicatesMutation = useMutation({
+    mutationFn: removeDuplicateModels,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
+      toast({
+        title: "Sucesso",
+        description: "Modelos duplicados removidos com sucesso",
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Erro",
+        description: `Erro ao remover duplicatas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        variant: "destructive",
+      });
+    }
+  });
   
   // Handlers
   const handleAddModel = (model: Omit<MotorcycleModel, "id">) => {
@@ -220,6 +239,10 @@ const MotorcycleModelsPage = () => {
     populateModelsMutation.mutate();
   };
 
+  const handleRemoveDuplicates = () => {
+    removeDuplicatesMutation.mutate();
+  };
+
   return (
     <Layout>
       <div className="space-y-4 p-4 sm:p-6">
@@ -227,13 +250,25 @@ const MotorcycleModelsPage = () => {
         <div className="flex flex-col space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <h2 className="text-xl sm:text-2xl font-bold">Modelos de Motos</h2>
-            <Button 
-              onClick={openAddDialog}
-              className="w-full sm:w-auto"
-              size="sm"
-            >
-              Adicionar Modelo
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-2">
+              <Button 
+                onClick={handleRemoveDuplicates}
+                disabled={removeDuplicatesMutation.isPending}
+                variant="outline"
+                className="flex items-center gap-2"
+                size="sm"
+              >
+                <Trash2 className="h-4 w-4" />
+                {removeDuplicatesMutation.isPending ? 'Removendo...' : 'Remover Duplicatas'}
+              </Button>
+              <Button 
+                onClick={openAddDialog}
+                className="w-full sm:w-auto"
+                size="sm"
+              >
+                Adicionar Modelo
+              </Button>
+            </div>
           </div>
           
           {/* Backup Actions */}
