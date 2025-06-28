@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually, removeDuplicateModels } from "@/lib/storage";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, removeDuplicateModels } from "@/lib/storage";
+import { addModelsFromImages } from "@/lib/motorcycle-models-data";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
 import { Button } from "@/components/ui/button";
@@ -12,7 +13,7 @@ import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDia
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 import { BackupActions } from "@/components/motorcycle-models/BackupActions";
-import { Package, Trash2, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Trash2 } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -22,6 +23,7 @@ const MotorcycleModelsPage = () => {
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [hasAutoPopulated, setHasAutoPopulated] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -31,6 +33,31 @@ const MotorcycleModelsPage = () => {
     queryKey: ['motorcycleModels'],
     queryFn: getMotorcycleModels
   });
+
+  // Auto-populate models from images when component loads
+  useEffect(() => {
+    const autoPopulateModels = async () => {
+      if (!hasAutoPopulated && !isLoading && motorcycleModels.length >= 0) {
+        console.log('Auto-populating models from images...');
+        try {
+          const success = await addModelsFromImages();
+          if (success) {
+            console.log('Models from images added successfully');
+            queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
+            toast({
+              title: "Modelos Adicionados",
+              description: "Novos modelos das imagens foram adicionados automaticamente",
+            });
+          }
+        } catch (error) {
+          console.error('Error auto-populating models:', error);
+        }
+        setHasAutoPopulated(true);
+      }
+    };
+
+    autoPopulateModels();
+  }, [motorcycleModels, isLoading, hasAutoPopulated, queryClient, toast]);
   
   console.log('=== MotorcycleModelsPage: Data Analysis ===');
   console.log('Total models loaded:', motorcycleModels.length);
@@ -142,32 +169,6 @@ const MotorcycleModelsPage = () => {
     }
   });
 
-  const populateModelsMutation = useMutation({
-    mutationFn: populateModelsManually,
-    onSuccess: (success) => {
-      if (success) {
-        queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-        toast({
-          title: "Sucesso",
-          description: "Modelos padrão adicionados com sucesso",
-        });
-      } else {
-        toast({
-          title: "Erro",
-          description: "Erro ao adicionar modelos padrão",
-          variant: "destructive",
-        });
-      }
-    },
-    onError: (error) => {
-      toast({
-        title: "Erro",
-        description: `Erro ao adicionar modelos padrão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
-        variant: "destructive",
-      });
-    }
-  });
-
   const removeDuplicatesMutation = useMutation({
     mutationFn: removeDuplicateModels,
     onSuccess: (updatedModels) => {
@@ -244,10 +245,6 @@ const MotorcycleModelsPage = () => {
 
   const getModelCountForBrand = (brand: string) => {
     return motorcycleModels.filter(model => model.brand?.toLowerCase() === brand.toLowerCase()).length;
-  };
-
-  const handlePopulateModels = () => {
-    populateModelsMutation.mutate();
   };
 
   const handleRemoveDuplicates = () => {
@@ -347,20 +344,6 @@ const MotorcycleModelsPage = () => {
         ) : filteredModels.length === 0 ? (
           <div className="space-y-4">
             <EmptyModelsPlaceholder onAddClick={openAddDialog} />
-            {motorcycleModels.length === 0 && (
-              <div className="flex justify-center">
-                <Button 
-                  onClick={handlePopulateModels}
-                  disabled={populateModelsMutation.isPending}
-                  variant="outline"
-                  className="flex items-center gap-2"
-                  size="sm"
-                >
-                  <Package className="h-4 w-4" />
-                  {populateModelsMutation.isPending ? 'Adicionando...' : 'Adicionar Modelos Padrão'}
-                </Button>
-              </div>
-            )}
           </div>
         ) : (
           <div className="w-full overflow-hidden">
