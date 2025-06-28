@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Service } from '@/lib/types';
 import { ServiceCard } from '@/components/services/ServiceCard';
@@ -8,7 +7,7 @@ import { ServiceListItem } from '@/components/services/ServiceListItem';
 
 interface ServiceListProps {
   services: Service[];
-  onAddToSelection: (service: Service, comment?: string) => void;
+  onAddToSelection?: (service: Service, comment?: string) => void;
   viewMode: 'list' | 'grid';
   // Props opcionais para quando usado na página de serviços
   onAddService?: (service: Omit<Service, "id">) => Promise<void>;
@@ -23,7 +22,7 @@ interface ServiceListProps {
 
 const ServiceList = ({ 
   services, 
-  onAddToSelection, 
+  onAddToSelection = () => {}, 
   viewMode,
   onAddService,
   onUpdateService,
