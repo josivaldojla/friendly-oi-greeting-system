@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Service, Mechanic, ViewMode, ServiceHistory } from "@/lib/types";
-import { getServices, getMechanics, addService } from "@/lib/storage";
+import { getServices, getMechanics } from "@/lib/storage";
 import Layout from "@/components/layout/Layout";
 import { toast } from "sonner";
 import { useServiceSelection } from "@/hooks/useServiceSelection";
@@ -19,7 +19,7 @@ const CheckoutPage = () => {
   const [activeTab, setActiveTab] = useState<string>("services");
   
   // Custom hooks
-  const { selectedServices, addService: addToSelection, removeService, updateServicePrice, clearServices, setSelectedServices } = useServiceSelection();
+  const { selectedServices, addService, removeService, updateServicePrice, clearServices, setSelectedServices } = useServiceSelection();
   const { selectedMechanicId, setSelectedMechanicId } = useMechanicSelection();
   const { receivedAmount, setReceivedAmount, clearHistory, setCurrentHistoryId } = useServiceHistory({
     selectedServices,
@@ -27,42 +27,31 @@ const CheckoutPage = () => {
   });
 
   useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const servicesData = await getServices();
+        const mechanicsData = await getMechanics();
+        
+        setServices(servicesData);
+        setMechanics(mechanicsData);
+      } catch (error) {
+        console.error('Error loading data:', error);
+        toast.error('Erro ao carregar os dados');
+      } finally {
+        setLoading(false);
+      }
+    };
+    
     loadData();
   }, []);
 
-  const loadData = async () => {
-    setLoading(true);
-    try {
-      const servicesData = await getServices();
-      const mechanicsData = await getMechanics();
-      
-      setServices(servicesData);
-      setMechanics(mechanicsData);
-    } catch (error) {
-      console.error('Error loading data:', error);
-      toast.error('Erro ao carregar os dados');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleAddToSelection = (service: Service, comment?: string) => {
-    addToSelection(service, comment);
+    addService(service, comment);
     const msg = comment 
       ? `${service.name} adicionado à seleção com comentário`
       : `${service.name} adicionado à seleção`;
     toast.success(msg);
-  };
-
-  const handleAddService = async (service: Omit<Service, "id">) => {
-    try {
-      const updatedServices = await addService(service);
-      setServices(updatedServices);
-      toast.success('Serviço adicionado com sucesso');
-    } catch (error) {
-      console.error('Erro ao adicionar serviço:', error);
-      toast.error('Erro ao adicionar serviço');
-    }
   };
 
   const handleServicePriceChange = (serviceId: string, newPrice: number) => {
@@ -120,8 +109,6 @@ const CheckoutPage = () => {
                 viewMode={viewMode}
                 setViewMode={setViewMode}
                 onAddToSelection={handleAddToSelection}
-                onAddService={handleAddService}
-                onUpdateServices={loadData}
               />
             </div>
             
