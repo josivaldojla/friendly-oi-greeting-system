@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, removeDuplicateModels } from "@/lib/storage";
@@ -13,6 +14,7 @@ import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDia
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 import { BackupActions } from "@/components/motorcycle-models/BackupActions";
+import { SuspensionOilDialog } from "@/components/motorcycle-models/SuspensionOilDialog";
 import { AlertTriangle, Trash2 } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
@@ -20,6 +22,7 @@ const MotorcycleModelsPage = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleteBrandDialogOpen, setIsDeleteBrandDialogOpen] = useState(false);
+  const [isOilDialogOpen, setIsOilDialogOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
@@ -222,6 +225,11 @@ const MotorcycleModelsPage = () => {
     setCurrentModel(model);
     setIsDeleteDialogOpen(true);
   };
+
+  const openOilDialog = (model: MotorcycleModel) => {
+    setCurrentModel(model);
+    setIsOilDialogOpen(true);
+  };
   
   const openAddDialog = () => {
     setCurrentModel(null);
@@ -351,6 +359,7 @@ const MotorcycleModelsPage = () => {
               models={filteredModels}
               onEdit={openEditDialog}
               onDelete={openDeleteDialog}
+              onViewOilData={openOilDialog}
             />
           </div>
         )}
@@ -388,6 +397,12 @@ const MotorcycleModelsPage = () => {
         brand={brandToDelete}
         modelCount={brandToDelete ? getModelCountForBrand(brandToDelete) : 0}
         isLoading={deleteBrandMutation.isPending}
+      />
+
+      <SuspensionOilDialog
+        isOpen={isOilDialogOpen}
+        onOpenChange={setIsOilDialogOpen}
+        model={currentModel}
       />
     </Layout>
   );

@@ -2,18 +2,20 @@
 import { MotorcycleModel } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash } from "lucide-react";
+import { Edit, Trash, Droplets } from "lucide-react";
 
 interface MotorcycleModelsTableProps {
   models: MotorcycleModel[];
   onEdit: (model: MotorcycleModel) => void;
   onDelete: (model: MotorcycleModel) => void;
+  onViewOilData: (model: MotorcycleModel) => void;
 }
 
 export const MotorcycleModelsTable = ({ 
   models, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onViewOilData
 }: MotorcycleModelsTableProps) => {
   return (
     <div className="w-full border rounded-md overflow-hidden">
@@ -23,7 +25,7 @@ export const MotorcycleModelsTable = ({
             <TableRow>
               <TableHead className="min-w-[120px]">Modelo</TableHead>
               <TableHead className="min-w-[100px]">Marca</TableHead>
-              <TableHead className="w-[80px] text-center">Ações</TableHead>
+              <TableHead className="w-[120px] text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -37,6 +39,15 @@ export const MotorcycleModelsTable = ({
                 </TableCell>
                 <TableCell>
                   <div className="flex space-x-1 justify-center">
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      onClick={() => onViewOilData(model)}
+                      title="Ver dados de óleo de suspensão"
+                      className="h-8 w-8 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                    >
+                      <Droplets className="h-3 w-3" />
+                    </Button>
                     <Button 
                       variant="ghost" 
                       size="icon" 
