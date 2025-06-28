@@ -2,124 +2,9 @@
 import { MotorcycleModel } from "./types";
 import { addMotorcycleModel, getMotorcycleModels } from "./storage";
 
-// Lista de modelos de motos comuns no Brasil
-const defaultMotorcycleModels = [
-  // Honda - Expandida
-  { name: "CG 160", brand: "Honda" },
-  { name: "CG 150", brand: "Honda" },
-  { name: "CG 125", brand: "Honda" },
-  { name: "Biz 125", brand: "Honda" },
-  { name: "Biz 110i", brand: "Honda" },
-  { name: "XRE 300", brand: "Honda" },
-  { name: "XRE 190", brand: "Honda" },
-  { name: "CB 500", brand: "Honda" },
-  { name: "CB 600F Hornet", brand: "Honda" },
-  { name: "CB 650F", brand: "Honda" },
-  { name: "CB 1000R", brand: "Honda" },
-  { name: "CBR 600RR", brand: "Honda" },
-  { name: "CBR 1000RR", brand: "Honda" },
-  { name: "PCX 150", brand: "Honda" },
-  { name: "PCX 160", brand: "Honda" },
-  { name: "POP 110i", brand: "Honda" },
-  { name: "Lead 110", brand: "Honda" },
-  { name: "Elite 125", brand: "Honda" },
-  { name: "SH 150i", brand: "Honda" },
-  { name: "SH 300i", brand: "Honda" },
-  { name: "NC 750X", brand: "Honda" },
-  { name: "Bros 160", brand: "Honda" },
-  { name: "Titan 160", brand: "Honda" },
-  { name: "Titan 150", brand: "Honda" },
-  { name: "CB Twister 250", brand: "Honda" },
-  { name: "XR 250 Tornado", brand: "Honda" },
-  { name: "Africa Twin", brand: "Honda" },
-  { name: "ADV 150", brand: "Honda" },
-  
-  // Yamaha - Expandida
-  { name: "Factor 150", brand: "Yamaha" },
-  { name: "Factor 125", brand: "Yamaha" },
-  { name: "Fazer 250", brand: "Yamaha" },
-  { name: "Fazer 150", brand: "Yamaha" },
-  { name: "MT-03", brand: "Yamaha" },
-  { name: "MT-07", brand: "Yamaha" },
-  { name: "MT-09", brand: "Yamaha" },
-  { name: "MT-10", brand: "Yamaha" },
-  { name: "XTZ 150", brand: "Yamaha" },
-  { name: "XTZ 250", brand: "Yamaha" },
-  { name: "NMax 160", brand: "Yamaha" },
-  { name: "NMax 155", brand: "Yamaha" },
-  { name: "R3", brand: "Yamaha" },
-  { name: "R6", brand: "Yamaha" },
-  { name: "R1", brand: "Yamaha" },
-  { name: "YBR 125", brand: "Yamaha" },
-  { name: "YBR 150", brand: "Yamaha" },
-  { name: "Crypton 115", brand: "Yamaha" },
-  { name: "Neo 125", brand: "Yamaha" },
-  { name: "Neo 115", brand: "Yamaha" },
-  { name: "XJ6", brand: "Yamaha" },
-  { name: "XJ6 N", brand: "Yamaha" },
-  { name: "Tenere 250", brand: "Yamaha" },
-  { name: "Tenere 660", brand: "Yamaha" },
-  { name: "FZ25", brand: "Yamaha" },
-  { name: "Crosser 150", brand: "Yamaha" },
-  { name: "Lander 250", brand: "Yamaha" },
-  { name: "Tracer 900", brand: "Yamaha" },
-  { name: "V-Max", brand: "Yamaha" },
-  
-  // Outras marcas mantidas
-  { name: "GSX-S750", brand: "Suzuki" },
-  { name: "V-Strom 650", brand: "Suzuki" },
-  { name: "Hayabusa", brand: "Suzuki" },
-  { name: "Burgman 125", brand: "Suzuki" },
-  { name: "Ninja 300", brand: "Kawasaki" },
-  { name: "Ninja 400", brand: "Kawasaki" },
-  { name: "Ninja ZX-10R", brand: "Kawasaki" },
-  { name: "Z400", brand: "Kawasaki" },
-  { name: "Z900", brand: "Kawasaki" },
-  { name: "Duke 390", brand: "KTM" },
-  { name: "Duke 200", brand: "KTM" },
-  { name: "Adventure 390", brand: "KTM" },
-  { name: "Scrambler", brand: "Ducati" },
-  { name: "Panigale V4", brand: "Ducati" },
-  { name: "Monster", brand: "Ducati" },
-  { name: "G 310 R", brand: "BMW" },
-  { name: "G 310 GS", brand: "BMW" },
-  { name: "F 850 GS", brand: "BMW" },
-  { name: "R 1250 GS", brand: "BMW" },
-  { name: "S 1000 RR", brand: "BMW" },
-  { name: "Meteor 350", brand: "Royal Enfield" },
-  { name: "Himalayan", brand: "Royal Enfield" },
-  { name: "Classic 350", brand: "Royal Enfield" },
-  
-  // Modelos Shineray - Combinando ambas as listas
-  { name: "Jet 50", brand: "Shineray" },
-  { name: "XY 50 Q", brand: "Shineray" },
-  { name: "Worker 125", brand: "Shineray" },
-  { name: "SHI 175", brand: "Shineray" },
-  { name: "SHI 200", brand: "Shineray" },
-  { name: "Explorer 150", brand: "Shineray" },
-  { name: "Phoenix S", brand: "Shineray" },
-  { name: "Phoenix Gold", brand: "Shineray" },
-  { name: "Jet 125", brand: "Shineray" },
-  { name: "Urban 150", brand: "Shineray" },
-  { name: "Urban 200", brand: "Shineray" },
-  { name: "Phoenix 50", brand: "Shineray" },
-  { name: "Phoenix 150", brand: "Shineray" },
-  { name: "Phoenix 250", brand: "Shineray" },
-  { name: "XY 150", brand: "Shineray" },
-  { name: "XY 200", brand: "Shineray" },
-  { name: "XY 250", brand: "Shineray" },
-  { name: "Super Smart 50", brand: "Shineray" },
-  { name: "Super Smart 125", brand: "Shineray" },
-  { name: "Naked 150", brand: "Shineray" },
-  { name: "Naked 250", brand: "Shineray" },
-  { name: "Retro 125", brand: "Shineray" },
-  { name: "Retro 150", brand: "Shineray" },
-  { name: "Adventure 250", brand: "Shineray" },
-  { name: "Street 150", brand: "Shineray" },
-  { name: "Sport 200", brand: "Shineray" },
-  { name: "Cruiser 250", brand: "Shineray" },
-
-  // NOVOS MODELOS DAS IMAGENS - Yamaha adicionais
+// Modelos extraídos das imagens fornecidas pelo usuário
+const modelsFromImages = [
+  // Yamaha (das imagens)
   { name: "DT180", brand: "Yamaha" },
   { name: "DT180 N 82/83", brand: "Yamaha" },
   { name: "FZ 6 Fazer 2007", brand: "Yamaha" },
@@ -155,7 +40,7 @@ const defaultMotorcycleModels = [
   { name: "YZF R 6 1999 a 2002", brand: "Yamaha" },
   { name: "YZF R 6 2006/2007", brand: "Yamaha" },
 
-  // NOVOS MODELOS DAS IMAGENS - Suzuki
+  // Suzuki (das imagens)
   { name: "Bandit 1200", brand: "Suzuki" },
   { name: "Bandit 1250", brand: "Suzuki" },
   { name: "Bandit 1250 S", brand: "Suzuki" },
@@ -198,7 +83,7 @@ const defaultMotorcycleModels = [
   { name: "VX 800 E", brand: "Suzuki" },
   { name: "YES 125", brand: "Suzuki" },
 
-  // NOVOS MODELOS DAS IMAGENS - Honda adicionais
+  // Honda (das imagens)
   { name: "Lead 100", brand: "Honda" },
   { name: "Magna 750", brand: "Honda" },
   { name: "NX 200", brand: "Honda" },
@@ -250,13 +135,13 @@ const defaultMotorcycleModels = [
   { name: "Hornet CB 600 2005 A 2007", brand: "Honda" },
   { name: "Hornet CB 600 2008", brand: "Honda" },
 
-  // NOVOS MODELOS DAS IMAGENS - Kasinski
+  // Kasinski (das imagens)
   { name: "Comet 250", brand: "Kasinski" },
   { name: "Comet 650 GTR", brand: "Kasinski" },
   { name: "GF 125", brand: "Kasinski" },
   { name: "Mirage 250", brand: "Kasinski" },
 
-  // NOVOS MODELOS DAS IMAGENS - Kawasaki adicionais
+  // Kawasaki (das imagens)
   { name: "ER 6 F", brand: "Kawasaki" },
   { name: "Ninja 250", brand: "Kawasaki" },
   { name: "Ninja 650 R", brand: "Kawasaki" },
@@ -267,7 +152,7 @@ const defaultMotorcycleModels = [
   { name: "Vulcan 900 Classic", brand: "Kawasaki" },
   { name: "Z 750 Naked", brand: "Kawasaki" },
 
-  // NOVOS MODELOS DAS IMAGENS - Sundown
+  // Sundown (das imagens)
   { name: "Future", brand: "Sundown" },
   { name: "Hunter", brand: "Sundown" },
   { name: "Max SE/SED", brand: "Sundown" },
@@ -276,11 +161,11 @@ const defaultMotorcycleModels = [
   { name: "Web", brand: "Sundown" },
   { name: "New Web", brand: "Sundown" },
 
-  // NOVOS MODELOS DAS IMAGENS - BMW
+  // BMW (das imagens)
   { name: "F 650 GS", brand: "BMW" },
   { name: "K 1100 LT", brand: "BMW" },
 
-  // NOVOS MODELOS DAS IMAGENS - Dafra
+  // Dafra (das imagens)
   { name: "Kansas 150", brand: "Dafra" },
   { name: "Kansas 250", brand: "Dafra" },
   { name: "Laser 150", brand: "Dafra" },
@@ -289,10 +174,10 @@ const defaultMotorcycleModels = [
   { name: "Zig 100", brand: "Dafra" }
 ];
 
-// Função para preencher o banco de dados com os modelos de motos
-export const populateMotorcycleModels = async () => {
+// Função para adicionar apenas os modelos das imagens que não estão cadastrados
+export const addModelsFromImages = async () => {
   try {
-    console.log("Iniciando a importação de modelos de motos");
+    console.log("Iniciando a importação de modelos das imagens");
     
     // Buscar modelos existentes
     const existingModels = await getMotorcycleModels();
@@ -300,29 +185,41 @@ export const populateMotorcycleModels = async () => {
       `${model.name.toLowerCase()}-${(model.brand || '').toLowerCase()}`
     );
     
-    // Filtrar apenas os modelos que ainda não existem
-    const modelsToAdd = defaultMotorcycleModels.filter(model => {
+    console.log(`Total de modelos existentes: ${existingModels.length}`);
+    
+    // Filtrar apenas os modelos das imagens que ainda não existem
+    const modelsToAdd = modelsFromImages.filter(model => {
       const modelKey = `${model.name.toLowerCase()}-${model.brand.toLowerCase()}`;
       return !existingKeys.includes(modelKey);
     });
     
-    console.log(`Encontrados ${modelsToAdd.length} modelos para adicionar`);
+    console.log(`Modelos das imagens para adicionar: ${modelsToAdd.length}`);
+    console.log('Modelos que serão adicionados:', modelsToAdd.map(m => `${m.name} (${m.brand})`));
+    
+    if (modelsToAdd.length === 0) {
+      console.log("Todos os modelos das imagens já estão cadastrados");
+      return true;
+    }
     
     for (const model of modelsToAdd) {
       await addMotorcycleModel(model);
       console.log(`Adicionado: ${model.name} (${model.brand})`);
     }
     
-    console.log("Modelos de motos importados com sucesso");
+    console.log(`${modelsToAdd.length} modelos das imagens foram adicionados com sucesso`);
     return true;
   } catch (error) {
-    console.error("Erro ao importar modelos de motos:", error);
+    console.error("Erro ao importar modelos das imagens:", error);
     return false;
   }
 };
 
+// Função principal mantida para compatibilidade (agora chama a função das imagens)
+export const populateMotorcycleModels = async () => {
+  return await addModelsFromImages();
+};
+
 // Função para adicionar apenas os modelos da Shineray (mantida para compatibilidade)
 export const addShinerayModels = async () => {
-  // Agora chama a função principal que já verifica todos os modelos
-  return await populateMotorcycleModels();
+  return await addModelsFromImages();
 };

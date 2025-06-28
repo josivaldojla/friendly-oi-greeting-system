@@ -253,7 +253,7 @@ export async function removeDuplicateModels(): Promise<MotorcycleModel[]> {
 // Function to manually populate models - only when explicitly requested
 export async function populateModelsManually(): Promise<boolean> {
   try {
-    console.log('Populando modelos manualmente...');
+    console.log('Populando modelos das imagens manualmente...');
     
     // Get current user ID
     const { data: { user } } = await supabase.auth.getUser();
@@ -262,11 +262,11 @@ export async function populateModelsManually(): Promise<boolean> {
       return false;
     }
     
-    // Import and run the populate function
-    const { populateMotorcycleModels } = await import('../motorcycle-models-data');
-    return await populateMotorcycleModels();
+    // Import and run the populate function for models from images
+    const { addModelsFromImages } = await import('../motorcycle-models-data');
+    return await addModelsFromImages();
   } catch (error) {
-    console.error('Erro ao popular modelos manualmente:', error);
+    console.error('Erro ao popular modelos das imagens manualmente:', error);
     return false;
   }
 }
