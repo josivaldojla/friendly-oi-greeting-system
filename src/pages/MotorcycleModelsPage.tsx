@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, removeDuplicateModels } from "@/lib/storage";
@@ -15,6 +14,7 @@ import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyMode
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 import { BackupActions } from "@/components/motorcycle-models/BackupActions";
 import { SuspensionOilDialog } from "@/components/motorcycle-models/SuspensionOilDialog";
+import { ModelSearchInput } from "@/components/motorcycle-models/ModelSearchInput";
 import { AlertTriangle, Trash2 } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
@@ -26,6 +26,7 @@ const MotorcycleModelsPage = () => {
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState<string>("");
   const [hasAutoPopulated, setHasAutoPopulated] = useState(false);
   
   const queryClient = useQueryClient();
@@ -66,17 +67,21 @@ const MotorcycleModelsPage = () => {
   console.log('Total models loaded:', motorcycleModels.length);
   console.log('Models data:', JSON.stringify(motorcycleModels, null, 2));
   
-  // Filter models by selected brand (if any)
-  const filteredModels = selectedBrand
-    ? motorcycleModels.filter(model => {
-        const modelBrand = model.brand?.trim();
-        const filterBrand = selectedBrand.trim();
-        const matches = modelBrand && modelBrand.toLowerCase() === filterBrand.toLowerCase();
-        console.log(`Filtering model "${model.name}": brand="${modelBrand}" vs filter="${filterBrand}" = ${matches}`);
-        return matches;
-      })
-    : motorcycleModels;
+  // Filter models by search term and selected brand
+  const filteredModels = motorcycleModels.filter(model => {
+    // Filter by search term
+    const matchesSearch = searchTerm === "" || 
+      model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (model.brand && model.brand.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    // Filter by selected brand
+    const matchesBrand = !selectedBrand || 
+      (model.brand && model.brand.toLowerCase() === selectedBrand.toLowerCase());
+    
+    return matchesSearch && matchesBrand;
+  });
   
+  console.log('Search term:', searchTerm);
   console.log('Selected brand for filtering:', selectedBrand);
   console.log('Filtered models count:', filteredModels.length);
   console.log('=== End MotorcycleModelsPage: Data Analysis ===');
@@ -269,6 +274,10 @@ const MotorcycleModelsPage = () => {
     removeDuplicatesMutation.mutate();
   };
 
+  const handleSearchChange = (newSearchTerm: string) => {
+    setSearchTerm(newSearchTerm);
+  };
+
   // Função para contar duplicatas aproximadas
   const getDuplicateCount = () => {
     const seen = new Set<string>();
@@ -333,6 +342,21 @@ const MotorcycleModelsPage = () => {
           </div>
         </div>
         
+        {/* Search Section */}
+        {!isLoading && motorcycleModels.length > 0 && (
+          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <ModelSearchInput 
+              onSearchChange={handleSearchChange}
+              placeholder="Buscar por modelo ou marca..."
+            />
+            {searchTerm && (
+              <div className="text-sm text-gray-600">
+                {filteredModels.length} resultado{filteredModels.length !== 1 ? 's' : ''} encontrado{filteredModels.length !== 1 ? 's' : ''}
+              </div>
+            )}
+          </div>
+        )}
+        
         {/* Brand Filter Section - Always show if we have models */}
         {!isLoading && motorcycleModels.length > 0 && (
           <BrandFilterButtons 
@@ -351,7 +375,21 @@ const MotorcycleModelsPage = () => {
           </div>
         ) : filteredModels.length === 0 ? (
           <div className="space-y-4">
-            <EmptyModelsPlaceholder onAddClick={openAddDialog} />
+            {searchTerm ? (
+              <div className="text-center py-8">
+                <p className="text-gray-500 mb-4">
+                  Nenhum modelo encontrado para "<strong>{searchTerm}</strong>"
+                </p>
+                <Button 
+                  onClick={() => setSearchTerm("")}
+                  variant="outline"
+                >
+                  Limpar busca
+                </Button>
+              </div>
+            ) : (
+              <EmptyModelsPlaceholder onAddClick={openAddDialog} />
+            )}
           </div>
         ) : (
           <div className="w-full overflow-hidden">
