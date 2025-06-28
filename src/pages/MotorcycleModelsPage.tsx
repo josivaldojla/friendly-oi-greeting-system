@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually, removeDuplicateModels } from "@/lib/storage";
@@ -13,7 +12,7 @@ import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDia
 import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
 import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
 import { BackupActions } from "@/components/motorcycle-models/BackupActions";
-import { Package, Trash2 } from "lucide-react";
+import { Package, Trash2, AlertTriangle } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -171,14 +170,26 @@ const MotorcycleModelsPage = () => {
 
   const removeDuplicatesMutation = useMutation({
     mutationFn: removeDuplicateModels,
-    onSuccess: () => {
+    onSuccess: (updatedModels) => {
       queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-      toast({
-        title: "Sucesso",
-        description: "Modelos duplicados removidos com sucesso",
-      });
+      const originalCount = motorcycleModels.length;
+      const newCount = updatedModels.length;
+      const removedCount = originalCount - newCount;
+      
+      if (removedCount > 0) {
+        toast({
+          title: "Duplicatas Removidas!",
+          description: `${removedCount} modelos duplicados foram removidos com sucesso. Total restante: ${newCount} modelos.`,
+        });
+      } else {
+        toast({
+          title: "Nenhuma Duplicata",
+          description: "Não foram encontrados modelos duplicados para remover.",
+        });
+      }
     },
     onError: (error) => {
+      console.error('Erro ao remover duplicatas:', error);
       toast({
         title: "Erro",
         description: `Erro ao remover duplicatas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
@@ -240,8 +251,37 @@ const MotorcycleModelsPage = () => {
   };
 
   const handleRemoveDuplicates = () => {
+    const duplicateCount = getDuplicateCount();
+    if (duplicateCount === 0) {
+      toast({
+        title: "Nenhuma Duplicata",
+        description: "Não foram encontrados modelos duplicados.",
+      });
+      return;
+    }
+    
+    console.log(`Iniciando remoção de aproximadamente ${duplicateCount} duplicatas...`);
     removeDuplicatesMutation.mutate();
   };
+
+  // Função para contar duplicatas aproximadas
+  const getDuplicateCount = () => {
+    const seen = new Set<string>();
+    let duplicates = 0;
+    
+    motorcycleModels.forEach(model => {
+      const key = `${model.name.toLowerCase().trim()}|||${(model.brand || '').toLowerCase().trim()}`;
+      if (seen.has(key)) {
+        duplicates++;
+      } else {
+        seen.add(key);
+      }
+    });
+    
+    return duplicates;
+  };
+
+  const duplicateCount = getDuplicateCount();
 
   return (
     <Layout>
@@ -251,15 +291,26 @@ const MotorcycleModelsPage = () => {
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
             <h2 className="text-xl sm:text-2xl font-bold">Modelos de Motos</h2>
             <div className="flex flex-col sm:flex-row gap-2">
+              {duplicateCount > 0 && (
+                <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md text-sm">
+                  <AlertTriangle className="h-4 w-4" />
+                  {duplicateCount} duplicata{duplicateCount > 1 ? 's' : ''} encontrada{duplicateCount > 1 ? 's' : ''}
+                </div>
+              )}
               <Button 
                 onClick={handleRemoveDuplicates}
-                disabled={removeDuplicatesMutation.isPending}
-                variant="outline"
+                disabled={removeDuplicatesMutation.isPending || duplicateCount === 0}
+                variant={duplicateCount > 0 ? "destructive" : "outline"}
                 className="flex items-center gap-2"
                 size="sm"
               >
                 <Trash2 className="h-4 w-4" />
-                {removeDuplicatesMutation.isPending ? 'Removendo...' : 'Remover Duplicatas'}
+                {removeDuplicatesMutation.isPending 
+                  ? 'Removendo...' 
+                  : duplicateCount > 0 
+                    ? `Remover ${duplicateCount} Duplicata${duplicateCount > 1 ? 's' : ''}` 
+                    : 'Sem Duplicatas'
+                }
               </Button>
               <Button 
                 onClick={openAddDialog}

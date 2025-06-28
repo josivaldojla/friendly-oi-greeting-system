@@ -1,4 +1,3 @@
-
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -159,56 +158,91 @@ export async function deleteModelsByBrand(brand: string): Promise<MotorcycleMode
   }
 }
 
-// Nova função para remover modelos duplicados
+// Função melhorada para remover modelos duplicados
 export async function removeDuplicateModels(): Promise<MotorcycleModel[]> {
   try {
-    console.log('Removendo modelos duplicados...');
+    console.log('Iniciando remoção de modelos duplicados...');
     
-    // Buscar todos os modelos
-    const allModels = await getMotorcycleModels();
+    // Buscar todos os modelos diretamente do banco
+    const { data: allModels, error } = await supabase
+      .from('motorcycle_models')
+      .select('*')
+      .order('created_at'); // Ordenar por data de criação para manter o mais antigo
     
-    // Agrupar por nome e marca (case insensitive)
-    const modelGroups = new Map<string, MotorcycleModel[]>();
+    if (error) {
+      console.error('Erro ao buscar modelos:', error);
+      throw error;
+    }
+    
+    if (!allModels || allModels.length === 0) {
+      console.log('Nenhum modelo encontrado');
+      return [];
+    }
+    
+    console.log(`Total de modelos encontrados: ${allModels.length}`);
+    
+    // Agrupar modelos por nome + marca (case insensitive e normalizado)
+    const modelMap = new Map<string, any[]>();
     
     allModels.forEach(model => {
-      const key = `${model.name.toLowerCase().trim()}-${(model.brand || '').toLowerCase().trim()}`;
-      if (!modelGroups.has(key)) {
-        modelGroups.set(key, []);
+      const normalizedName = (model.name || '').toLowerCase().trim();
+      const normalizedBrand = (model.brand || '').toLowerCase().trim();
+      const key = `${normalizedName}|||${normalizedBrand}`; // Usar ||| como separador único
+      
+      if (!modelMap.has(key)) {
+        modelMap.set(key, []);
       }
-      modelGroups.get(key)!.push(model);
+      modelMap.get(key)!.push(model);
     });
     
-    // Identificar duplicatas e manter apenas o primeiro de cada grupo
+    // Identificar duplicatas (grupos com mais de 1 modelo)
     const duplicatesToDelete: string[] = [];
+    let duplicateGroupsCount = 0;
     
-    modelGroups.forEach((models, key) => {
+    modelMap.forEach((models, key) => {
       if (models.length > 1) {
-        // Ordenar por data de criação (id mais antigo primeiro) e manter o primeiro
-        models.sort((a, b) => a.id.localeCompare(b.id));
-        // Adicionar os demais à lista de exclusão
-        duplicatesToDelete.push(...models.slice(1).map(m => m.id));
+        duplicateGroupsCount++;
+        console.log(`Grupo duplicado encontrado para "${key}": ${models.length} modelos`);
+        console.log('Modelos:', models.map(m => `${m.name} (${m.brand}) - ID: ${m.id}`));
+        
+        // Ordenar por created_at e manter apenas o primeiro (mais antigo)
+        models.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        
+        // Adicionar todos exceto o primeiro à lista de exclusão
+        const toDelete = models.slice(1);
+        duplicatesToDelete.push(...toDelete.map(m => m.id));
+        
+        console.log(`Mantendo: ${models[0].name} (${models[0].brand}) - ID: ${models[0].id}`);
+        console.log(`Excluindo: ${toDelete.map(m => `${m.name} (${m.brand}) - ID: ${m.id}`).join(', ')}`);
       }
     });
     
     if (duplicatesToDelete.length === 0) {
       console.log('Nenhum modelo duplicado encontrado');
-      return allModels;
+      return getMotorcycleModels();
     }
     
-    console.log(`Encontrados ${duplicatesToDelete.length} modelos duplicados para excluir`);
+    console.log(`Encontrados ${duplicateGroupsCount} grupos de duplicatas com total de ${duplicatesToDelete.length} modelos para excluir`);
+    console.log('IDs a serem excluídos:', duplicatesToDelete);
     
-    // Excluir os duplicados
-    const { error } = await supabase
-      .from('motorcycle_models')
-      .delete()
-      .in('id', duplicatesToDelete);
+    // Excluir os duplicados em lotes para evitar problemas de limite de query
+    const batchSize = 50;
+    for (let i = 0; i < duplicatesToDelete.length; i += batchSize) {
+      const batch = duplicatesToDelete.slice(i, i + batchSize);
+      console.log(`Excluindo lote ${Math.floor(i/batchSize) + 1}: ${batch.length} modelos`);
+      
+      const { error: deleteError } = await supabase
+        .from('motorcycle_models')
+        .delete()
+        .in('id', batch);
 
-    if (error) {
-      console.error('Erro ao excluir modelos duplicados:', error);
-      throw error;
+      if (deleteError) {
+        console.error('Erro ao excluir lote de modelos duplicados:', deleteError);
+        throw deleteError;
+      }
     }
 
-    console.log(`${duplicatesToDelete.length} modelos duplicados removidos com sucesso`);
+    console.log(`${duplicatesToDelete.length} modelos duplicados removidos com sucesso!`);
     return getMotorcycleModels();
   } catch (error) {
     console.error('Erro em removeDuplicateModels:', error);
@@ -236,5 +270,3 @@ export async function populateModelsManually(): Promise<boolean> {
     return false;
   }
 }
-
-// Removed the automatic population function - models will only be added when explicitly requested
