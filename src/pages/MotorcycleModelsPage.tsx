@@ -1,21 +1,15 @@
+
 import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, removeDuplicateModels } from "@/lib/storage";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand } from "@/lib/storage";
 import { addModelsFromImages } from "@/lib/motorcycle-models-data";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { MotorcycleModelForm } from "@/components/motorcycle-models/MotorcycleModelForm";
-import { MotorcycleModelsTable } from "@/components/motorcycle-models/MotorcycleModelsTable";
-import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDialog";
-import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDialog";
-import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
-import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
-import { BackupActions } from "@/components/motorcycle-models/BackupActions";
-import { SuspensionOilDialog } from "@/components/motorcycle-models/SuspensionOilDialog";
-import { ModelSearchInput } from "@/components/motorcycle-models/ModelSearchInput";
-import { AlertTriangle, Trash2 } from "lucide-react";
+import { MotorcycleModelsHeader } from "@/components/motorcycle-models/MotorcycleModelsHeader";
+import { MotorcycleModelsSearchAndFilter } from "@/components/motorcycle-models/MotorcycleModelsSearchAndFilter";
+import { MotorcycleModelsContent } from "@/components/motorcycle-models/MotorcycleModelsContent";
+import { MotorcycleModelsDialogs } from "@/components/motorcycle-models/MotorcycleModelsDialogs";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -176,36 +170,6 @@ const MotorcycleModelsPage = () => {
       });
     }
   });
-
-  const removeDuplicatesMutation = useMutation({
-    mutationFn: removeDuplicateModels,
-    onSuccess: (updatedModels) => {
-      queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-      const originalCount = motorcycleModels.length;
-      const newCount = updatedModels.length;
-      const removedCount = originalCount - newCount;
-      
-      if (removedCount > 0) {
-        toast({
-          title: "Duplicatas Removidas!",
-          description: `${removedCount} modelos duplicados foram removidos com sucesso. Total restante: ${newCount} modelos.`,
-        });
-      } else {
-        toast({
-          title: "Nenhuma Duplicata",
-          description: "Não foram encontrados modelos duplicados para remover.",
-        });
-      }
-    },
-    onError: (error) => {
-      console.error('Erro ao remover duplicatas:', error);
-      toast({
-        title: "Erro",
-        description: `Erro ao remover duplicatas: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
-        variant: "destructive",
-      });
-    }
-  });
   
   // Handlers
   const handleAddModel = (model: Omit<MotorcycleModel, "id">) => {
@@ -260,22 +224,12 @@ const MotorcycleModelsPage = () => {
     return motorcycleModels.filter(model => model.brand?.toLowerCase() === brand.toLowerCase()).length;
   };
 
-  const handleRemoveDuplicates = () => {
-    const duplicateCount = getDuplicateCount();
-    if (duplicateCount === 0) {
-      toast({
-        title: "Nenhuma Duplicata",
-        description: "Não foram encontrados modelos duplicados.",
-      });
-      return;
-    }
-    
-    console.log(`Iniciando remoção de aproximadamente ${duplicateCount} duplicatas...`);
-    removeDuplicatesMutation.mutate();
-  };
-
   const handleSearchChange = (newSearchTerm: string) => {
     setSearchTerm(newSearchTerm);
+  };
+
+  const handleClearSearch = () => {
+    setSearchTerm("");
   };
 
   // Função para contar duplicatas aproximadas
@@ -300,147 +254,58 @@ const MotorcycleModelsPage = () => {
   return (
     <Layout>
       <div className="space-y-4 p-4 sm:p-6">
-        {/* Header Section */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
-            <h2 className="text-xl sm:text-2xl font-bold">Modelos de Motos</h2>
-            <div className="flex flex-col sm:flex-row gap-2">
-              {duplicateCount > 0 && (
-                <div className="flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-800 rounded-md text-sm">
-                  <AlertTriangle className="h-4 w-4" />
-                  {duplicateCount} duplicata{duplicateCount > 1 ? 's' : ''} encontrada{duplicateCount > 1 ? 's' : ''}
-                </div>
-              )}
-              <Button 
-                onClick={handleRemoveDuplicates}
-                disabled={removeDuplicatesMutation.isPending || duplicateCount === 0}
-                variant={duplicateCount > 0 ? "destructive" : "outline"}
-                className="flex items-center gap-2"
-                size="sm"
-              >
-                <Trash2 className="h-4 w-4" />
-                {removeDuplicatesMutation.isPending 
-                  ? 'Removendo...' 
-                  : duplicateCount > 0 
-                    ? `Remover ${duplicateCount} Duplicata${duplicateCount > 1 ? 's' : ''}` 
-                    : 'Sem Duplicatas'
-                }
-              </Button>
-              <Button 
-                onClick={openAddDialog}
-                className="w-full sm:w-auto"
-                size="sm"
-              >
-                Adicionar Modelo
-              </Button>
-            </div>
-          </div>
-          
-          {/* Backup Actions */}
-          <div className="w-full">
-            <BackupActions />
-          </div>
-        </div>
+        <MotorcycleModelsHeader
+          duplicateCount={duplicateCount}
+          motorcycleModels={motorcycleModels}
+          onAddClick={openAddDialog}
+        />
         
-        {/* Search Section */}
-        {!isLoading && motorcycleModels.length > 0 && (
-          <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-            <ModelSearchInput 
-              onSearchChange={handleSearchChange}
-              placeholder="Buscar por modelo ou marca..."
-            />
-            {searchTerm && (
-              <div className="text-sm text-gray-600">
-                {filteredModels.length} resultado{filteredModels.length !== 1 ? 's' : ''} encontrado{filteredModels.length !== 1 ? 's' : ''}
-              </div>
-            )}
-          </div>
-        )}
-        
-        {/* Brand Filter Section - Always show if we have models */}
-        {!isLoading && motorcycleModels.length > 0 && (
-          <BrandFilterButtons 
-            brands={[]} // We don't use this prop anymore, brands are extracted inside the component
-            selectedBrand={selectedBrand} 
-            onSelectBrand={handleBrandFilter}
-            onDeleteBrand={handleDeleteBrand}
+        {!isLoading && (
+          <MotorcycleModelsSearchAndFilter
             motorcycleModels={motorcycleModels}
+            searchTerm={searchTerm}
+            selectedBrand={selectedBrand}
+            filteredModels={filteredModels}
+            onSearchChange={handleSearchChange}
+            onBrandFilter={handleBrandFilter}
+            onDeleteBrand={handleDeleteBrand}
+            onClearSearch={handleClearSearch}
           />
         )}
         
-        {/* Content Section */}
-        {isLoading ? (
-          <div className="flex justify-center p-8">
-            <div className="text-lg">Carregando...</div>
-          </div>
-        ) : filteredModels.length === 0 ? (
-          <div className="space-y-4">
-            {searchTerm ? (
-              <div className="text-center py-8">
-                <p className="text-gray-500 mb-4">
-                  Nenhum modelo encontrado para "<strong>{searchTerm}</strong>"
-                </p>
-                <Button 
-                  onClick={() => setSearchTerm("")}
-                  variant="outline"
-                >
-                  Limpar busca
-                </Button>
-              </div>
-            ) : (
-              <EmptyModelsPlaceholder onAddClick={openAddDialog} />
-            )}
-          </div>
-        ) : (
-          <div className="w-full overflow-hidden">
-            <MotorcycleModelsTable 
-              models={filteredModels}
-              onEdit={openEditDialog}
-              onDelete={openDeleteDialog}
-              onViewOilData={openOilDialog}
-            />
-          </div>
-        )}
+        <MotorcycleModelsContent
+          isLoading={isLoading}
+          filteredModels={filteredModels}
+          searchTerm={searchTerm}
+          onEdit={openEditDialog}
+          onDelete={openDeleteDialog}
+          onViewOilData={openOilDialog}
+          onAddClick={openAddDialog}
+        />
       </div>
       
-      <MotorcycleModelForm
-        isOpen={isAddDialogOpen}
-        onOpenChange={setIsAddDialogOpen}
-        onSave={handleAddModel}
-        isLoading={addModelMutation.isPending}
-        mode="add"
-      />
-      
-      <MotorcycleModelForm
-        isOpen={isEditDialogOpen}
-        onOpenChange={setIsEditDialogOpen}
-        onSave={handleUpdateModel}
+      <MotorcycleModelsDialogs
+        isAddDialogOpen={isAddDialogOpen}
+        isEditDialogOpen={isEditDialogOpen}
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        isDeleteBrandDialogOpen={isDeleteBrandDialogOpen}
+        isOilDialogOpen={isOilDialogOpen}
         currentModel={currentModel}
-        isLoading={updateModelMutation.isPending}
-        mode="edit"
-      />
-      
-      <DeleteModelDialog
-        isOpen={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={handleDeleteModel}
-        model={currentModel}
-        isLoading={deleteModelMutation.isPending}
-      />
-      
-      <DeleteBrandDialog
-        isOpen={isDeleteBrandDialogOpen}
-        onOpenChange={setIsDeleteBrandDialogOpen}
-        onConfirm={confirmDeleteBrand}
-        brand={brandToDelete}
-        modelCount={brandToDelete ? getModelCountForBrand(brandToDelete) : 0}
-        isLoading={deleteBrandMutation.isPending}
-      />
-
-      <SuspensionOilDialog
-        isOpen={isOilDialogOpen}
-        onOpenChange={setIsOilDialogOpen}
-        model={currentModel}
+        brandToDelete={brandToDelete}
+        addLoading={addModelMutation.isPending}
+        updateLoading={updateModelMutation.isPending}
+        deleteLoading={deleteModelMutation.isPending}
+        deleteBrandLoading={deleteBrandMutation.isPending}
+        onAddDialogChange={setIsAddDialogOpen}
+        onEditDialogChange={setIsEditDialogOpen}
+        onDeleteDialogChange={setIsDeleteDialogOpen}
+        onDeleteBrandDialogChange={setIsDeleteBrandDialogOpen}
+        onOilDialogChange={setIsOilDialogOpen}
+        onAddModel={handleAddModel}
+        onUpdateModel={handleUpdateModel}
+        onDeleteModel={handleDeleteModel}
+        onConfirmDeleteBrand={confirmDeleteBrand}
+        getModelCountForBrand={getModelCountForBrand}
       />
     </Layout>
   );
