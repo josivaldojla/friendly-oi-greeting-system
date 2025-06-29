@@ -175,17 +175,55 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         });
         
         message += "-------------------------------------------------------\n";
-        message += `💡 *Nota:* Para visualizar as fotos, você receberá mensagens separadas com cada imagem logo após esta mensagem.`;
+        message += `💡 *Nota:* As fotos serão enviadas automaticamente após esta mensagem.`;
       } else {
         message += `📷 *Nenhuma foto anexada neste registro.*`;
       }
       
-      // Enviar apenas uma mensagem única, sem múltiplas abas
+      // Enviar mensagem principal
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com informações de ${photos.length} foto(s)!` : '!'}`);
+      // Se houver fotos, enviar cada uma em uma aba separada após um pequeno delay
+      if (photos.length > 0) {
+        photos.forEach((photo, index) => {
+          setTimeout(() => {
+            // Criar mensagem individual para cada foto
+            let photoMessage = `*FOTO ${index + 1} - ${title || "Registro de Serviço"}*\n`;
+            photoMessage += `*Cliente:* ${customerName}\n`;
+            
+            if (photo.caption) {
+              photoMessage += `*Legenda:* ${photo.caption}\n`;
+            }
+            
+            if (photo.notes) {
+              const cleanComment = photo.notes
+                .replace(/^_/, '')
+                .replace(/_$/, '')
+                .replace(/\(_/, '')
+                .replace(/_\)$/, '')
+                .replace(/\(|\)/g, '');
+              
+              const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
+              if (lines.length > 0) {
+                photoMessage += `*Observações:*\n`;
+                lines.forEach(line => {
+                  photoMessage += `• ${line.trim()}\n`;
+                });
+              }
+            }
+            
+            photoMessage += `\n📷 Foto: ${photo.photo_url}`;
+            
+            const encodedPhotoMessage = encodeURIComponent(photoMessage);
+            const photoWhatsappUrl = `https://wa.me/?text=${encodedPhotoMessage}`;
+            window.open(photoWhatsappUrl, '_blank');
+          }, (index + 1) * 2000); // Delay de 2 segundos entre cada foto
+        });
+      }
+      
+      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com ${photos.length} foto(s) sendo enviadas automaticamente!` : '!'}`);
       
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
@@ -228,7 +266,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           </Button>
           {photos.length > 0 ? (
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              Registro será enviado em uma única mensagem com informações de {photos.length} foto(s)
+              Serão abertas {photos.length + 1} abas: 1 com o texto principal e {photos.length} com as fotos
             </p>
           ) : (
             <p className="text-xs text-muted-foreground mt-2 text-center">
