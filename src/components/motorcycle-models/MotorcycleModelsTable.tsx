@@ -82,17 +82,6 @@ export const MotorcycleModelsTable = ({
                       >
                         <Droplets className="h-3 w-3" />
                       </Button>
-                      {onEditOilData && (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => onEditOilData(model)}
-                          title="Editar dados de óleo"
-                          className="h-8 w-8 text-purple-600 hover:text-purple-700 hover:bg-purple-50"
-                        >
-                          <Edit className="h-3 w-3" />
-                        </Button>
-                      )}
                       <Button 
                         variant="ghost" 
                         size="icon" 
