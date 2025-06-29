@@ -129,7 +129,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
       // Criar data formatada
       const currentDate = format(new Date(), "dd/MM");
       
-      // Criar mensagem no formato correto
+      // Criar mensagem principal
       let message = `*HELENO MOTOS*\n`;
       message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
       message += `*Data:* ${currentDate}\n`;
@@ -143,48 +143,72 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Enviar mensagem de texto primeiro
+      if (photos.length > 0) {
+        message += `*Fotos anexadas:* ${photos.length}\n`;
+        message += `As fotos serão enviadas na sequência...`;
+      }
+      
+      // Enviar mensagem principal primeiro
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      // Se houver fotos, enviar cada uma separadamente com suas informações
+      // Se houver fotos, enviar cada uma separadamente
       if (photos.length > 0) {
-        // Aguardar 2 segundos antes de enviar as fotos
-        setTimeout(() => {
-          photos.forEach((photo, index) => {
-            setTimeout(() => {
-              // Criar mensagem específica para cada foto
-              let photoMessage = `*Foto ${index + 1}:*\n`;
+        photos.forEach((photo, index) => {
+          setTimeout(() => {
+            // Criar mensagem específica para cada foto
+            let photoMessage = `*Foto ${index + 1}/${photos.length}*\n`;
+            
+            if (photo.caption) {
+              photoMessage += `📝 ${photo.caption}\n`;
+            }
+            
+            if (photo.notes) {
+              const cleanComment = photo.notes
+                .replace(/^_/, '')
+                .replace(/_$/, '')
+                .replace(/\(_/, '')
+                .replace(/_\)$/, '')
+                .replace(/\(|\)/g, '');
               
-              if (photo.caption) {
-                photoMessage += `${photo.caption}\n`;
-              }
-              
-              if (photo.notes) {
-                const cleanComment = photo.notes
-                  .replace(/^_/, '')
-                  .replace(/_$/, '')
-                  .replace(/\(_/, '')
-                  .replace(/_\)$/, '')
-                  .replace(/\(|\)/g, '');
-                
-                const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
+              const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
+              if (lines.length > 0) {
+                photoMessage += `📋 Observações:\n`;
                 lines.forEach(line => {
                   photoMessage += `• ${line.trim()}\n`;
                 });
               }
-              
-              // Adicionar URL da foto à mensagem
-              photoMessage += `\n${photo.photo_url}`;
-              
-              // Enviar mensagem com a foto
-              const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(photoMessage)}`;
+            }
+            
+            // Usar navigator.share se disponível (mobile), senão usar WhatsApp Web
+            if (navigator.share && navigator.canShare && navigator.canShare({ files: [] })) {
+              // Tentar compartilhar nativamente no mobile
+              fetch(photo.photo_url)
+                .then(response => response.blob())
+                .then(blob => {
+                  const file = new File([blob], `foto-${index + 1}.jpg`, { type: blob.type });
+                  return navigator.share({
+                    title: `Foto ${index + 1} - ${title}`,
+                    text: photoMessage,
+                    files: [file]
+                  });
+                })
+                .catch(() => {
+                  // Fallback para WhatsApp Web
+                  const fallbackMessage = `${photoMessage}\n\n📷 Link da foto:\n${photo.photo_url}`;
+                  const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(fallbackMessage)}`;
+                  window.open(photoWhatsappUrl, '_blank');
+                });
+            } else {
+              // WhatsApp Web - enviar com link da foto
+              const webMessage = `${photoMessage}\n\n📷 Link da foto:\n${photo.photo_url}`;
+              const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(webMessage)}`;
               window.open(photoWhatsappUrl, '_blank');
-              
-            }, index * 2000); // Enviar uma foto a cada 2 segundos
-          });
-        }, 2000);
+            }
+            
+          }, (index + 1) * 3000); // Enviar uma foto a cada 3 segundos
+        });
         
         toast.success(`Mensagem enviada! ${photos.length} foto(s) serão enviadas automaticamente.`);
       } else {
@@ -231,7 +255,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
               Compartilhar Registro no WhatsApp
             </Button>
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              As fotos serão enviadas automaticamente com suas informações
+              As fotos serão enviadas automaticamente com links para visualização
             </p>
           </div>
         ) : (
