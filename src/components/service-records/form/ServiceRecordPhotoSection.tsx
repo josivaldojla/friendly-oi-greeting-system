@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -143,77 +142,52 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
+      // Se houver fotos, adicionar informações sobre elas
       if (photos.length > 0) {
-        message += `*Fotos anexadas:* ${photos.length}\n`;
-        message += `As fotos serão enviadas na sequência...`;
+        message += `*📸 FOTOS DO SERVIÇO (${photos.length}):*\n\n`;
+        
+        photos.forEach((photo, index) => {
+          message += `*Foto ${index + 1}:*\n`;
+          
+          if (photo.caption) {
+            message += `📝 ${photo.caption}\n`;
+          }
+          
+          if (photo.notes) {
+            const cleanComment = photo.notes
+              .replace(/^_/, '')
+              .replace(/_$/, '')
+              .replace(/\(_/, '')
+              .replace(/_\)$/, '')
+              .replace(/\(|\)/g, '');
+            
+            const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
+            if (lines.length > 0) {
+              message += `📋 Observações:\n`;
+              lines.forEach(line => {
+                message += `• ${line.trim()}\n`;
+              });
+            }
+          }
+          
+          // Adicionar o link da foto diretamente na mensagem
+          message += `📷 ${photo.photo_url}\n\n`;
+        });
+        
+        message += "-------------------------------------------------------\n";
+        message += `💡 *Dica:* Clique nos links acima para visualizar as fotos!\n`;
+        message += `As fotos podem ser salvas clicando com o botão direito sobre elas.`;
+      } else {
+        message += `📷 *Nenhuma foto anexada neste registro.*`;
       }
       
-      // Enviar mensagem principal primeiro
+      // Enviar mensagem completa
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      // Se houver fotos, enviar cada uma separadamente
-      if (photos.length > 0) {
-        photos.forEach((photo, index) => {
-          setTimeout(() => {
-            // Criar mensagem específica para cada foto
-            let photoMessage = `*Foto ${index + 1}/${photos.length}*\n`;
-            
-            if (photo.caption) {
-              photoMessage += `📝 ${photo.caption}\n`;
-            }
-            
-            if (photo.notes) {
-              const cleanComment = photo.notes
-                .replace(/^_/, '')
-                .replace(/_$/, '')
-                .replace(/\(_/, '')
-                .replace(/_\)$/, '')
-                .replace(/\(|\)/g, '');
-              
-              const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
-              if (lines.length > 0) {
-                photoMessage += `📋 Observações:\n`;
-                lines.forEach(line => {
-                  photoMessage += `• ${line.trim()}\n`;
-                });
-              }
-            }
-            
-            // Usar navigator.share se disponível (mobile), senão usar WhatsApp Web
-            if (navigator.share && navigator.canShare && navigator.canShare({ files: [] })) {
-              // Tentar compartilhar nativamente no mobile
-              fetch(photo.photo_url)
-                .then(response => response.blob())
-                .then(blob => {
-                  const file = new File([blob], `foto-${index + 1}.jpg`, { type: blob.type });
-                  return navigator.share({
-                    title: `Foto ${index + 1} - ${title}`,
-                    text: photoMessage,
-                    files: [file]
-                  });
-                })
-                .catch(() => {
-                  // Fallback para WhatsApp Web
-                  const fallbackMessage = `${photoMessage}\n\n📷 Link da foto:\n${photo.photo_url}`;
-                  const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(fallbackMessage)}`;
-                  window.open(photoWhatsappUrl, '_blank');
-                });
-            } else {
-              // WhatsApp Web - enviar com link da foto
-              const webMessage = `${photoMessage}\n\n📷 Link da foto:\n${photo.photo_url}`;
-              const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(webMessage)}`;
-              window.open(photoWhatsappUrl, '_blank');
-            }
-            
-          }, (index + 1) * 3000); // Enviar uma foto a cada 3 segundos
-        });
-        
-        toast.success(`Mensagem enviada! ${photos.length} foto(s) serão enviadas automaticamente.`);
-      } else {
-        toast.success('Mensagem enviada para o WhatsApp!');
-      }
+      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com ${photos.length} foto(s)!` : '!'}`);
+      
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
       toast.error('Erro ao compartilhar no WhatsApp');
@@ -244,32 +218,25 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           />
         )}
         
-        {photos.length > 0 ? (
-          <div className="pt-4">
-            <Button 
-              variant="outline" 
-              onClick={handleShareOnWhatsApp}
-              className="w-full"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Compartilhar Registro no WhatsApp
-            </Button>
+        <div className="pt-4">
+          <Button 
+            variant="outline" 
+            onClick={handleShareOnWhatsApp}
+            className="w-full"
+          >
+            <Share2 className="mr-2 h-4 w-4" />
+            Compartilhar Registro no WhatsApp
+          </Button>
+          {photos.length > 0 ? (
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              As fotos serão enviadas automaticamente com links para visualização
+              {photos.length} foto(s) serão incluídas com links para visualização
             </p>
-          </div>
-        ) : (
-          <div className="pt-4">
-            <Button 
-              variant="outline" 
-              onClick={handleShareOnWhatsApp}
-              className="w-full"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Compartilhar Registro no WhatsApp
-            </Button>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              Adicione fotos para incluí-las no compartilhamento
+            </p>
+          )}
+        </div>
       </CardContent>
     </Card>
   );
