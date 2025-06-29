@@ -56,9 +56,11 @@ const CheckoutPage = () => {
 
   const handleAddService = async (service: Omit<Service, "id">) => {
     try {
-      const updatedServices = await addService(service);
-      setServices(updatedServices);
-      toast.success('Serviço adicionado com sucesso');
+      const newService = await addService(service);
+      if (newService) {
+        setServices(prev => [...prev, newService]);
+        toast.success('Serviço adicionado com sucesso');
+      }
     } catch (error) {
       console.error('Erro ao adicionar serviço:', error);
       toast.error('Erro ao adicionar serviço');
