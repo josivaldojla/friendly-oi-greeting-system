@@ -1,27 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand } from "@/lib/storage";
-import { addModelsFromImages } from "@/lib/motorcycle-models-data";
+import { getMotorcycleModels, addMotorcycleModel, updateMotorcycleModel, deleteMotorcycleModel, deleteModelsByBrand, populateModelsManually } from "@/lib/storage";
 import { MotorcycleModel } from "@/lib/types";
 import Layout from "@/components/layout/Layout";
+import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { MotorcycleModelsHeader } from "@/components/motorcycle-models/MotorcycleModelsHeader";
-import { MotorcycleModelsSearchAndFilter } from "@/components/motorcycle-models/MotorcycleModelsSearchAndFilter";
-import { MotorcycleModelsContent } from "@/components/motorcycle-models/MotorcycleModelsContent";
-import { MotorcycleModelsDialogs } from "@/components/motorcycle-models/MotorcycleModelsDialogs";
+import { MotorcycleModelForm } from "@/components/motorcycle-models/MotorcycleModelForm";
+import { MotorcycleModelsTable } from "@/components/motorcycle-models/MotorcycleModelsTable";
+import { DeleteModelDialog } from "@/components/motorcycle-models/DeleteModelDialog";
+import { DeleteBrandDialog } from "@/components/motorcycle-models/DeleteBrandDialog";
+import { EmptyModelsPlaceholder } from "@/components/motorcycle-models/EmptyModelsPlaceholder";
+import { BrandFilterButtons } from "@/components/motorcycle-models/BrandFilterButtons";
+import { BackupActions } from "@/components/motorcycle-models/BackupActions";
+import { Package } from "lucide-react";
 
 const MotorcycleModelsPage = () => {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [isDeleteBrandDialogOpen, setIsDeleteBrandDialogOpen] = useState(false);
-  const [isOilDialogOpen, setIsOilDialogOpen] = useState(false);
-  const [isEditOilDialogOpen, setIsEditOilDialogOpen] = useState(false);
   const [currentModel, setCurrentModel] = useState<MotorcycleModel | null>(null);
   const [brandToDelete, setBrandToDelete] = useState<string | null>(null);
   const [selectedBrand, setSelectedBrand] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState<string>("");
-  const [hasAutoPopulated, setHasAutoPopulated] = useState(false);
   
   const queryClient = useQueryClient();
   const { toast } = useToast();
@@ -31,51 +31,22 @@ const MotorcycleModelsPage = () => {
     queryKey: ['motorcycleModels'],
     queryFn: getMotorcycleModels
   });
-
-  // Auto-populate models from images when component loads
-  useEffect(() => {
-    const autoPopulateModels = async () => {
-      if (!hasAutoPopulated && !isLoading && motorcycleModels.length >= 0) {
-        console.log('Auto-populating models from images...');
-        try {
-          const success = await addModelsFromImages();
-          if (success) {
-            console.log('Models from images added successfully');
-            queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
-            toast({
-              title: "Modelos Adicionados",
-              description: "Novos modelos das imagens foram adicionados automaticamente",
-            });
-          }
-        } catch (error) {
-          console.error('Error auto-populating models:', error);
-        }
-        setHasAutoPopulated(true);
-      }
-    };
-
-    autoPopulateModels();
-  }, [motorcycleModels, isLoading, hasAutoPopulated, queryClient, toast]);
   
   console.log('=== MotorcycleModelsPage: Data Analysis ===');
   console.log('Total models loaded:', motorcycleModels.length);
   console.log('Models data:', JSON.stringify(motorcycleModels, null, 2));
   
-  // Filter models by search term and selected brand
-  const filteredModels = motorcycleModels.filter(model => {
-    // Filter by search term
-    const matchesSearch = searchTerm === "" || 
-      model.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (model.brand && model.brand.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    // Filter by selected brand
-    const matchesBrand = !selectedBrand || 
-      (model.brand && model.brand.toLowerCase() === selectedBrand.toLowerCase());
-    
-    return matchesSearch && matchesBrand;
-  });
+  // Filter models by selected brand (if any)
+  const filteredModels = selectedBrand
+    ? motorcycleModels.filter(model => {
+        const modelBrand = model.brand?.trim();
+        const filterBrand = selectedBrand.trim();
+        const matches = modelBrand && modelBrand.toLowerCase() === filterBrand.toLowerCase();
+        console.log(`Filtering model "${model.name}": brand="${modelBrand}" vs filter="${filterBrand}" = ${matches}`);
+        return matches;
+      })
+    : motorcycleModels;
   
-  console.log('Search term:', searchTerm);
   console.log('Selected brand for filtering:', selectedBrand);
   console.log('Filtered models count:', filteredModels.length);
   console.log('=== End MotorcycleModelsPage: Data Analysis ===');
@@ -170,26 +141,28 @@ const MotorcycleModelsPage = () => {
       });
     }
   });
-  
-  // New mutation for saving oil data
-  const saveOilDataMutation = useMutation({
-    mutationFn: async ({ model, oilQuantity }: { model: MotorcycleModel, oilQuantity: number }) => {
-      // Here you would typically save to your database
-      // For now, we'll just show a success toast
-      console.log(`Saving oil data for ${model.name}: ${oilQuantity}ML`);
-      return Promise.resolve();
-    },
-    onSuccess: () => {
-      toast({
-        title: "Sucesso",
-        description: "Dados de óleo salvos com sucesso",
-      });
-      setIsEditOilDialogOpen(false);
+
+  const populateModelsMutation = useMutation({
+    mutationFn: populateModelsManually,
+    onSuccess: (success) => {
+      if (success) {
+        queryClient.invalidateQueries({ queryKey: ['motorcycleModels'] });
+        toast({
+          title: "Sucesso",
+          description: "Modelos padrão adicionados com sucesso",
+        });
+      } else {
+        toast({
+          title: "Erro",
+          description: "Erro ao adicionar modelos padrão",
+          variant: "destructive",
+        });
+      }
     },
     onError: (error) => {
       toast({
         title: "Erro",
-        description: `Erro ao salvar dados de óleo: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
+        description: `Erro ao adicionar modelos padrão: ${error instanceof Error ? error.message : 'Erro desconhecido'}`,
         variant: "destructive",
       });
     }
@@ -218,11 +191,6 @@ const MotorcycleModelsPage = () => {
     setCurrentModel(model);
     setIsDeleteDialogOpen(true);
   };
-
-  const openOilDialog = (model: MotorcycleModel) => {
-    setCurrentModel(model);
-    setIsOilDialogOpen(true);
-  };
   
   const openAddDialog = () => {
     setCurrentModel(null);
@@ -244,106 +212,113 @@ const MotorcycleModelsPage = () => {
     deleteBrandMutation.mutate(brandToDelete);
   };
 
-  const openEditOilDialog = (model: MotorcycleModel) => {
-    setCurrentModel(model);
-    setIsEditOilDialogOpen(true);
-  };
-
-  const handleSaveOilData = (model: MotorcycleModel, oilQuantity: number) => {
-    saveOilDataMutation.mutate({ model, oilQuantity });
-  };
-
   const getModelCountForBrand = (brand: string) => {
     return motorcycleModels.filter(model => model.brand?.toLowerCase() === brand.toLowerCase()).length;
   };
 
-  const handleSearchChange = (newSearchTerm: string) => {
-    setSearchTerm(newSearchTerm);
+  const handlePopulateModels = () => {
+    populateModelsMutation.mutate();
   };
-
-  const handleClearSearch = () => {
-    setSearchTerm("");
-  };
-
-  // Função para contar duplicatas aproximadas
-  const getDuplicateCount = () => {
-    const seen = new Set<string>();
-    let duplicates = 0;
-    
-    motorcycleModels.forEach(model => {
-      const key = `${model.name.toLowerCase().trim()}|||${(model.brand || '').toLowerCase().trim()}`;
-      if (seen.has(key)) {
-        duplicates++;
-      } else {
-        seen.add(key);
-      }
-    });
-    
-    return duplicates;
-  };
-
-  const duplicateCount = getDuplicateCount();
 
   return (
     <Layout>
       <div className="space-y-4 p-4 sm:p-6">
-        <MotorcycleModelsHeader
-          duplicateCount={duplicateCount}
-          motorcycleModels={motorcycleModels}
-          onAddClick={openAddDialog}
-        />
+        {/* Header Section */}
+        <div className="flex flex-col space-y-4">
+          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4">
+            <h2 className="text-xl sm:text-2xl font-bold">Modelos de Motos</h2>
+            <Button 
+              onClick={openAddDialog}
+              className="w-full sm:w-auto"
+              size="sm"
+            >
+              Adicionar Modelo
+            </Button>
+          </div>
+          
+          {/* Backup Actions */}
+          <div className="w-full">
+            <BackupActions />
+          </div>
+        </div>
         
-        {!isLoading && (
-          <MotorcycleModelsSearchAndFilter
-            motorcycleModels={motorcycleModels}
-            searchTerm={searchTerm}
-            selectedBrand={selectedBrand}
-            filteredModels={filteredModels}
-            onSearchChange={handleSearchChange}
-            onBrandFilter={handleBrandFilter}
+        {/* Brand Filter Section - Always show if we have models */}
+        {!isLoading && motorcycleModels.length > 0 && (
+          <BrandFilterButtons 
+            brands={[]} // We don't use this prop anymore, brands are extracted inside the component
+            selectedBrand={selectedBrand} 
+            onSelectBrand={handleBrandFilter}
             onDeleteBrand={handleDeleteBrand}
-            onClearSearch={handleClearSearch}
+            motorcycleModels={motorcycleModels}
           />
         )}
         
-        <MotorcycleModelsContent
-          isLoading={isLoading}
-          filteredModels={filteredModels}
-          searchTerm={searchTerm}
-          onEdit={openEditDialog}
-          onDelete={openDeleteDialog}
-          onViewOilData={openOilDialog}
-          onEditOilData={openEditOilDialog}
-          onAddClick={openAddDialog}
-        />
+        {/* Content Section */}
+        {isLoading ? (
+          <div className="flex justify-center p-8">
+            <div className="text-lg">Carregando...</div>
+          </div>
+        ) : filteredModels.length === 0 ? (
+          <div className="space-y-4">
+            <EmptyModelsPlaceholder onAddClick={openAddDialog} />
+            {motorcycleModels.length === 0 && (
+              <div className="flex justify-center">
+                <Button 
+                  onClick={handlePopulateModels}
+                  disabled={populateModelsMutation.isPending}
+                  variant="outline"
+                  className="flex items-center gap-2"
+                  size="sm"
+                >
+                  <Package className="h-4 w-4" />
+                  {populateModelsMutation.isPending ? 'Adicionando...' : 'Adicionar Modelos Padrão'}
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="w-full overflow-hidden">
+            <MotorcycleModelsTable 
+              models={filteredModels}
+              onEdit={openEditDialog}
+              onDelete={openDeleteDialog}
+            />
+          </div>
+        )}
       </div>
       
-      <MotorcycleModelsDialogs
-        isAddDialogOpen={isAddDialogOpen}
-        isEditDialogOpen={isEditDialogOpen}
-        isDeleteDialogOpen={isDeleteDialogOpen}
-        isDeleteBrandDialogOpen={isDeleteBrandDialogOpen}
-        isOilDialogOpen={isOilDialogOpen}
-        isEditOilDialogOpen={isEditOilDialogOpen}
+      <MotorcycleModelForm
+        isOpen={isAddDialogOpen}
+        onOpenChange={setIsAddDialogOpen}
+        onSave={handleAddModel}
+        isLoading={addModelMutation.isPending}
+        mode="add"
+      />
+      
+      <MotorcycleModelForm
+        isOpen={isEditDialogOpen}
+        onOpenChange={setIsEditDialogOpen}
+        onSave={handleUpdateModel}
         currentModel={currentModel}
-        brandToDelete={brandToDelete}
-        addLoading={addModelMutation.isPending}
-        updateLoading={updateModelMutation.isPending}
-        deleteLoading={deleteModelMutation.isPending}
-        deleteBrandLoading={deleteBrandMutation.isPending}
-        editOilLoading={saveOilDataMutation.isPending}
-        onAddDialogChange={setIsAddDialogOpen}
-        onEditDialogChange={setIsEditDialogOpen}
-        onDeleteDialogChange={setIsDeleteDialogOpen}
-        onDeleteBrandDialogChange={setIsDeleteBrandDialogOpen}
-        onOilDialogChange={setIsOilDialogOpen}
-        onEditOilDialogChange={setIsEditOilDialogOpen}
-        onAddModel={handleAddModel}
-        onUpdateModel={handleUpdateModel}
-        onDeleteModel={handleDeleteModel}
-        onConfirmDeleteBrand={confirmDeleteBrand}
-        onSaveOilData={handleSaveOilData}
-        getModelCountForBrand={getModelCountForBrand}
+        isLoading={updateModelMutation.isPending}
+        mode="edit"
+      />
+      
+      <DeleteModelDialog
+        isOpen={isDeleteDialogOpen}
+        onOpenChange={setIsDeleteDialogOpen}
+        onConfirm={handleDeleteModel}
+        model={currentModel}
+        isLoading={deleteModelMutation.isPending}
+      />
+      
+      <DeleteBrandDialog
+        isOpen={isDeleteBrandDialogOpen}
+        onOpenChange={setIsDeleteBrandDialogOpen}
+        onConfirm={confirmDeleteBrand}
+        brand={brandToDelete}
+        modelCount={brandToDelete ? getModelCountForBrand(brandToDelete) : 0}
+        isLoading={deleteBrandMutation.isPending}
       />
     </Layout>
   );

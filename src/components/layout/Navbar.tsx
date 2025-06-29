@@ -15,7 +15,7 @@ const Navbar = () => {
   if (!user) return null;
 
   return (
-    <nav className="bg-black text-white shadow-md fixed top-0 left-0 right-0 z-50 h-16">
+    <nav className="bg-black text-white shadow-md relative h-16">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-full">
           <div className="absolute inset-0 w-full h-full flex items-center justify-center">

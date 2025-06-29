@@ -15,7 +15,6 @@ import {
 } from "@/lib/storage";
 import { toast } from "sonner";
 import { format } from "date-fns";
-import { formatServiceRecordWhatsAppMessage } from "../WhatsAppServiceRecord";
 
 interface ServiceRecordPhotoSectionProps {
   serviceRecordId: string;
@@ -129,24 +128,74 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
       // Criar data formatada
       const currentDate = format(new Date(), "dd/MM");
       
-      // Usar o novo formato de mensagem
-      const message = formatServiceRecordWhatsAppMessage(
-        currentDate,
-        mechanicName,
-        title,
-        customerName,
-        motorcycleModelName,
-        notes,
-        photos
-      );
+      // Criar mensagem no formato correto
+      let message = `*HELENO MOTOS*\n`;
+      message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
+      message += `*Data:* ${currentDate}\n`;
+      message += "-------------------------------------------------------\n\n";
       
-      // Enviar mensagem única
+      message += `${title || "Registro de Serviço"}\n\n`;
+      message += `*Cliente:* ${customerName}\n`;
+      message += `*Modelo da moto:* ${motorcycleModelName}\n\n`;
+      
+      if (notes) {
+        message += `*Observações:*\n${notes}\n\n`;
+      }
+      
+      // Se houver fotos, adicionar informações das fotos
+      if (photos.length > 0) {
+        message += `*Fotos do serviço (${photos.length}):*\n`;
+        
+        photos.forEach((photo, index) => {
+          message += `*${index + 1}-* `;
+          if (photo.caption) {
+            message += `${photo.caption}`;
+          } else {
+            message += `Foto ${index + 1}`;
+          }
+          message += "\n";
+          
+          if (photo.notes) {
+            // Limpar comentários de underscores e parênteses
+            const cleanComment = photo.notes
+              .replace(/^_/, '')
+              .replace(/_$/, '')
+              .replace(/\(_/, '')
+              .replace(/_\)$/, '')
+              .replace(/\(|\)/g, '');
+            
+            // Dividir o comentário por linhas para formatar cada uma corretamente
+            const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
+            lines.forEach(line => {
+              message += `  • ${line.trim()}\n`;
+            });
+          }
+          
+          message += "\n";
+        });
+      }
+      
+      // Primeiro, enviar a mensagem de texto
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com ${photos.length} foto(s)!` : '!'}`);
-      
+      // Se houver fotos, aguardar e então abrir cada foto no WhatsApp
+      if (photos.length > 0) {
+        setTimeout(() => {
+          photos.forEach((photo, index) => {
+            setTimeout(() => {
+              // Abrir cada foto diretamente no WhatsApp para compartilhamento
+              const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(photo.photo_url)}`;
+              window.open(photoWhatsappUrl, '_blank');
+            }, (index + 1) * 1000); // Abrir uma foto a cada 1 segundo
+          });
+        }, 3000); // Aguardar 3 segundos após enviar a mensagem
+        
+        toast.success('Mensagem enviada! As fotos serão enviadas automaticamente no WhatsApp em seguida.');
+      } else {
+        toast.success('Mensagem enviada para o WhatsApp!');
+      }
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
       toast.error('Erro ao compartilhar no WhatsApp');
@@ -177,22 +226,32 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           />
         )}
         
-        <div className="pt-4">
-          <Button 
-            variant="outline" 
-            onClick={handleShareOnWhatsApp}
-            className="w-full"
-          >
-            <Share2 className="mr-2 h-4 w-4" />
-            Compartilhar Registro no WhatsApp
-          </Button>
-          <p className="text-xs text-muted-foreground mt-2 text-center">
-            {photos.length > 0 
-              ? `Links de ${photos.length} foto(s) serão incluídos na mensagem`
-              : "Adicione fotos para incluí-las no compartilhamento"
-            }
-          </p>
-        </div>
+        {photos.length > 0 ? (
+          <div className="pt-4">
+            <Button 
+              variant="outline" 
+              onClick={handleShareOnWhatsApp}
+              className="w-full"
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              Compartilhar Registro no WhatsApp
+            </Button>
+            <p className="text-xs text-muted-foreground mt-2 text-center">
+              As fotos serão enviadas automaticamente após a mensagem
+            </p>
+          </div>
+        ) : (
+          <div className="pt-4">
+            <Button 
+              variant="outline" 
+              onClick={handleShareOnWhatsApp}
+              className="w-full"
+            >
+              <Share2 className="mr-2 h-4 w-4" />
+              Compartilhar Registro no WhatsApp
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

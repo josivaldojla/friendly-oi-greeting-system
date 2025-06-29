@@ -1,4 +1,3 @@
-
 import { ServiceRecord, ServicePhoto } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -39,19 +38,14 @@ export async function getServiceRecordById(id: string): Promise<ServiceRecord | 
 }
 
 // Add a new service record
-export async function addServiceRecord(record: Omit<ServiceRecord, 'id' | 'created_at' | 'updated_at' | 'created_by'>): Promise<ServiceRecord | null> {
+export async function addServiceRecord(record: Omit<ServiceRecord, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceRecord | null> {
   const { data: { user } } = await supabase.auth.getUser();
-
-  if (!user) {
-    console.error('User not authenticated');
-    return null;
-  }
 
   const { data, error } = await supabase
     .from('service_records')
     .insert([{
       ...record,
-      created_by: user.id
+      created_by: user?.id
     }])
     .select()
     .maybeSingle();

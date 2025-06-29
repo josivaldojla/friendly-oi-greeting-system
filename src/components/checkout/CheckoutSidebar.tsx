@@ -13,7 +13,6 @@ interface CheckoutSidebarProps {
   receivedAmount: number;
   onReceivedAmountChange: (amount: number) => void;
   autoSave: boolean;
-  onServicePriceChange?: (serviceId: string, newPrice: number) => void;
 }
 
 export const CheckoutSidebar = ({
@@ -25,8 +24,7 @@ export const CheckoutSidebar = ({
   onMechanicChange,
   receivedAmount,
   onReceivedAmountChange,
-  autoSave,
-  onServicePriceChange
+  autoSave
 }: CheckoutSidebarProps) => {
   return (
     <SelectedServicesList 
@@ -39,7 +37,6 @@ export const CheckoutSidebar = ({
       receivedAmount={receivedAmount}
       onReceivedAmountChange={onReceivedAmountChange}
       autoSave={autoSave}
-      onServicePriceChange={onServicePriceChange}
     />
   );
 };

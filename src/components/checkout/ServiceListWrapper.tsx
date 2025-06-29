@@ -2,59 +2,65 @@
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import ServiceList from "@/components/services/ServiceList";
-import { ModelSearchInput } from "@/components/motorcycle-models/ModelSearchInput";
+import { getServices } from "@/lib/storage";
+import { toast } from "sonner";
 
 interface ServiceListWrapperProps {
   services: Service[];
   viewMode: ViewMode;
   setViewMode: (mode: ViewMode) => void;
   onAddToSelection: (service: Service, comment?: string) => void;
-  onAddService?: (service: Omit<Service, "id">) => Promise<void>;
-  onUpdateServices?: () => void;
 }
 
 export const ServiceListWrapper = ({
   services,
   viewMode,
   setViewMode,
-  onAddToSelection,
-  onAddService,
-  onUpdateServices
+  onAddToSelection
 }: ServiceListWrapperProps) => {
-  const [searchTerm, setSearchTerm] = useState("");
-
-  const handleAddService = async (service: Omit<Service, "id">) => {
-    if (onAddService) {
-      await onAddService(service);
-      if (onUpdateServices) {
-        onUpdateServices();
-      }
+  const handleAddService = async (service: Service) => {
+    try {
+      await getServices();
+      toast.success("Serviço adicionado com sucesso");
+    } catch (error) {
+      console.error('Error adding service:', error);
+      toast.error("Erro ao adicionar serviço");
     }
   };
 
-  // Filtrar serviços baseado no termo de busca
-  const filteredServices = services.filter(service =>
-    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (service.description && service.description.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  const handleUpdateService = async (service: Service) => {
+    try {
+      await getServices();
+      toast.success("Serviço atualizado com sucesso");
+    } catch (error) {
+      console.error('Error updating service:', error);
+      toast.error("Erro ao atualizar serviço");
+    }
+  };
+
+  const handleDeleteService = async (id: string) => {
+    try {
+      await getServices();
+      toast.success("Serviço removido com sucesso");
+    } catch (error) {
+      console.error('Error deleting service:', error);
+      toast.error("Erro ao remover serviço");
+    }
+  };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4">
-        <ModelSearchInput
-          onSearchChange={setSearchTerm}
-          placeholder="Buscar serviços por nome ou descrição..."
-        />
-      </div>
-      
       <ServiceList
-        services={filteredServices}
-        viewMode={viewMode}
-        onAddToSelection={onAddToSelection}
+        services={services}
         onAddService={handleAddService}
+        onUpdateService={handleUpdateService}
+        onDeleteService={handleDeleteService}
         selectable={true}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+        onAddToSelection={onAddToSelection}
         showAddButton={true}
-        hideHeading={false}
+        hideHeading={true}
       />
     </div>
   );

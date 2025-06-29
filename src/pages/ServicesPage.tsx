@@ -1,15 +1,14 @@
 
-import React, { useState, useEffect } from 'react';
-import Layout from '@/components/layout/Layout';
-import ServiceList from '@/components/services/ServiceList';
-import { ViewModeToggle } from '@/components/services/components/ViewModeToggle';
-import { Service, ViewMode } from '@/lib/types';
-import { getServices, addService, updateService, deleteService } from '@/lib/storage';
+import { useState, useEffect } from "react";
+import { Service, ViewMode } from "@/lib/types";
+import { getServices, addService, updateService, deleteService } from "@/lib/storage";
+import ServiceList from "@/components/services/ServiceList";
+import Layout from "@/components/layout/Layout";
 import { toast } from "sonner";
 
 const ServicesPage = () => {
   const [services, setServices] = useState<Service[]>([]);
-  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -19,67 +18,54 @@ const ServicesPage = () => {
   const loadServices = async () => {
     setLoading(true);
     try {
-      const servicesData = await getServices();
-      setServices(servicesData);
+      const data = await getServices();
+      setServices(data);
     } catch (error) {
-      console.error('Error loading services:', error);
+      console.error('Erro ao carregar serviços:', error);
       toast.error('Erro ao carregar serviços');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAddService = async (serviceData: Omit<Service, "id">) => {
+  const handleAddService = async (service: Omit<Service, "id">) => {
     try {
-      const newService = await addService(serviceData);
-      if (newService) {
-        setServices([...services, newService]);
-        toast.success('Serviço adicionado com sucesso');
-      }
+      const updatedServices = await addService(service);
+      setServices(updatedServices);
+      toast.success('Serviço adicionado com sucesso');
     } catch (error) {
-      console.error('Error adding service:', error);
+      console.error('Erro ao adicionar serviço:', error);
       toast.error('Erro ao adicionar serviço');
     }
   };
 
-  const handleUpdateService = async (updatedService: Service) => {
+  const handleUpdateService = async (service: Service) => {
     try {
-      const result = await updateService(updatedService);
-      if (result) {
-        setServices(services.map(s => s.id === updatedService.id ? updatedService : s));
-        toast.success('Serviço atualizado com sucesso');
-      }
+      const updatedServices = await updateService(service);
+      setServices(updatedServices);
+      toast.success('Serviço atualizado com sucesso');
     } catch (error) {
-      console.error('Error updating service:', error);
+      console.error('Erro ao atualizar serviço:', error);
       toast.error('Erro ao atualizar serviço');
     }
   };
 
   const handleDeleteService = async (id: string) => {
     try {
-      const success = await deleteService(id);
-      if (success) {
-        setServices(services.filter(s => s.id !== id));
-        toast.success('Serviço excluído com sucesso');
-      }
+      const updatedServices = await deleteService(id);
+      setServices(updatedServices);
+      toast.success('Serviço removido com sucesso');
     } catch (error) {
-      console.error('Error deleting service:', error);
-      toast.error('Erro ao excluir serviço');
+      console.error('Erro ao remover serviço:', error);
+      toast.error('Erro ao remover serviço');
     }
-  };
-
-  // Função vazia para onAddToSelection já que não é usada na página de serviços
-  const handleAddToSelection = (service: Service, comment?: string) => {
-    // Esta função não é usada na página de serviços, apenas no checkout
   };
 
   if (loading) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex justify-center items-center h-64">
-            <p className="text-muted-foreground">Carregando serviços...</p>
-          </div>
+        <div className="flex items-center justify-center h-64">
+          <div className="text-lg text-muted-foreground">Carregando...</div>
         </div>
       </Layout>
     );
@@ -87,25 +73,14 @@ const ServicesPage = () => {
 
   return (
     <Layout>
-      <div className="container mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold">Gerenciar Serviços</h1>
-          <ViewModeToggle viewMode={viewMode} onViewModeChange={setViewMode} />
-        </div>
-        
-        <ServiceList
-          services={services}
-          onAddToSelection={handleAddToSelection}
-          onAddService={handleAddService}
-          onUpdateService={handleUpdateService}
-          onDeleteService={handleDeleteService}
-          viewMode={viewMode}
-          onViewModeChange={setViewMode}
-          showAddButton={true}
-          hideHeading={false}
-          selectable={false}
-        />
-      </div>
+      <ServiceList
+        services={services}
+        onAddService={handleAddService}
+        onUpdateService={handleUpdateService}
+        onDeleteService={handleDeleteService}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
+      />
     </Layout>
   );
 };
