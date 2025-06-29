@@ -2,7 +2,7 @@
 
 ## Project info
 
-**URL**: [  [eeeee](https://lovable.dev/projects/17a0978a-c701-40ac-88bc-19f359c8fdb3)      ](https://github.com/josivaldojla/oficina-creative-hub.git)
+**URL**[https://lovable.dev/projects/17a0978a-c701-40ac-88bc-19f359c8fdb3](https://lovable.dev/projects/17a0978a-c701-40ac-88bc-19f359c8fdb3))
 
 ## How can I edit this code?
 
