@@ -32,7 +32,17 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
   const [isUploading, setIsUploading] = useState(false);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
-  const handlePhotoUploaded = (newPhoto: ServicePhoto) => {
+  const handlePhotoUploaded = (photoUrl: string) => {
+    // Criar um objeto ServicePhoto com os dados necessários
+    const newPhoto: ServicePhoto = {
+      id: Date.now().toString(), // ID temporário
+      service_record_id: serviceRecordId,
+      photo_url: photoUrl,
+      caption: null,
+      notes: null,
+      sequence_number: photos.length + 1,
+      created_at: new Date().toISOString()
+    };
     onPhotosChange([...photos, newPhoto]);
   };
 
