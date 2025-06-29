@@ -1,3 +1,4 @@
+
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -135,7 +136,6 @@ export async function deleteMotorcycleModel(id: string): Promise<MotorcycleModel
   }
 }
 
-// Nova função para excluir todos os modelos de uma marca
 export async function deleteModelsByBrand(brand: string): Promise<MotorcycleModel[]> {
   try {
     console.log('Excluindo todos os modelos da marca:', brand);
@@ -157,7 +157,6 @@ export async function deleteModelsByBrand(brand: string): Promise<MotorcycleMode
   }
 }
 
-// Function to manually populate models - only when explicitly requested
 export async function populateModelsManually(): Promise<boolean> {
   try {
     console.log('Populando modelos manualmente...');
@@ -177,5 +176,3 @@ export async function populateModelsManually(): Promise<boolean> {
     return false;
   }
 }
-
-// Removed the automatic population function - models will only be added when explicitly requested
