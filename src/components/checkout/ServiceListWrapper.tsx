@@ -2,8 +2,7 @@
 import { useState } from "react";
 import { Service, ViewMode } from "@/lib/types";
 import ServiceList from "@/components/services/ServiceList";
-import { getServices } from "@/lib/storage";
-import { toast } from "sonner";
+import { ModelSearchInput } from "@/components/motorcycle-models/ModelSearchInput";
 
 interface ServiceListWrapperProps {
   services: Service[];
@@ -22,6 +21,8 @@ export const ServiceListWrapper = ({
   onAddService,
   onUpdateServices
 }: ServiceListWrapperProps) => {
+  const [searchTerm, setSearchTerm] = useState("");
+
   const handleAddService = async (service: Omit<Service, "id">) => {
     if (onAddService) {
       await onAddService(service);
@@ -31,10 +32,23 @@ export const ServiceListWrapper = ({
     }
   };
 
+  // Filtrar serviços baseado no termo de busca
+  const filteredServices = services.filter(service =>
+    service.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    (service.description && service.description.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="space-y-6">
+      <div className="flex flex-col gap-4">
+        <ModelSearchInput
+          onSearchChange={setSearchTerm}
+          placeholder="Buscar serviços por nome ou descrição..."
+        />
+      </div>
+      
       <ServiceList
-        services={services}
+        services={filteredServices}
         viewMode={viewMode}
         onAddToSelection={onAddToSelection}
         onAddService={handleAddService}
