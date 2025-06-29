@@ -143,7 +143,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Se houver fotos, adicionar informações sobre elas sem os links
+      // Se houver fotos, adicionar informações sobre elas
       if (photos.length > 0) {
         message += `*📸 FOTOS DO SERVIÇO (${photos.length}):*\n\n`;
         
@@ -175,56 +175,17 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         });
         
         message += "-------------------------------------------------------\n";
-        message += `💡 *As fotos serão enviadas separadamente abaixo desta mensagem.*`;
+        message += `💡 *Nota:* Para visualizar as fotos, você receberá mensagens separadas com cada imagem logo após esta mensagem.`;
       } else {
         message += `📷 *Nenhuma foto anexada neste registro.*`;
       }
       
-      // Enviar mensagem principal primeiro
+      // Enviar apenas uma mensagem única, sem múltiplas abas
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      // Se houver fotos, enviar cada uma separadamente
-      if (photos.length > 0) {
-        // Aguardar um pouco antes de enviar as fotos
-        setTimeout(() => {
-          photos.forEach((photo, index) => {
-            setTimeout(() => {
-              let photoMessage = `📷 *Foto ${index + 1}/${photos.length}*`;
-              
-              if (photo.caption) {
-                photoMessage += `\n📝 ${photo.caption}`;
-              }
-              
-              if (photo.notes) {
-                const cleanComment = photo.notes
-                  .replace(/^_/, '')
-                  .replace(/_$/, '')
-                  .replace(/\(_/, '')
-                  .replace(/_\)$/, '')
-                  .replace(/\(|\)/g, '');
-                
-                const lines = cleanComment.split('\n').filter(line => line.trim() !== '');
-                if (lines.length > 0) {
-                  photoMessage += `\n📋 Observações:`;
-                  lines.forEach(line => {
-                    photoMessage += `\n• ${line.trim()}`;
-                  });
-                }
-              }
-              
-              photoMessage += `\n\n${photo.photo_url}`;
-              
-              const encodedPhotoMessage = encodeURIComponent(photoMessage);
-              const photoWhatsappUrl = `https://wa.me/?text=${encodedPhotoMessage}`;
-              window.open(photoWhatsappUrl, '_blank');
-            }, index * 1000); // Enviar cada foto com 1 segundo de intervalo
-          });
-        }, 2000); // Aguardar 2 segundos após a mensagem principal
-      }
-      
-      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com ${photos.length} foto(s) que serão enviadas separadamente!` : '!'}`);
+      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com informações de ${photos.length} foto(s)!` : '!'}`);
       
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
@@ -267,7 +228,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           </Button>
           {photos.length > 0 ? (
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              {photos.length} foto(s) serão enviadas separadamente após a mensagem principal
+              Registro será enviado em uma única mensagem com informações de {photos.length} foto(s)
             </p>
           ) : (
             <p className="text-xs text-muted-foreground mt-2 text-center">
