@@ -3,74 +3,46 @@ import { MotorcycleModel } from "@/lib/types";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Edit, Trash, Droplets } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { getSuspensionOilData, findSuspensionOilByPartialMatch } from "@/lib/suspension-oil-data";
 
 interface MotorcycleModelsTableProps {
   models: MotorcycleModel[];
   onEdit: (model: MotorcycleModel) => void;
   onDelete: (model: MotorcycleModel) => void;
+  onViewOilData: (model: MotorcycleModel) => void;
+  onEditOilData?: (model: MotorcycleModel) => void;
 }
-
-// Função para obter informações de óleo baseado na marca e modelo
-const getOilInfo = (brand: string, name: string) => {
-  const brandLower = brand?.toLowerCase() || '';
-  const nameLower = name?.toLowerCase() || '';
-  
-  // Honda
-  if (brandLower.includes('honda')) {
-    if (nameLower.includes('cg') || nameLower.includes('fan') || nameLower.includes('start')) {
-      return { quantity: '1.0L', type: '20W50', color: 'bg-blue-500' };
-    }
-    if (nameLower.includes('bros') || nameLower.includes('xr')) {
-      return { quantity: '1.2L', type: '10W40', color: 'bg-green-500' };
-    }
-    if (nameLower.includes('cb') || nameLower.includes('hornet')) {
-      return { quantity: '2.2L', type: '10W40', color: 'bg-purple-500' };
-    }
-  }
-  
-  // Yamaha
-  if (brandLower.includes('yamaha')) {
-    if (nameLower.includes('factor') || nameLower.includes('crypton')) {
-      return { quantity: '1.0L', type: '20W50', color: 'bg-blue-500' };
-    }
-    if (nameLower.includes('lander') || nameLower.includes('crosser')) {
-      return { quantity: '1.4L', type: '10W40', color: 'bg-orange-500' };
-    }
-    if (nameLower.includes('r1') || nameLower.includes('r6')) {
-      return { quantity: '4.0L', type: '10W40', color: 'bg-red-500' };
-    }
-  }
-  
-  // Suzuki
-  if (brandLower.includes('suzuki')) {
-    if (nameLower.includes('yes') || nameLower.includes('burgman')) {
-      return { quantity: '0.8L', type: '10W30', color: 'bg-cyan-500' };
-    }
-    if (nameLower.includes('dr') || nameLower.includes('rmz')) {
-      return { quantity: '1.3L', type: '10W40', color: 'bg-yellow-500' };
-    }
-  }
-  
-  // Kawasaki
-  if (brandLower.includes('kawasaki')) {
-    if (nameLower.includes('ninja')) {
-      return { quantity: '3.4L', type: '10W40', color: 'bg-green-600' };
-    }
-    if (nameLower.includes('z')) {
-      return { quantity: '3.2L', type: '10W40', color: 'bg-lime-500' };
-    }
-  }
-  
-  // Default para modelos não mapeados
-  return { quantity: '1.0L', type: '20W50', color: 'bg-gray-500' };
-};
 
 export const MotorcycleModelsTable = ({ 
   models, 
   onEdit, 
-  onDelete 
+  onDelete,
+  onViewOilData,
+  onEditOilData
 }: MotorcycleModelsTableProps) => {
+  const getOilDataStatus = (model: MotorcycleModel) => {
+    const exactMatch = getSuspensionOilData(model.brand || "", model.name);
+    if (exactMatch) return 'exact';
+    
+    const partialMatches = findSuspensionOilByPartialMatch(model.brand || "", model.name);
+    if (partialMatches.length > 0) return 'partial';
+    
+    return 'none';
+  };
+
+  const getDropletColor = (status: string) => {
+    switch (status) {
+      case 'exact':
+        return 'text-green-600 hover:text-green-700 hover:bg-green-50';
+      case 'partial':
+        return 'text-yellow-600 hover:text-yellow-700 hover:bg-yellow-50';
+      case 'none':
+        return 'text-red-600 hover:text-red-700 hover:bg-red-50';
+      default:
+        return 'text-blue-600 hover:text-blue-700 hover:bg-blue-50';
+    }
+  };
+
   return (
     <div className="w-full border rounded-md overflow-hidden">
       <div className="overflow-x-auto">
@@ -79,13 +51,13 @@ export const MotorcycleModelsTable = ({
             <TableRow>
               <TableHead className="min-w-[120px]">Modelo</TableHead>
               <TableHead className="min-w-[100px]">Marca</TableHead>
-              <TableHead className="min-w-[120px] text-center">Óleo</TableHead>
-              <TableHead className="w-[80px] text-center">Ações</TableHead>
+              <TableHead className="w-[160px] text-center">Ações</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {models.map((model) => {
-              const oilInfo = getOilInfo(model.brand || '', model.name);
+              const oilStatus = getOilDataStatus(model);
+              const dropletColorClass = getDropletColor(oilStatus);
               
               return (
                 <TableRow key={model.id}>
@@ -95,21 +67,21 @@ export const MotorcycleModelsTable = ({
                   <TableCell className="break-words">
                     {model.brand || "-"}
                   </TableCell>
-                  <TableCell className="text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <Droplets className={`h-4 w-4 text-white`} />
-                      <div className="flex flex-col gap-1">
-                        <Badge variant="secondary" className={`${oilInfo.color} text-white text-xs`}>
-                          {oilInfo.quantity}
-                        </Badge>
-                        <Badge variant="outline" className="text-xs">
-                          {oilInfo.type}
-                        </Badge>
-                      </div>
-                    </div>
-                  </TableCell>
                   <TableCell>
                     <div className="flex space-x-1 justify-center">
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        onClick={() => onViewOilData(model)}
+                        title={`Ver dados de óleo de suspensão - ${
+                          oilStatus === 'exact' ? 'Dados exatos' : 
+                          oilStatus === 'partial' ? 'Dados similares' : 
+                          'Sem dados'
+                        }`}
+                        className={`h-8 w-8 ${dropletColorClass}`}
+                      >
+                        <Droplets className="h-3 w-3" />
+                      </Button>
                       <Button 
                         variant="ghost" 
                         size="icon" 

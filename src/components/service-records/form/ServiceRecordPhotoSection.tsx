@@ -1,145 +1,152 @@
-
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Camera, Share2, Image, Trash2 } from 'lucide-react';
-import { ServicePhoto } from '@/lib/types';
-import { PhotoUploader } from '../PhotoUploader';
-import { PhotoGallery } from '../PhotoGallery';
-import { format } from 'date-fns';
-import { toast } from 'sonner';
+import React, { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Share2 } from "lucide-react";
+import { PhotoUploader } from "../PhotoUploader";
+import { PhotoGallery } from "../PhotoGallery";
+import { ServicePhoto, PhotoViewMode } from "@/lib/types";
+import { 
+  addServicePhoto, 
+  deleteServicePhoto, 
+  getServicePhotos, 
+  deleteStoragePhoto,
+  getCustomerById,
+  getMotorcycleModelById
+} from "@/lib/storage";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { formatServiceRecordWhatsAppMessage } from "../WhatsAppServiceRecord";
 
 interface ServiceRecordPhotoSectionProps {
   serviceRecordId: string;
-  photos: ServicePhoto[];
-  onPhotosChange: (photos: ServicePhoto[]) => void;
-  mechanicName?: string;
-  customerName?: string;
-  motorcycleModel?: string;
+  title: string;
+  customerId?: string;
+  motorcycleModelId?: string;
+  mechanicName: string;
   notes?: string;
 }
 
 export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps> = ({
   serviceRecordId,
-  photos,
-  onPhotosChange,
+  title,
+  customerId,
+  motorcycleModelId,
   mechanicName,
-  customerName,
-  motorcycleModel,
   notes
 }) => {
-  const [isUploading, setIsUploading] = useState(false);
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [photos, setPhotos] = useState<ServicePhoto[]>([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+  const [viewMode, setViewMode] = useState<PhotoViewMode>('grid');
 
-  const handlePhotoUploaded = (photoUrl: string) => {
-    // Criar um objeto ServicePhoto com os dados necessários
-    const newPhoto: ServicePhoto = {
-      id: Date.now().toString(), // ID temporário
-      service_record_id: serviceRecordId,
-      photo_url: photoUrl,
-      caption: null,
-      notes: null,
-      sequence_number: photos.length + 1,
-      created_at: new Date().toISOString()
-    };
-    onPhotosChange([...photos, newPhoto]);
-  };
+  // Load photos on component mount
+  useEffect(() => {
+    loadPhotos(serviceRecordId);
+  }, [serviceRecordId]);
 
-  const handlePhotoDeleted = (photo: ServicePhoto) => {
-    onPhotosChange(photos.filter(p => p.id !== photo.id));
-  };
-
-  const handlePhotoUpdated = (updatedPhoto: ServicePhoto) => {
-    onPhotosChange(photos.map(photo => 
-      photo.id === updatedPhoto.id ? updatedPhoto : photo
-    ));
-  };
-
-  const handleShareWhatsApp = () => {
+  const loadPhotos = async (serviceId: string) => {
+    setLoadingPhotos(true);
     try {
+      const photosData = await getServicePhotos(serviceId);
+      setPhotos(photosData);
+    } catch (error) {
+      console.error('Error loading photos:', error);
+      toast.error('Erro ao carregar fotos');
+    } finally {
+      setLoadingPhotos(false);
+    }
+  };
+  
+  const handlePhotoUploaded = async (url: string) => {
+    try {
+      const newPhoto: Omit<ServicePhoto, 'id' | 'created_at'> = {
+        service_record_id: serviceRecordId,
+        photo_url: url,
+        caption: null,
+        notes: null,
+        sequence_number: photos.length + 1
+      };
+      
+      const addedPhoto = await addServicePhoto(newPhoto);
+      if (addedPhoto) {
+        setPhotos([...photos, addedPhoto]);
+      } else {
+        toast.error('Erro ao adicionar foto ao registro');
+      }
+    } catch (error) {
+      console.error('Error adding photo:', error);
+      toast.error('Erro ao adicionar foto ao registro');
+    }
+  };
+  
+  const handleDeletePhoto = async (photo: ServicePhoto) => {
+    if (confirm('Tem certeza que deseja excluir esta foto?')) {
+      try {
+        // Delete from database
+        const deleted = await deleteServicePhoto(photo.id);
+        
+        if (deleted) {
+          // Delete from storage
+          await deleteStoragePhoto(photo.photo_url);
+          
+          // Update UI
+          setPhotos(photos.filter(p => p.id !== photo.id));
+          toast.success('Foto excluída com sucesso');
+        } else {
+          toast.error('Erro ao excluir foto');
+        }
+      } catch (error) {
+        console.error('Error deleting photo:', error);
+        toast.error('Erro ao excluir foto');
+      }
+    }
+  };
+  
+  const handleUpdatePhoto = (updatedPhoto: ServicePhoto) => {
+    setPhotos(photos.map(p => p.id === updatedPhoto.id ? updatedPhoto : p));
+  };
+  
+  const handleShareOnWhatsApp = async () => {
+    try {
+      let customerName = "Cliente não especificado";
+      let motorcycleModelName = "Modelo não especificado";
+      
+      // Buscar nome do cliente
+      if (customerId) {
+        const customer = await getCustomerById(customerId);
+        if (customer) {
+          customerName = customer.name;
+        }
+      }
+      
+      // Buscar nome do modelo da moto
+      if (motorcycleModelId) {
+        const model = await getMotorcycleModelById(motorcycleModelId);
+        if (model) {
+          motorcycleModelName = model.name;
+        }
+      }
+
       // Criar data formatada
       const currentDate = format(new Date(), "dd/MM");
       
-      // Criar mensagem sem incluir links das fotos
-      let message = `*HELENO MOTOS*\n`;
-      message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
-      message += `*Data:* ${currentDate}\n`;
-      message += `*Cliente:* ${customerName || "Não definido"}\n`;
-      message += `*Modelo:* ${motorcycleModel || "Não definido"}\n\n`;
+      // Usar o novo formato de mensagem
+      const message = formatServiceRecordWhatsAppMessage(
+        currentDate,
+        mechanicName,
+        title,
+        customerName,
+        motorcycleModelName,
+        notes,
+        photos
+      );
       
-      message += "-------------------------------------------------------\n";
-      message += "*RELATÓRIO DE SERVIÇO*\n";
-      message += "-------------------------------------------------------\n\n";
-      
-      if (notes) {
-        message += `*Observações:*\n${notes}\n\n`;
-      }
-      
-      // Se houver fotos, adicionar apenas a informação sobre elas
-      if (photos.length > 0) {
-        message += `📷 *FOTOS DO SERVIÇO (${photos.length}):*\n`;
-        
-        photos.forEach((photo, index) => {
-          message += `${index + 1}. `;
-          if (photo.caption) {
-            message += `${photo.caption}`;
-          } else {
-            message += `Foto do serviço`;
-          }
-          
-          if (photo.notes) {
-            message += ` - ${photo.notes}`;
-          }
-          message += '\n';
-        });
-        
-        message += '\n';
-      }
-      
-      // Adicionar informações de contato
-      message += "-------------------------------------------------------\n";
-      message += "*HELENO MOTOS - OFICINA ESPECIALIZADA*\n";
-      message += "📍 Endereço: [Inserir endereço]\n";
-      message += "📞 Telefone: [Inserir telefone]\n";
-      
-      // Adicionar assinatura personalizada se houver mecânico
-      if (mechanicName) {
-        message += `👨‍🔧 Atendimento: ${mechanicName}\n`;
-      }
-      
-      // Link para avaliação (opcional)
-      message += "\n⭐ *Avalie nosso serviço!*\n";
-      message += "Sua opinião é muito importante para nós.\n";
-      
-      // Adicionar call-to-action
-      message += "\n🔧 *Precisando de mais algum serviço?*\n";
-      message += "Entre em contato conosco!\n";
-      
-      // Hashtags para visibilidade
-      message += "\n#HelenoMotos #OficinaEspecializada #ManutencaoMotos";
-      
-      // Adicionar informação sobre fotos se houver
-      if (photos.length > 0) {
-        message += "\n\n📎 *Anexos:*\n";
-        photos.forEach((photo, index) => {
-          message += `📷 Foto ${index + 1}`;
-          if (photo.caption) {
-            message += ` - ${photo.caption}`;
-          }
-          message += '\n';
-        });
-        
-        message += "-------------------------------------------------------\n";
-        message += "*As fotos serão enviadas em seguida...*";
-      }
-      
-      // Enviar apenas a mensagem de texto
+      // Enviar mensagem única
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      toast.success('Mensagem enviada para o WhatsApp! Anexe as fotos manualmente.');
+      toast.success(`Registro compartilhado no WhatsApp${photos.length > 0 ? ` com ${photos.length} foto(s)!` : '!'}`);
+      
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
       toast.error('Erro ao compartilhar no WhatsApp');
@@ -148,52 +155,44 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
 
   return (
     <Card>
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-        <div className="flex items-center gap-2">
-          <Camera className="h-5 w-5" />
-          <CardTitle className="text-lg">Fotos do Serviço</CardTitle>
-          {photos.length > 0 && (
-            <Badge variant="secondary" className="ml-2">
-              {photos.length} {photos.length === 1 ? 'foto' : 'fotos'}
-            </Badge>
-          )}
-        </div>
-        {photos.length > 0 && (
-          <Button
-            onClick={handleShareWhatsApp}
-            variant="outline"
-            size="sm"
-            className="flex items-center gap-2"
-          >
-            <Share2 className="h-4 w-4" />
-            Enviar WhatsApp
-          </Button>
-        )}
-      </CardHeader>
-
-      <CardContent className="space-y-4">
-        <PhotoUploader
-          serviceRecordId={serviceRecordId}
+      <CardContent className="pt-6 space-y-4">
+        <h3 className="text-lg font-medium">Fotos do Serviço</h3>
+        
+        <PhotoUploader 
+          serviceId={serviceRecordId} 
           onPhotoUploaded={handlePhotoUploaded}
-          isUploading={isUploading}
-          setIsUploading={setIsUploading}
         />
-
-        {photos.length > 0 ? (
+        
+        {loadingPhotos ? (
+          <div className="py-8 text-center">
+            <p className="text-muted-foreground">Carregando fotos...</p>
+          </div>
+        ) : (
           <PhotoGallery
             photos={photos}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
-            onDeletePhoto={handlePhotoDeleted}
-            onUpdatePhoto={handlePhotoUpdated}
+            onDeletePhoto={handleDeletePhoto}
+            onUpdatePhoto={handleUpdatePhoto}
           />
-        ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <Image className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>Nenhuma foto adicionada ainda</p>
-            <p className="text-sm">Clique em "Adicionar Foto" para começar</p>
-          </div>
         )}
+        
+        <div className="pt-4">
+          <Button 
+            variant="outline" 
+            onClick={handleShareOnWhatsApp}
+            className="w-full"
+          >
+            <Share2 className="mr-2 h-4 w-4" />
+            Compartilhar Registro no WhatsApp
+          </Button>
+          <p className="text-xs text-muted-foreground mt-2 text-center">
+            {photos.length > 0 
+              ? `Links de ${photos.length} foto(s) serão incluídos na mensagem`
+              : "Adicione fotos para incluí-las no compartilhamento"
+            }
+          </p>
+        </div>
       </CardContent>
     </Card>
   );

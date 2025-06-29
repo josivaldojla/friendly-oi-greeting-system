@@ -1,10 +1,10 @@
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { ServiceRecord, ServicePhoto } from "@/lib/types";
-import { addServiceRecord, updateServiceRecord, getMechanics, getServicePhotos, deleteServicePhoto } from "@/lib/storage";
+import { ServiceRecord } from "@/lib/types";
+import { addServiceRecord, updateServiceRecord, getMechanics } from "@/lib/storage";
 import { useNavigate } from "react-router-dom";
 import { ServiceRecordFormMain, ServiceRecordFormData } from "./form/ServiceRecordFormMain";
 import { ServiceRecordPhotoSection } from "./form/ServiceRecordPhotoSection";
@@ -18,25 +18,6 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
   const isEditing = !!serviceRecord;
   const [loading, setLoading] = useState(false);
   const [mechanicName, setMechanicName] = useState<string>("");
-  const [photos, setPhotos] = useState<ServicePhoto[]>([]);
-
-  // Load photos when editing
-  useEffect(() => {
-    if (isEditing && serviceRecord) {
-      loadPhotos();
-    }
-  }, [isEditing, serviceRecord]);
-
-  const loadPhotos = async () => {
-    if (!serviceRecord) return;
-    
-    try {
-      const photosData = await getServicePhotos(serviceRecord.id);
-      setPhotos(photosData);
-    } catch (error) {
-      console.error('Error loading photos:', error);
-    }
-  };
 
   const handleSave = async (formData: ServiceRecordFormData) => {
     const { title, customerSelection, selectedModel, mechanicId, notes } = formData;
@@ -110,25 +91,6 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
       console.error('Error updating mechanic name:', error);
     }
   };
-
-  const handlePhotosChange = (newPhotos: ServicePhoto[]) => {
-    setPhotos(newPhotos);
-  };
-
-  const handlePhotoDelete = async (photo: ServicePhoto) => {
-    try {
-      const success = await deleteServicePhoto(photo.id);
-      if (success) {
-        setPhotos(photos.filter(p => p.id !== photo.id));
-        toast.success('Foto deletada com sucesso');
-      } else {
-        toast.error('Erro ao deletar foto');
-      }
-    } catch (error) {
-      console.error('Error deleting photo:', error);
-      toast.error('Erro ao deletar foto');
-    }
-  };
   
   return (
     <div className="space-y-6">
@@ -147,9 +109,11 @@ export const ServiceRecordForm: React.FC<ServiceRecordFormProps> = ({ serviceRec
           <Separator />
           <ServiceRecordPhotoSection 
             serviceRecordId={serviceRecord.id}
-            photos={photos}
-            onPhotosChange={handlePhotosChange}
+            title={serviceRecord.title}
+            customerId={serviceRecord.customer_id || undefined}
+            motorcycleModelId={serviceRecord.motorcycle_model_id || undefined}
             mechanicName={mechanicName}
+            notes={serviceRecord.notes || undefined}
           />
         </>
       )}

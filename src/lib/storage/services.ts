@@ -3,6 +3,7 @@ import { Service } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function getServices(): Promise<Service[]> {
+  // Obter o usuário atual
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
@@ -10,13 +11,12 @@ export async function getServices(): Promise<Service[]> {
     return [];
   }
 
-  // Buscar apenas serviços criados pelo usuário atual
-  // Não incluir serviços soft-deleted por este usuário
+  // Buscar apenas serviços criados pelo usuário atual que não foram deletados
   const { data, error } = await supabase
     .from('services')
     .select('*')
     .eq('created_by', user.id)
-    .or('deleted_at.is.null,deleted_by.neq.' + user.id)
+    .is('deleted_at', null)
     .order('created_at', { ascending: true });
 
   if (error) {
@@ -38,17 +38,24 @@ export async function getServices(): Promise<Service[]> {
   }));
 }
 
-export async function addService(service: Omit<Service, "id">): Promise<Service[]> {
+export async function addService(service: Omit<Service, "id">): Promise<Service | null> {
   console.log('Adding service to Supabase:', service);
   
+  // Obter o usuário atual
   const { data: { user } } = await supabase.auth.getUser();
   
+  if (!user) {
+    console.error('User not authenticated');
+    return null;
+  }
+  
+  // created_by será definido automaticamente aqui
   const serviceData = {
     name: service.name,
     price: service.price,
     description: service.description,
     image_url: service.imageUrl,
-    created_by: user?.id
+    created_by: user.id
   };
   
   console.log('Formatted service data for Supabase:', serviceData);
@@ -60,14 +67,30 @@ export async function addService(service: Omit<Service, "id">): Promise<Service[
 
   if (error) {
     console.error('Error adding service:', error);
-    return [];
+    return null;
   }
   
-  console.log('Service added successfully:', data);
-  return getServices();
+  if (!data || data.length === 0) {
+    console.error('No data returned from insert');
+    return null;
+  }
+  
+  console.log('Service added successfully:', data[0]);
+  
+  // Return the newly created service
+  const newService = data[0];
+  return {
+    id: newService.id,
+    name: newService.name,
+    price: Number(newService.price),
+    description: newService.description || "",
+    imageUrl: newService.image_url || undefined,
+    deleted_at: newService.deleted_at || undefined,
+    deleted_by: newService.deleted_by || undefined
+  };
 }
 
-export async function updateService(service: Service): Promise<Service[]> {
+export async function updateService(service: Service): Promise<boolean> {
   console.log('Updating service in Supabase:', service);
   
   const { error } = await supabase
@@ -82,21 +105,21 @@ export async function updateService(service: Service): Promise<Service[]> {
 
   if (error) {
     console.error('Error updating service:', error);
-    return [];
+    return false;
   }
 
   console.log('Service updated successfully');
-  return getServices();
+  return true;
 }
 
-export async function deleteService(id: string): Promise<Service[]> {
+export async function deleteService(id: string): Promise<boolean> {
   console.log('Deleting service from Supabase, ID:', id);
   
   const { data: { user } } = await supabase.auth.getUser();
   
   if (!user) {
     console.error('User not authenticated');
-    return [];
+    return false;
   }
 
   // Soft delete: marcar como deletado por este usuário
@@ -110,9 +133,9 @@ export async function deleteService(id: string): Promise<Service[]> {
 
   if (error) {
     console.error('Error soft deleting service:', error);
-    return [];
+    return false;
   }
 
   console.log('Service soft deleted successfully');
-  return getServices();
+  return true;
 }

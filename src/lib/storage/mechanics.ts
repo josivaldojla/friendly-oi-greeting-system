@@ -23,14 +23,23 @@ export async function getMechanics(): Promise<Mechanic[]> {
 }
 
 export async function addMechanic(mechanic: Omit<Mechanic, "id">): Promise<Mechanic[]> {
+  // Obter o usuário atual
   const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return [];
+  }
+  
+  // created_by será definido automaticamente aqui
+  const mechanicData = {
+    ...mechanic,
+    created_by: user.id
+  };
 
   const { error } = await supabase
     .from('mechanics')
-    .insert([{
-      ...mechanic,
-      created_by: user?.id
-    }]);
+    .insert([mechanicData]);
 
   if (error) {
     console.error('Error adding mechanic:', error);

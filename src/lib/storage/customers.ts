@@ -1,4 +1,3 @@
-
 import { Customer } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -60,14 +59,23 @@ export async function getCustomers(): Promise<Customer[]> {
 // Função para adicionar um novo cliente
 export async function addCustomer(customer: Omit<Customer, "id">): Promise<Customer | null> {
   try {
+    // Obter o usuário atual
     const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      console.error('User not authenticated');
+      return null;
+    }
+    
+    // created_by será definido automaticamente aqui
+    const customerData = {
+      ...customer,
+      created_by: user.id
+    };
     
     const { data, error } = await supabase
       .from('customers')
-      .insert([{
-        ...customer,
-        created_by: user?.id
-      }])
+      .insert([customerData])
       .select()
       .maybeSingle();
       

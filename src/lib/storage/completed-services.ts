@@ -3,9 +3,18 @@ import { CompletedService } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
 export async function getCompletedServices(): Promise<CompletedService[]> {
+  // Obter o usuário atual
+  const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return [];
+  }
+
   const { data, error } = await supabase
     .from('completed_services')
     .select('*')
+    .eq('created_by', user.id)
     .order('created_at', { ascending: false });
 
   if (error) {
@@ -13,7 +22,7 @@ export async function getCompletedServices(): Promise<CompletedService[]> {
     return [];
   }
   
-  // Mapping to the correct format
+  // Mapping to the correct format - dados filtrados por usuário
   return data.map(item => ({
     id: item.id,
     mechanicId: item.mechanic_id || "",
@@ -26,7 +35,13 @@ export async function getCompletedServices(): Promise<CompletedService[]> {
 }
 
 export async function addCompletedService(completedService: Omit<CompletedService, "id">): Promise<CompletedService[]> {
+  // Obter o usuário atual
   const { data: { user } } = await supabase.auth.getUser();
+  
+  if (!user) {
+    console.error('User not authenticated');
+    return [];
+  }
 
   const { error } = await supabase
     .from('completed_services')
@@ -37,7 +52,7 @@ export async function addCompletedService(completedService: Omit<CompletedServic
       received_amount: completedService.receivedAmount,
       completion_date: completedService.completionDate,
       created_at: completedService.createdAt,
-      created_by: user?.id
+      created_by: user.id
     }]);
 
   if (error) {
