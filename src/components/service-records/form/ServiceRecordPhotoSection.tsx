@@ -30,13 +30,20 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
   notes
 }) => {
   const [isUploading, setIsUploading] = useState(false);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   const handlePhotoUploaded = (newPhoto: ServicePhoto) => {
     onPhotosChange([...photos, newPhoto]);
   };
 
-  const handlePhotoDeleted = (photoId: string) => {
-    onPhotosChange(photos.filter(photo => photo.id !== photoId));
+  const handlePhotoDeleted = (photo: ServicePhoto) => {
+    onPhotosChange(photos.filter(p => p.id !== photo.id));
+  };
+
+  const handlePhotoUpdated = (updatedPhoto: ServicePhoto) => {
+    onPhotosChange(photos.map(photo => 
+      photo.id === updatedPhoto.id ? updatedPhoto : photo
+    ));
   };
 
   const handleShareWhatsApp = () => {
@@ -165,7 +172,10 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         {photos.length > 0 ? (
           <PhotoGallery
             photos={photos}
-            onPhotoDeleted={handlePhotoDeleted}
+            viewMode={viewMode}
+            onViewModeChange={setViewMode}
+            onDeletePhoto={handlePhotoDeleted}
+            onUpdatePhoto={handlePhotoUpdated}
           />
         ) : (
           <div className="text-center py-8 text-muted-foreground">
