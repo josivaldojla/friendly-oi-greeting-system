@@ -54,7 +54,7 @@ export type Database = {
         Row: {
           address: string | null
           created_at: string
-          created_by: string | null
+          created_by: string
           email: string | null
           id: string
           name: string
@@ -64,7 +64,7 @@ export type Database = {
         Insert: {
           address?: string | null
           created_at?: string
-          created_by?: string | null
+          created_by: string
           email?: string | null
           id?: string
           name: string
@@ -74,7 +74,7 @@ export type Database = {
         Update: {
           address?: string | null
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           email?: string | null
           id?: string
           name?: string
@@ -86,7 +86,7 @@ export type Database = {
       mechanics: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           id: string
           name: string
           phone: string | null
@@ -95,7 +95,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by: string
           id?: string
           name: string
           phone?: string | null
@@ -104,7 +104,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           id?: string
           name?: string
           phone?: string | null
@@ -243,7 +243,7 @@ export type Database = {
       service_records: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           customer_id: string | null
           id: string
           mechanic_id: string | null
@@ -255,7 +255,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by: string
           customer_id?: string | null
           id?: string
           mechanic_id?: string | null
@@ -267,7 +267,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           customer_id?: string | null
           id?: string
           mechanic_id?: string | null
@@ -304,7 +304,7 @@ export type Database = {
       services: {
         Row: {
           created_at: string
-          created_by: string | null
+          created_by: string
           deleted_at: string | null
           deleted_by: string | null
           description: string | null
@@ -316,7 +316,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
+          created_by: string
           deleted_at?: string | null
           deleted_by?: string | null
           description?: string | null
@@ -328,7 +328,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           deleted_at?: string | null
           deleted_by?: string | null
           description?: string | null

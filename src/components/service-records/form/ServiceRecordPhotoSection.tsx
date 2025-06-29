@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -128,7 +129,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
       // Criar data formatada
       const currentDate = format(new Date(), "dd/MM");
       
-      // Criar mensagem no formato correto
+      // Criar mensagem no formato correto sem incluir links das fotos
       let message = `*HELENO MOTOS*\n`;
       message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
       message += `*Data:* ${currentDate}\n`;
@@ -142,9 +143,9 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Se houver fotos, adicionar informações das fotos
+      // Se houver fotos, adicionar apenas a informação sobre elas, não os links
       if (photos.length > 0) {
-        message += `*Fotos do serviço (${photos.length}):*\n`;
+        message += `📷 *FOTOS DO SERVIÇO (${photos.length}):*\n`;
         
         photos.forEach((photo, index) => {
           message += `*${index + 1}-* `;
@@ -173,6 +174,9 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           
           message += "\n";
         });
+        
+        message += "-------------------------------------------------------\n";
+        message += "*As fotos serão enviadas automaticamente a seguir...*";
       }
       
       // Primeiro, enviar a mensagem de texto
@@ -180,19 +184,34 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      // Se houver fotos, aguardar e então abrir cada foto no WhatsApp
+      // Se houver fotos, aguardar e então tentar abrir cada foto no WhatsApp
       if (photos.length > 0) {
+        // Aguardar um pouco mais para dar tempo do usuário enviar a primeira mensagem
         setTimeout(() => {
           photos.forEach((photo, index) => {
             setTimeout(() => {
-              // Abrir cada foto diretamente no WhatsApp para compartilhamento
-              const photoWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(photo.photo_url)}`;
-              window.open(photoWhatsappUrl, '_blank');
-            }, (index + 1) * 1000); // Abrir uma foto a cada 1 segundo
+              // Tentar abrir o WhatsApp Web com a imagem
+              // Como não podemos enviar imagens diretamente via URL, vamos abrir o WhatsApp
+              // para que o usuário possa fazer upload manual das imagens
+              const imageMessage = `Enviando foto ${index + 1} de ${photos.length}`;
+              const imageWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(imageMessage)}`;
+              
+              // Abrir em nova aba para cada foto
+              const newWindow = window.open(imageWhatsappUrl, `_blank_${index}`);
+              
+              // Informar ao usuário sobre como proceder
+              if (index === 0) {
+                setTimeout(() => {
+                  toast.success('Abra cada aba do WhatsApp e anexe as fotos manualmente', {
+                    duration: 5000,
+                  });
+                }, 1000);
+              }
+            }, index * 2000); // 2 segundos entre cada foto
           });
-        }, 3000); // Aguardar 3 segundos após enviar a mensagem
+        }, 3000); // Aguardar 3 segundos após enviar a mensagem principal
         
-        toast.success('Mensagem enviada! As fotos serão enviadas automaticamente no WhatsApp em seguida.');
+        toast.success(`Mensagem enviada! ${photos.length} abas do WhatsApp serão abertas para você anexar as fotos.`);
       } else {
         toast.success('Mensagem enviada para o WhatsApp!');
       }
@@ -226,32 +245,21 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
           />
         )}
         
-        {photos.length > 0 ? (
-          <div className="pt-4">
-            <Button 
-              variant="outline" 
-              onClick={handleShareOnWhatsApp}
-              className="w-full"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Compartilhar Registro no WhatsApp
-            </Button>
+        <div className="pt-4">
+          <Button 
+            variant="outline" 
+            onClick={handleShareOnWhatsApp}
+            className="w-full"
+          >
+            <Share2 className="mr-2 h-4 w-4" />
+            Compartilhar Registro no WhatsApp
+          </Button>
+          {photos.length > 0 && (
             <p className="text-xs text-muted-foreground mt-2 text-center">
-              As fotos serão enviadas automaticamente após a mensagem
+              As fotos precisarão ser anexadas manualmente no WhatsApp
             </p>
-          </div>
-        ) : (
-          <div className="pt-4">
-            <Button 
-              variant="outline" 
-              onClick={handleShareOnWhatsApp}
-              className="w-full"
-            >
-              <Share2 className="mr-2 h-4 w-4" />
-              Compartilhar Registro no WhatsApp
-            </Button>
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
