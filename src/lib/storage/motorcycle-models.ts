@@ -1,4 +1,3 @@
-
 import { MotorcycleModel } from "../types";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -27,7 +26,6 @@ export async function getMotorcycleModels(): Promise<MotorcycleModel[]> {
   }
 }
 
-// Nova função para buscar um modelo específico pelo ID
 export async function getMotorcycleModelById(id: string): Promise<MotorcycleModel | null> {
   try {
     const { data, error } = await supabase

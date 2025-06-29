@@ -129,7 +129,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
       // Criar data formatada
       const currentDate = format(new Date(), "dd/MM");
       
-      // Criar mensagem no formato correto sem incluir links das fotos
+      // Criar mensagem sem incluir links das fotos
       let message = `*HELENO MOTOS*\n`;
       message += `*Mecânico:* ${mechanicName || "Não definido"}\n`;
       message += `*Data:* ${currentDate}\n`;
@@ -143,7 +143,7 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         message += `*Observações:*\n${notes}\n\n`;
       }
       
-      // Se houver fotos, adicionar apenas a informação sobre elas, não os links
+      // Se houver fotos, adicionar apenas a informação sobre elas
       if (photos.length > 0) {
         message += `📷 *FOTOS DO SERVIÇO (${photos.length}):*\n`;
         
@@ -176,45 +176,15 @@ export const ServiceRecordPhotoSection: React.FC<ServiceRecordPhotoSectionProps>
         });
         
         message += "-------------------------------------------------------\n";
-        message += "*As fotos serão enviadas automaticamente a seguir...*";
+        message += "*As fotos serão enviadas em seguida...*";
       }
       
-      // Primeiro, enviar a mensagem de texto
+      // Enviar apenas a mensagem de texto
       const encodedMessage = encodeURIComponent(message);
       const whatsappUrl = `https://wa.me/?text=${encodedMessage}`;
       window.open(whatsappUrl, '_blank');
       
-      // Se houver fotos, aguardar e então tentar abrir cada foto no WhatsApp
-      if (photos.length > 0) {
-        // Aguardar um pouco mais para dar tempo do usuário enviar a primeira mensagem
-        setTimeout(() => {
-          photos.forEach((photo, index) => {
-            setTimeout(() => {
-              // Tentar abrir o WhatsApp Web com a imagem
-              // Como não podemos enviar imagens diretamente via URL, vamos abrir o WhatsApp
-              // para que o usuário possa fazer upload manual das imagens
-              const imageMessage = `Enviando foto ${index + 1} de ${photos.length}`;
-              const imageWhatsappUrl = `https://wa.me/?text=${encodeURIComponent(imageMessage)}`;
-              
-              // Abrir em nova aba para cada foto
-              const newWindow = window.open(imageWhatsappUrl, `_blank_${index}`);
-              
-              // Informar ao usuário sobre como proceder
-              if (index === 0) {
-                setTimeout(() => {
-                  toast.success('Abra cada aba do WhatsApp e anexe as fotos manualmente', {
-                    duration: 5000,
-                  });
-                }, 1000);
-              }
-            }, index * 2000); // 2 segundos entre cada foto
-          });
-        }, 3000); // Aguardar 3 segundos após enviar a mensagem principal
-        
-        toast.success(`Mensagem enviada! ${photos.length} abas do WhatsApp serão abertas para você anexar as fotos.`);
-      } else {
-        toast.success('Mensagem enviada para o WhatsApp!');
-      }
+      toast.success('Mensagem enviada para o WhatsApp! Anexe as fotos manualmente.');
     } catch (error) {
       console.error('Error sharing on WhatsApp:', error);
       toast.error('Erro ao compartilhar no WhatsApp');
